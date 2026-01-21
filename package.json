@@ -1,0 +1,36 @@
+{
+  "name": "cortexia",
+  "version": "1.0.0",
+  "description": "Assistant de réunions et d'appels avec transcription temps réel",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "electron": "electron .",
+    "start": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && npm run electron\"",
+    "generate-pdfs": "node generate-pdfs.js"
+  },
+  "keywords": [
+    "transcription",
+    "meetings",
+    "assistant"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "chart.js": "^4.4.1",
+    "react": "^18.2.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "concurrently": "^8.2.2",
+    "electron": "^28.1.0",
+    "markdown-pdf": "^11.0.0",
+    "md-to-pdf": "^5.2.5",
+    "vite": "^5.0.8",
+    "wait-on": "^7.2.0"
+  }
+}

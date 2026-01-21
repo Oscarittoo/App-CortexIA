@@ -1,0 +1,134 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="leftGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#3DD5F3;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#1E88E5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0D47A1;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="rightGradient" x1="100%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E040FB;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#AB47BC;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6A1B9A;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Left Brain Hemisphere with pronounced lobes -->
+  <g fill="url(#leftGradient)" stroke="rgba(0,0,0,0.1)" stroke-width="1">
+    <path d="M 100 40
+      C 90 40, 80 42, 72 46
+      C 68 48, 64 51, 60 54
+      Q 56 58, 54 62
+      C 52 66, 50 70, 49 75
+      Q 48 80, 47 86
+      C 46 92, 46 98, 46 100
+      C 46 106, 47 112, 49 118
+      Q 51 124, 54 129
+      C 57 134, 61 138, 66 142
+      Q 71 145, 77 148
+      C 84 151, 92 153, 100 153
+      L 100 40 Z"/>
+    
+    <!-- Pronounced brain folds - left hemisphere -->
+    <path d="M 75 48 Q 70 52, 68 58 Q 66 63, 65 68" 
+          stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M 62 72 Q 58 78, 56 85 Q 54 90, 54 95" 
+          stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M 56 105 Q 56 112, 59 118 Q 62 124, 66 129" 
+          stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M 72 136 Q 78 141, 85 145" 
+          stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    
+    <!-- Additional smaller folds -->
+    <path d="M 80 55 Q 76 60, 74 66" 
+          stroke="rgba(255,255,255,0.25)" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M 68 95 Q 65 100, 64 106" 
+          stroke="rgba(255,255,255,0.25)" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Right Brain Hemisphere with pronounced lobes -->
+  <g fill="url(#rightGradient)" stroke="rgba(0,0,0,0.1)" stroke-width="1">
+    <path d="M 100 40
+      C 110 40, 120 42, 128 46
+      C 132 48, 136 51, 140 54
+      Q 144 58, 146 62
+      C 148 66, 150 70, 151 75
+      Q 152 80, 153 86
+      C 154 92, 154 98, 154 100
+      C 154 106, 153 112, 151 118
+      Q 149 124, 146 129
+      C 143 134, 139 138, 134 142
+      Q 129 145, 123 148
+      C 116 151, 108 153, 100 153
+      L 100 40 Z"/>
+    
+    <!-- Pronounced brain folds - right hemisphere -->
+    <path d="M 125 48 Q 130 52, 132 58 Q 134 63, 135 68" 
+          stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M 138 72 Q 142 78, 144 85 Q 146 90, 146 95" 
+          stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M 144 105 Q 144 112, 141 118 Q 138 124, 134 129" 
+          stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M 128 136 Q 122 141, 115 145" 
+          stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    
+    <!-- Additional smaller folds -->
+    <path d="M 120 55 Q 124 60, 126 66" 
+          stroke="rgba(255,255,255,0.25)" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M 132 95 Q 135 100, 136 106" 
+          stroke="rgba(255,255,255,0.25)" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Circuit patterns - Left side (Cyan/Blue) -->
+  <g stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="60" y1="80" x2="85" y2="80"/>
+    <circle cx="60" cy="80" r="3.5" fill="white"/>
+    <circle cx="72" cy="80" r="3.5" fill="white"/>
+    <circle cx="85" cy="80" r="3.5" fill="white"/>
+    
+    <line x1="72" y1="80" x2="72" y2="65"/>
+    <circle cx="72" cy="65" r="3" fill="white"/>
+    
+    <line x1="72" y1="80" x2="78" y2="92"/>
+    <circle cx="78" cy="92" r="3" fill="white"/>
+    
+    <line x1="65" y1="110" x2="80" y2="110"/>
+    <circle cx="65" cy="110" r="3.5" fill="white"/>
+    <circle cx="80" cy="110" r="3.5" fill="white"/>
+    <line x1="72" y1="110" x2="72" y2="122"/>
+    <circle cx="72" cy="122" r="3" fill="white"/>
+  </g>
+  
+  <!-- Circuit patterns - Right side (Purple/Pink) -->
+  <g stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 115 65 L 130 65 L 130 78"/>
+    <circle cx="115" cy="65" r="3.5" fill="white"/>
+    <circle cx="130" cy="65" r="3" fill="white"/>
+    <circle cx="130" cy="78" r="3.5" fill="white"/>
+    
+    <line x1="118" y1="92" x2="137" y2="92"/>
+    <circle cx="118" cy="92" r="3.5" fill="white"/>
+    <circle cx="127" cy="92" r="3" fill="white"/>
+    <circle cx="137" cy="92" r="3.5" fill="white"/>
+    <line x1="127" y1="92" x2="127" y2="105"/>
+    <circle cx="127" cy="105" r="3" fill="white"/>
+    
+    <line x1="115" y1="120" x2="133" y2="120"/>
+    <line x1="124" y1="120" x2="124" y2="132"/>
+    <circle cx="115" cy="120" r="3" fill="white"/>
+    <circle cx="124" cy="120" r="3.5" fill="white"/>
+    <circle cx="133" cy="120" r="3" fill="white"/>
+    <circle cx="124" cy="132" r="3" fill="white"/>
+  </g>
+  
+  <!-- Digital pixels floating away - Right side -->
+  <g opacity="0.85">
+    <rect x="150" y="52" width="7" height="7" fill="#E040FB" rx="1.5"/>
+    <rect x="159" y="62" width="6" height="6" fill="#AB47BC" rx="1.5"/>
+    <rect x="154" y="72" width="5" height="5" fill="#9C27B0" rx="1"/>
+    <rect x="163" y="80" width="7" height="7" fill="#E040FB" rx="1.5"/>
+    <rect x="157" y="92" width="5" height="5" fill="#7B1FA2" rx="1"/>
+    <rect x="166" y="100" width="6" height="6" fill="#AB47BC" rx="1.5"/>
+    <rect x="161" y="110" width="4" height="4" fill="#9C27B0" rx="1"/>
+  </g>
+</svg>
+
