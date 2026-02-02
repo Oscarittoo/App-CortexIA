@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import transcriptionService from '../services/transcriptionService';
+import { Mic, MicOff, Pause, Play, Square, AlertCircle } from 'lucide-react';
 
 export default function ActiveSession({ config, onEnd }) {
   const [transcript, setTranscript] = useState([]);
@@ -7,11 +7,11 @@ export default function ActiveSession({ config, onEnd }) {
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [micStatus, setMicStatus] = useState('Initialisation...');
-  const [demoMode, setDemoMode] = useState(false);
-  const mediaRecorderRef = useRef(null);
+  const [audioDetected, setAudioDetected] = useState(false);
+  const [speechDetected, setSpeechDetected] = useState(false);
   const recognitionRef = useRef(null);
   const transcriptEndRef = useRef(null);
-  const demoIntervalRef = useRef(null);
+  const restartCountRef = useRef(0);
 
   useEffect(() => {
     startRecording();
@@ -24,47 +24,8 @@ export default function ActiveSession({ config, onEnd }) {
     return () => {
       clearInterval(timer);
       stopRecording();
-      if (demoIntervalRef.current) {
-        clearInterval(demoIntervalRef.current);
-      }
     };
   }, []);
-
-  const startDemoMode = () => {
-    setDemoMode(true);
-    setMicStatus('🎭 MODE DÉMO - Transcription simulée pour tests');
-    
-    const demoTexts = [
-      "Bonjour à tous, bienvenue dans cette réunion",
-      "Aujourd'hui nous allons discuter du projet CORTEXIA",
-      "Il faut terminer l'architecture technique d'ici vendredi",
-      "Nous avons décidé de valider l'approche proposée",
-      "L'équipe de développement va commencer les tests",
-      "Le planning est confirmé pour la semaine prochaine",
-      "Il est important de finaliser la documentation",
-      "Nous devons organiser une démonstration client",
-      "Les prochaines étapes sont clairement définies",
-      "Merci pour votre participation à cette session"
-    ];
-    
-    let index = 0;
-    demoIntervalRef.current = setInterval(() => {
-      if (!isPaused && index < demoTexts.length) {
-        setTranscript(prev => [...prev, {
-          id: Date.now(),
-          timestamp: Date.now(),
-          text: demoTexts[index],
-          speaker: 'Participant',
-          isFinal: true
-        }]);
-        setMicStatus(`🎭 MODE DÉMO - ${index + 1}/${demoTexts.length} segments générés`);
-        index++;
-      } else if (index >= demoTexts.length) {
-        clearInterval(demoIntervalRef.current);
-        setMicStatus('🎭 MODE DÉMO - Tous les segments générés');
-      }
-    }, 3000); // Un segment toutes les 3 secondes
-  };
 
   useEffect(() => {
     // Auto-scroll vers le bas
@@ -73,146 +34,196 @@ export default function ActiveSession({ config, onEnd }) {
 
   const startRecording = async () => {
     try {
-      setMicStatus('🎤 Demande accès microphone...');
-      
-      // Vérifier si une clé API Whisper est disponible
-      const hasWhisperKey = import.meta.env.VITE_OPENAI_API_KEY;
-      
-      if (hasWhisperKey) {
-        // Utiliser Whisper API
-        setMicStatus('🚀 Initialisation Whisper API...');
-        
-        await transcriptionService.startTranscription(
-          config.language,
-          (transcriptText) => {
-            setTranscript(prev => [...prev, {
-              id: Date.now(),
-              timestamp: Date.now(),
-              text: transcriptText,
-              speaker: 'Participant',
-              isFinal: true
-            }]);
-          }
-        );
-        
-        setMicStatus('✅ Whisper API actif - Transcription professionnelle');
-        setIsRecording(true);
-        return;
+      console.log('=== DÉBUT INITIALISATION TRANSCRIPTION ===');
+      console.log('Configuration:', config);
+      setMicStatus('🔄 Initialisation Web Speech API...');
+
+      // Vérifier support Web Speech API
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        throw new Error('Web Speech API non supportée par ce navigateur');
       }
-      
-      // Sinon utiliser Web Speech API
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
-        }
+
+      console.log('✅ Web Speech API supportée');
+
+      // Créer l'instance de reconnaissance
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = config.language === 'fr' ? 'fr-FR' : 'en-US';
+      recognition.maxAlternatives = 1;
+
+      console.log('Configuration reconnaissance:', {
+        continuous: recognition.continuous,
+        interimResults: recognition.interimResults,
+        lang: recognition.lang
       });
 
-      setMicStatus('✅ Microphone connecté');
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      // === EVENT HANDLERS AVEC LOGS DÉTAILLÉS ===
 
-      // Web Speech API
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = config.language === 'fr' ? 'fr-FR' : 'en-US';
+      recognition.onstart = () => {
+        console.log('✅ [onstart] Recognition started successfully');
+        setMicStatus('✅ Écoute active - Parlez maintenant');
+        setIsRecording(true);
+      };
 
-        recognition.onstart = () => {
-          setMicStatus('🎤 Écoute en cours... Parlez maintenant !');
-          console.log('Recognition started');
-        };
+      recognition.onaudiostart = () => {
+        console.log('🎤 [onaudiostart] Audio capture active');
+        setAudioDetected(true);
+      };
 
-        recognition.onresult = (event) => {
-          const last = event.results.length - 1;
-          const text = event.results[last][0].transcript;
-          const isFinal = event.results[last].isFinal;
+      recognition.onsoundstart = () => {
+        console.log('🔊 [onsoundstart] Sound detected');
+      };
 
-          console.log('Transcription:', text, 'Final:', isFinal);
+      recognition.onspeechstart = () => {
+        console.log('🗣️ [onspeechstart] Speech detected');
+        setSpeechDetected(true);
+        setMicStatus('🗣️ Parole détectée...');
+      };
 
-          if (isFinal) {
-            setMicStatus('✅ Transcription active');
-            setTranscript(prev => [...prev, {
-              id: Date.now(),
-              timestamp: Date.now(),
-              text: text.trim(),
-              speaker: 'Participant',
-              isFinal: true
-            }]);
-          } else {
-            setMicStatus('🎤 En cours : ' + text.substring(0, 30) + '...');
-          }
-        };
+      recognition.onresult = (event) => {
+        console.log('📝 [onresult] Result received, results count:', event.results.length);
+        
+        const last = event.results.length - 1;
+        const result = event.results[last];
+        let text = result[0].transcript;
+        const confidence = result[0].confidence;
+        const isFinal = result.isFinal;
 
-        recognition.onerror = (event) => {
-          console.error('Erreur reconnaissance:', event.error);
-          if (event.error === 'no-speech') {
-            setMicStatus('⚠️ Aucune voix détectée - parlez plus fort');
-            recognition.start();
-          } else if (event.error === 'not-allowed') {
-            setMicStatus('❌ Permission microphone refusée');
-            alert('❌ Accès au microphone refusé. Autorisez le microphone dans les paramètres.');
-          } else if (event.error === 'network') {
-            setMicStatus('🔄 Mode démo activé - Simulation de transcription');
-            console.log('Web Speech API indisponible, passage en mode démo');
-            // Activer le mode simulation
-            startDemoMode();
-          } else {
-            setMicStatus('⚠️ Erreur: ' + event.error);
-          }
-        };
+        // Log du texte brut pour debug
+        console.log('Texte brut:', JSON.stringify(text));
+        // Nettoyage strict : trim puis supprime tout '.0', ' 0' ou '0' final
+        text = text.trim().replace(/\.0$/, '');
 
-        recognition.onend = () => {
-          console.log('Recognition ended, restarting...');
-          if (isRecording && !isPaused) {
-            recognition.start();
-          }
-        };
+        console.log('Transcription:', {
+          text,
+          confidence: confidence ? (confidence * 100).toFixed(1) + '%' : 'N/A',
+          isFinal,
+          resultIndex: last
+        });
 
-        recognition.start();
-        recognitionRef.current = recognition;
-        setMicStatus('🎤 Prêt - Commencez à parler');
-      } else {
-        setMicStatus('❌ Web Speech API non supporté');
-        alert('❌ Votre navigateur ne supporte pas la reconnaissance vocale');
-      }
+        if (isFinal) {
+          console.log('✅ Résultat final ajouté à la transcription');
+          setMicStatus('✅ Transcription active');
+          setTranscript(prev => [...prev, {
+            id: Date.now(),
+            timestamp: Date.now(),
+            text: text.trim().replace(/\.0$/, ''),
+            speaker: 'Participant',
+            confidence: confidence,
+            isFinal: true
+          }]);
+        } else {
+          const preview = text.length > 40 ? text.substring(0, 40) + '...' : text;
+          setMicStatus(`🎤 ${preview}`);
+        }
+      };
 
-      setIsRecording(true);
+      recognition.onspeechend = () => {
+        console.log('⏸️ [onspeechend] Speech ended');
+        setSpeechDetected(false);
+      };
+
+      recognition.onsoundend = () => {
+        console.log('🔇 [onsoundend] Sound ended');
+      };
+
+      recognition.onaudioend = () => {
+        console.log('⏹️ [onaudioend] Audio capture ended');
+        setAudioDetected(false);
+      };
+
+      recognition.onerror = (event) => {
+        console.error('❌ [onerror] Error occurred:', event.error);
+        console.error('Error details:', {
+          error: event.error,
+          message: event.message || 'No message'
+        });
+
+        let errorMessage = '';
+        switch (event.error) {
+          case 'no-speech':
+            errorMessage = '⚠️ Aucune parole détectée - parlez plus fort';
+            console.warn('Conseil: Assurez-vous que le microphone fonctionne et que vous parlez clairement');
+            break;
+          case 'audio-capture':
+            errorMessage = '❌ Impossible de capturer l\'audio';
+            console.error('Le microphone est peut-être utilisé par une autre application');
+            break;
+          case 'not-allowed':
+            errorMessage = '❌ Permission microphone refusée';
+            console.error('Autorisez l\'accès au microphone dans les paramètres du navigateur');
+            alert('❌ Accès au microphone refusé. Veuillez autoriser l\'accès dans les paramètres de votre navigateur.');
+            break;
+          case 'network':
+            errorMessage = '❌ Erreur réseau';
+            console.error('Vérifiez votre connexion internet');
+            break;
+          case 'aborted':
+            errorMessage = '⚠️ Reconnaissance interrompue';
+            break;
+          default:
+            errorMessage = `❌ Erreur: ${event.error}`;
+        }
+        
+        setMicStatus(errorMessage);
+      };
+
+      recognition.onend = () => {
+        console.log('🔄 [onend] Recognition ended');
+        
+        if (isRecording && !isPaused && restartCountRef.current < 50) {
+          console.log(`🔄 Auto-restart (tentative ${restartCountRef.current + 1}/50)`);
+          restartCountRef.current += 1;
+          
+          setTimeout(() => {
+            try {
+              recognition.start();
+              console.log('✅ Recognition restarted');
+            } catch (error) {
+              console.error('❌ Restart failed:', error);
+              setMicStatus('❌ Erreur redémarrage reconnaissance');
+            }
+          }, 100);
+        } else if (restartCountRef.current >= 50) {
+          console.warn('⚠️ Limite de redémarrage atteinte (50)');
+          setMicStatus('⚠️ Limite de redémarrage atteinte');
+        }
+      };
+
+      // Démarrer la reconnaissance
+      console.log('🚀 Tentative de démarrage...');
+      recognitionRef.current = recognition;
+      recognition.start();
+      
+      console.log('=== INITIALISATION TERMINÉE ===');
+      setMicStatus('🔄 Démarrage en cours...');
+
     } catch (error) {
-      console.error('Erreur capture audio:', error);
-      setMicStatus('❌ Erreur microphone');
-      alert('❌ Impossible d\'accéder au microphone : ' + error.message);
+      console.error('❌ ERREUR FATALE:', error);
+      console.error('Stack trace:', error.stack);
+      setMicStatus('❌ Erreur: ' + error.message);
+      alert('❌ Erreur d\'initialisation: ' + error.message);
     }
   };
 
   const stopRecording = () => {
-    // Arrêter Whisper ou Web Speech
-    if (transcriptionService.isRecording) {
-      transcriptionService.stop();
-    }
-    
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
-    }
+    console.log('🛑 Arrêt de la reconnaissance');
     if (recognitionRef.current) {
       recognitionRef.current.stop();
-    }
-    if (demoIntervalRef.current) {
-      clearInterval(demoIntervalRef.current);
+      recognitionRef.current = null;
     }
     setIsRecording(false);
+    setAudioDetected(false);
+    setSpeechDetected(false);
   };
 
   const handlePauseResume = () => {
     if (isPaused) {
-      if (recognitionRef.current && !demoMode) {
+      console.log('▶️ Reprise de la session');
+      if (recognitionRef.current) {
         recognitionRef.current.start();
-      }
-      if (demoMode && demoIntervalRef.current) {
-        // Le mode démo continue automatiquement
       }
       setTranscript(prev => [...prev, {
         id: Date.now(),
@@ -222,7 +233,8 @@ export default function ActiveSession({ config, onEnd }) {
         isSystem: true
       }]);
     } else {
-      if (recognitionRef.current && !demoMode) {
+      console.log('⏸️ Pause de la session');
+      if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
       setTranscript(prev => [...prev, {
@@ -275,12 +287,66 @@ export default function ActiveSession({ config, onEnd }) {
             {!isPaused && <span className="red-dot"></span>}
             {isPaused ? '⏸️ En pause' : '🔴 Enregistrement en cours'} • {formatDuration(duration)}
           </div>
+          
           <div className="mic-status" style={{ fontSize: '14px', marginTop: '8px', opacity: 0.8 }}>
             {micStatus}
+          </div>
+
+          {/* Indicateurs de détection */}
+          <div style={{ display: 'flex', gap: '12px', marginTop: '8px', fontSize: '12px' }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '4px',
+              color: audioDetected ? '#10b981' : '#94a3b8',
+              fontWeight: audioDetected ? '600' : '400'
+            }}>
+              <Mic size={14} />
+              Audio: {audioDetected ? '✓ Actif' : '○ Inactif'}
+            </div>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '4px',
+              color: speechDetected ? '#10b981' : '#94a3b8',
+              fontWeight: speechDetected ? '600' : '400'
+            }}>
+              <AlertCircle size={14} />
+              Parole: {speechDetected ? '✓ Détectée' : '○ Aucune'}
+            </div>
+          </div>
+
+          <div style={{ fontSize: '11px', marginTop: '6px', color: '#64748b', fontStyle: 'italic' }}>
+            💡 Ouvrez la console (F12) pour voir les logs détaillés
           </div>
         </div>
       </div>
 
+      {/* Détection d'environnement Electron */}
+      {(() => {
+        const isElectron = typeof window !== 'undefined' && window.process && window.process.type === 'renderer';
+        if (!isElectron) return null;
+        return (
+          <div style={{
+            background: '#fff3cd',
+            color: '#856404',
+            border: '1px solid #ffeeba',
+            borderRadius: '8px',
+            padding: '16px',
+            marginBottom: '18px',
+            fontSize: '15px',
+            maxWidth: '600px',
+            margin: '0 auto 18px auto',
+            textAlign: 'center',
+          }}>
+            <b>⚠️ La transcription vocale ne fonctionne pas dans l'application installée.</b><br />
+            <span style={{ fontSize: '14px' }}>
+              Veuillez utiliser la version navigateur (Chrome/Edge/Brave) pour profiter de la transcription en temps réel.<br />
+              <span style={{ color: '#b91c1c', fontWeight: 500 }}>Limitation technique Electron/Web Speech API</span>
+            </span>
+          </div>
+        );
+      })()}
       <div className="transcript-container">
         <div className="transcript-stats">
           {transcript.filter(t => t.isFinal).length} segments • 
@@ -289,12 +355,31 @@ export default function ActiveSession({ config, onEnd }) {
         
         {transcript.length === 0 && (
           <div className="transcript-empty">
+            <div style={{ marginBottom: '16px' }}>
+              <Mic size={48} style={{ color: audioDetected ? '#10b981' : '#94a3b8' }} />
+            </div>
             <p>🎤 En attente de parole...</p>
             <small>Commencez à parler pour voir la transcription apparaître</small>
             <br />
-            <small style={{ marginTop: '10px', display: 'block', color: '#666' }}>
+            <small style={{ marginTop: '12px', display: 'block', color: '#666' }}>
               Statut: {micStatus}
             </small>
+            {!audioDetected && isRecording && (
+              <div style={{ 
+                marginTop: '16px', 
+                padding: '12px', 
+                background: '#fff3cd', 
+                borderRadius: '8px',
+                fontSize: '13px',
+                color: '#856404'
+              }}>
+                <AlertCircle size={16} style={{ marginBottom: '4px' }} />
+                <div>⚠️ Aucun audio détecté</div>
+                <div style={{ marginTop: '4px', fontSize: '12px' }}>
+                  Vérifiez que votre microphone fonctionne et que les permissions sont accordées
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -311,7 +396,16 @@ export default function ActiveSession({ config, onEnd }) {
               })}
             </span>
             <span className="speaker">{item.speaker}:</span>
-            <span className="text">{item.text}</span>
+            <span className="text">{typeof item.text === 'string' ? item.text.trim().replace(/\.0$/, '') : item.text}</span>
+            {item.confidence && (
+              <span style={{ 
+                fontSize: '11px', 
+                color: '#94a3b8', 
+                marginLeft: '8px' 
+              }}>
+                ({(item.confidence * 100).toFixed(0)}%)
+              </span>
+            )}
           </div>
         ))}
         <div ref={transcriptEndRef} />
@@ -321,16 +415,25 @@ export default function ActiveSession({ config, onEnd }) {
         <button 
           onClick={handlePauseResume} 
           className={`btn-secondary ${isPaused ? 'btn-resume' : ''}`}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}
         >
-          {isPaused ? '▶️ Reprendre' : '⏸️ Pause'}
+          {isPaused ? <><Play size={18} /> Reprendre</> : <><Pause size={18} /> Pause</>}
         </button>
         
-        <button onClick={handleMarkMoment} className="btn-secondary">
+        <button 
+          onClick={handleMarkMoment} 
+          className="btn-secondary"
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}
+        >
           📌 Marquer ce moment
         </button>
         
-        <button onClick={handleStop} className="btn-danger">
-          ⏹️ Terminer la session
+        <button 
+          onClick={handleStop} 
+          className="btn-danger"
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}
+        >
+          <Square size={18} /> Terminer la session
         </button>
       </div>
     </div>

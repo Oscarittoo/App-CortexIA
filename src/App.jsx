@@ -4,13 +4,17 @@ import NewSession from './components/NewSession';
 import ActiveSession from './components/ActiveSession';
 import SessionReport from './components/SessionReport';
 import Dashboard from './components/Dashboard';
+import DashboardProfessional from './components/DashboardProfessional';
 import SessionsHistory from './components/SessionsHistory';
 import Settings from './components/Settings';
 import SessionEditor from './components/SessionEditor';
 import ShortcutsModal from './components/ShortcutsModal';
+import ErrorBoundary from './components/ErrorBoundary';
+import { Toaster } from './components/Toast';
 import useDarkMode from './hooks/useDarkMode';
 import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
 import logo from './assets/logo.svg';
+import './styles/design-system.css';
 import './styles/app.css';
 import './styles/home.css';
 import './styles/shortcuts.css';
@@ -95,12 +99,14 @@ export default function App() {
   };
 
   return (
-    <div className="app">
-      <nav className="main-nav">
-        <div className="nav-brand" onClick={handleGoHome}>
-          <img src={logo} alt="CORTEXIA" className="nav-logo" />
-          <span className="nav-brand-name">CORTEXIA</span>
-        </div>
+    <ErrorBoundary>
+      <div className="app">
+        <Toaster />
+        <nav className="main-nav">
+          <div className="nav-brand" onClick={handleGoHome}>
+            <img src={logo} alt="CORTEXIA" className="nav-logo" />
+            <span className="nav-brand-name">CORTEXIA</span>
+          </div>
         
         <div className="nav-links">
           <a className={`nav-link ${currentView === 'home' ? 'active' : ''}`} onClick={handleGoHome}>
@@ -179,6 +185,7 @@ export default function App() {
           onClose={() => setEditingSession(null)}
         />
       )}
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }

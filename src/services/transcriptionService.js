@@ -12,6 +12,7 @@ class TranscriptionService {
     this.audioChunks = [];
     this.onTranscriptCallback = null;
     this.language = 'fr';
+    this.hasWhisperFailed = false; // Flag pour éviter de réessayer Whisper
   }
 
   /**
@@ -32,48 +33,39 @@ class TranscriptionService {
         }
       });
 
-      // Vérifier si l'API key est configurée
-      if (!this.apiKey || this.apiKey === 'your_openai_api_key_here') {
-        console.warn('⚠️ API OpenAI non configurée, utilisation de Web Speech API en fallback');
+      // Utiliser Web Speech API par défaut (gratuit et fiable)
+      console.log('🎤 Utilisation de Web Speech API (mode gratuit)');
+      return this.startWebSpeechAPI(stream, language, onTranscript);
+      
+      // Code Whisper désactivé pour privilégier Web Speech API
+      // Pour réactiver Whisper, décommentez le code ci-dessous
+      /*
+      if (this.hasWhisperFailed || !this.apiKey || this.apiKey === '' || this.apiKey === 'your_openai_api_key_here') {
+        const reason = this.hasWhisperFailed ? 'quota dépassé' : 'non configurée';
+        console.warn(`⚠️ API OpenAI ${reason}, utilisation de Web Speech API en fallback`);
+        console.log('Clé API actuelle:', this.apiKey ? '(présente)' : '(non définie)');
         return this.startWebSpeechAPI(stream, language, onTranscript);
       }
+      
+      console.log('✅ API OpenAI configurée, utilisation de Whisper');
+      console.log('Clé API (début):', this.apiKey ? this.apiKey.substring(0, 20) + '...' : 'non trouvée');
+      */
 
-      // Créer MediaRecorder pour capturer l'audio
+      // MediaRecorder non utilisé en mode Web Speech API
+      // (Garder pour compatibilité future si Whisper est réactivé)
+      
+      /*
       this.mediaRecorder = new MediaRecorder(stream);
       this.audioChunks = [];
 
-      // Capturer les chunks audio
       this.mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           this.audioChunks.push(event.data);
         }
       };
 
-      // Envoyer à Whisper toutes les 5 secondes
-      this.mediaRecorder.onstop = async () => {
-        if (this.audioChunks.length > 0 && this.isRecording) {
-          await this.sendToWhisper();
-          this.audioChunks = [];
-          
-          // Redémarrer pour continuer l'enregistrement
-          if (this.isRecording && this.mediaRecorder.state !== 'recording') {
-            this.mediaRecorder.start();
-            setTimeout(() => {
-              if (this.isRecording && this.mediaRecorder.state === 'recording') {
-                this.mediaRecorder.stop();
-              }
-            }, 5000);
-          }
-        }
-      };
-
-      // Démarrer l'enregistrement par chunks de 5 secondes
-      this.mediaRecorder.start();
-      setTimeout(() => {
-        if (this.isRecording && this.mediaRecorder.state === 'recording') {
-          this.mediaRecorder.stop();
-        }
-      }, 5000);
+      // Code Whisper commenté (non utilisé)
+      */
 
       return stream;
 
@@ -89,6 +81,14 @@ class TranscriptionService {
   async sendToWhisper() {
     try {
       const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+      
+      // Vérifier que l'audio a une taille suffisante (au moins 1KB)
+      if (audioBlob.size < 1000) {
+        console.log('⏭️ Audio trop court, ignoré');
+        return;
+      }
+      
+      console.log('📤 Envoi à Whisper:', audioBlob.size, 'bytes');
       
       // Créer FormData pour l'API
       const formData = new FormData();
@@ -107,10 +107,19 @@ class TranscriptionService {
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Erreur API Whisper:', response.status, errorText);
+        
+        if (response.status === 429) {
+          console.warn('⚠️ Rate limit atteint, attente avant prochain envoi...');
+          // Attendre 2 secondes avant de permettre le prochain envoi
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
         throw new Error(`Erreur API Whisper: ${response.status}`);
       }
 
       const result = await response.json();
+      console.log('✅ Transcription reçue:', result.text);
       
       // Callback avec le texte transcrit
       if (result.text && this.onTranscriptCallback) {
@@ -123,18 +132,41 @@ class TranscriptionService {
 
     } catch (error) {
       console.error('❌ Erreur Whisper API:', error);
-      // En cas d'erreur, continuer sans crash
+      
+      // Si erreur de quota, marquer pour basculer
+      if (error.message && (error.message.includes('429') || error.message.includes('quota'))) {
+        console.warn('⚠️ Quota Whisper dépassé, marquage pour basculement...');
+        this.hasWhisperFailed = true;
+      }
     }
   }
 
   /**
    * Fallback vers Web Speech API si Whisper n'est pas disponible
    */
-  startWebSpeechAPI(stream, language, onTranscript) {
+  async startWebSpeechAPI(existingStream, language, onTranscript) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     
     if (!SpeechRecognition) {
       throw new Error('Web Speech API non supportée dans ce navigateur');
+    }
+
+    // Si pas de stream existant, en créer un nouveau
+    if (!existingStream) {
+      try {
+        existingStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          }
+        });
+        // Stocker le stream pour pouvoir l'arrêter plus tard
+        this.stream = existingStream;
+      } catch (error) {
+        console.error('Erreur accès microphone pour Web Speech:', error);
+        throw error;
+      }
     }
 
     const recognition = new SpeechRecognition();
@@ -172,7 +204,7 @@ class TranscriptionService {
     // Stocker la référence
     this.recognition = recognition;
 
-    return stream;
+    return existingStream;
   }
 
   /**
@@ -199,7 +231,7 @@ class TranscriptionService {
         if (this.isRecording && this.mediaRecorder.state === 'recording') {
           this.mediaRecorder.stop();
         }
-      }, 5000);
+      }, 10000); // 10 secondes
     }
     if (this.recognition) {
       this.recognition.start();
@@ -217,6 +249,9 @@ class TranscriptionService {
     }
     if (this.recognition) {
       this.recognition.stop();
+    }
+    if (this.stream) {
+      this.stream.getTracks().forEach(track => track.stop());
     }
   }
 }

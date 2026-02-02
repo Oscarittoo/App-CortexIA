@@ -8,32 +8,48 @@ function createWindow() {
     width: 1200,
     height: 800,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-      enableRemoteModule: true,
+      nodeIntegration: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
       // Permissions pour microphone et API
-      webSecurity: true,
-      allowRunningInsecureContent: false
+      webSecurity: false, // Désactivé pour permettre les appels API locaux
+      allowRunningInsecureContent: true,
+      // Forcer les permissions media
+      experimentalFeatures: true
     },
     icon: path.join(__dirname, '../assets/icon.png')
   });
+  
+  // Log pour debug
+  console.log('🪟 Fenêtre Electron créée avec permissions media activées');
 
-  // Autoriser les permissions de microphone
+  // Autoriser TOUTES les permissions de microphone automatiquement
   mainWindow.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
-    const allowedPermissions = ['media', 'microphone', 'audioCapture', 'geolocation'];
+    console.log(`🔐 Demande de permission: ${permission}`);
+    const allowedPermissions = ['media', 'microphone', 'audioCapture', 'audioPlayback', 'mediaKeySystem'];
     if (allowedPermissions.includes(permission)) {
+      console.log(`✅ Permission ACCORDÉE: ${permission}`);
       callback(true);
     } else {
+      console.log(`⚠️ Permission REFUSÉE: ${permission}`);
       callback(false);
     }
   });
 
-  // Autoriser les permissions sans demande
+  // Autoriser les permissions sans demande pour tous les media devices
   mainWindow.webContents.session.setPermissionCheckHandler((webContents, permission, requestingOrigin) => {
-    if (permission === 'media' || permission === 'microphone') {
+    console.log(`🔍 Permission check: ${permission} depuis ${requestingOrigin}`);
+    if (permission === 'media' || permission === 'microphone' || permission === 'audioCapture' || permission === 'audioPlayback') {
+      console.log(`✅ Check ACCORDÉ: ${permission}`);
       return true;
     }
+    console.log(`⚠️ Check REFUSÉ: ${permission}`);
     return false;
+  });
+  
+  // Forcer l'activation des devices media
+  mainWindow.webContents.on('did-finish-load', () => {
+    console.log('✅ Page chargée - Permissions media activées');
   });
 
   // Charger l'application
@@ -55,7 +71,8 @@ function createWindow() {
         .then(() => {
           console.log(`✅ Connecté sur le port ${port}`);
           connected = true;
-          mainWindow.webContents.openDevTools();
+          // DevTools seulement si besoin (Ctrl+Shift+I pour ouvrir)
+          // mainWindow.webContents.openDevTools();
         })
         .catch(() => {
           console.log(`❌ Port ${port} non disponible`);

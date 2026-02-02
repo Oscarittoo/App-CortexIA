@@ -37,7 +37,22 @@ class StorageService {
   
   getAllSessions() {
     const data = localStorage.getItem(STORAGE_KEYS.SESSIONS);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    let sessions = JSON.parse(data);
+    // Nettoyage global du transcript dans chaque session
+    sessions.forEach(session => {
+      if (Array.isArray(session.transcript)) {
+        session.transcript = session.transcript.map(item => {
+          if (typeof item === 'string') {
+            return item.trim().replace(/\.0$/, '');
+          } else if (item && typeof item.text === 'string') {
+            return { ...item, text: item.text.trim().replace(/\.0$/, '') };
+          }
+          return item;
+        });
+      }
+    });
+    return sessions;
   }
   
   getSession(id) {
