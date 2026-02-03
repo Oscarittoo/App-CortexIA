@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Home from './components/Home';
 import NewSession from './components/NewSession';
 import ActiveSession from './components/ActiveSession';
@@ -6,18 +6,20 @@ import SessionReport from './components/SessionReport';
 import Dashboard from './components/Dashboard';
 import DashboardProfessional from './components/DashboardProfessional';
 import SessionsHistory from './components/SessionsHistory';
-import Settings from './components/Settings';
 import SessionEditor from './components/SessionEditor';
-import ShortcutsModal from './components/ShortcutsModal';
+import Pricing from './components/Pricing';
+import Login from './components/Login';
+import AdminDashboard from './components/AdminDashboard';
 import ErrorBoundary from './components/ErrorBoundary';
 import { Toaster } from './components/Toast';
+import toast from './components/Toast';
 import useDarkMode from './hooks/useDarkMode';
-import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
+import authService from './services/authService';
+import stripeService from './services/stripeService';
 import logo from './assets/logo.svg';
 import './styles/design-system.css';
 import './styles/app.css';
 import './styles/home.css';
-import './styles/shortcuts.css';
 import './styles/dashboard.css';
 import './styles/sessions-history.css';
 
@@ -25,26 +27,23 @@ export default function App() {
   const [currentView, setCurrentView] = useState('home');
   const [sessionData, setSessionData] = useState(null);
   const [reportData, setReportData] = useState(null);
-  const [showSettings, setShowSettings] = useState(false);
-  const [showShortcuts, setShowShortcuts] = useState(false);
   const [editingSession, setEditingSession] = useState(null);
   const [darkMode, toggleDarkMode] = useDarkMode();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
-  useKeyboardShortcuts({
-    'ctrl+/': () => setShowShortcuts(true),
-    'ctrl+n': () => setCurrentView('new'),
-    'ctrl+h': () => setCurrentView('home'),
-    'ctrl+d': () => setCurrentView('dashboard'),
-    'ctrl+l': () => setCurrentView('history'),
-    'escape': () => {
-      setShowSettings(false);
-      setShowShortcuts(false);
-      setEditingSession(null);
+  // Vérifier l'authentification au démarrage
+  useEffect(() => {
+    const user = authService.getCurrentUser();
+    if (user) {
+      setIsAuthenticated(true);
+      setCurrentUser(user);
     }
-  });
+  }, []);
 
   const handleGetStarted = () => {
-    setCurrentView('new');
+    // Rediriger vers la page tarifs
+    setCurrentView('pricing');
   };
 
   const handleStartSession = (config) => {
@@ -58,12 +57,14 @@ export default function App() {
     setCurrentView('active');
   };
 
-  const handleEndSession = (transcript, duration) => {
+  const handleEndSession = (transcript, duration, aiAnalysis = {}) => {
     const data = {
       ...sessionData,
       transcript,
       duration,
-      endTime: Date.now()
+      endTime: Date.now(),
+      detectedActions: aiAnalysis.detectedActions || [],
+      detectedDecisions: aiAnalysis.detectedDecisions || []
     };
     setReportData(data);
     setCurrentView('report');
@@ -98,6 +99,44 @@ export default function App() {
     }
   };
 
+  const handleSelectPlan = (planId) => {
+    if (planId === 'free') {
+      // Plan gratuit - rediriger vers connexion/inscription
+      setCurrentView('login');
+    } else if (planId === 'enterprise') {
+      // Plan entreprise - contacter l'équipe
+      toast.info('Notre équipe vous contactera sous 24h');
+      // TODO: Ouvrir un formulaire de contact
+    } else {
+      // Plan Pro - initialiser Stripe
+      if (isAuthenticated && currentUser) {
+        stripeService.initialize().then(() => {
+          stripeService.createCheckoutSession(planId, currentUser.email).catch(err => {
+            toast.error('Erreur lors de l\'initialisation du paiement');
+            console.error(err);
+          });
+        });
+      } else {
+        // Rediriger vers connexion avant paiement
+        setCurrentView('login');
+      }
+    }
+  };
+
+  const handleLogin = (userData) => {
+    setIsAuthenticated(true);
+    setCurrentUser(userData);
+    setCurrentView('new'); // Rediriger vers nouvelle session après connexion
+  };
+
+  const handleLogout = () => {
+    authService.logout();
+    setIsAuthenticated(false);
+    setCurrentUser(null);
+    setCurrentView('home');
+    toast.success('Déconnexion réussie');
+  };
+
   return (
     <ErrorBoundary>
       <div className="app">
@@ -121,6 +160,11 @@ export default function App() {
           <a className={`nav-link ${currentView === 'history' ? 'active' : ''}`} onClick={() => setCurrentView('history')}>
             Historique
           </a>
+          {isAuthenticated && (
+            <a className={`nav-link ${currentView === 'admin' ? 'active' : ''}`} onClick={() => setCurrentView('admin')}>
+              Admin
+            </a>
+          )}
         </div>
         
         <div className="nav-actions">
@@ -131,26 +175,41 @@ export default function App() {
           >
             {darkMode ? '◐' : '◑'}
           </button>
-          <button 
-            className="btn-nav-icon" 
-            onClick={() => setShowShortcuts(true)}
-            title="Raccourcis clavier (Ctrl+/)"
-          >
-            ⌘
-          </button>
-          <button className="btn-nav-secondary" onClick={() => setShowSettings(true)}>
-            Paramètres
-          </button>
-          <button className="btn-nav-primary" onClick={handleGetStarted}>
-            Commencer
-          </button>
+          {isAuthenticated ? (
+            <>
+              <span className="nav-user-email">{currentUser?.email}</span>
+              <button className="btn-nav-secondary" onClick={handleLogout}>
+                Déconnexion
+              </button>
+            </>
+          ) : (
+            <button className="btn-nav-primary" onClick={handleGetStarted}>
+              Commencer
+            </button>
+          )}
         </div>
       </nav>
 
-      <main className={currentView === 'home' ? 'main-full' : ''}>
+      <main className={currentView === 'home' || currentView === 'pricing' || currentView === 'login' ? 'main-full' : ''}>
         {currentView === 'home' && <Home onGetStarted={handleGetStarted} />}
+        {currentView === 'pricing' && <Pricing onSelectPlan={handleSelectPlan} />}
+        {currentView === 'login' && (
+          <Login 
+            onLogin={handleLogin}
+            onBack={() => setCurrentView('home')}
+          />
+        )}
         {currentView === 'dashboard' && <Dashboard />}
-        {currentView === 'new' && <NewSession onStart={handleStartSession} />}
+        {currentView === 'new' && (
+          isAuthenticated ? (
+            <NewSession onStart={handleStartSession} />
+          ) : (
+            <Login 
+              onLogin={handleLogin}
+              onBack={() => setCurrentView('home')}
+            />
+          )
+        )}
         {currentView === 'history' && (
           <SessionsHistory 
             onViewSession={handleViewSession}
@@ -170,14 +229,13 @@ export default function App() {
             onEdit={() => handleEditSession(reportData)}
           />
         )}
+        {currentView === 'admin' && isAuthenticated && <AdminDashboard />}
       </main>
 
       <footer>
         <p>© 2026 CORTEXIA · Toutes les données stockées localement · Sécurité de niveau entreprise</p>
       </footer>
 
-      {showSettings && <Settings onClose={() => setShowSettings(false)} />}
-      {showShortcuts && <ShortcutsModal onClose={() => setShowShortcuts(false)} />}
       {editingSession && (
         <SessionEditor
           session={editingSession}

@@ -177,6 +177,21 @@ body {
   gap: 12px;
 }
 
+.nav-user-email {
+  font-size: 13px;
+  color: var(--gray-700);
+  padding: 6px 12px;
+  background: var(--gray-100);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+[data-theme="dark"] .nav-user-email {
+  background: var(--gray-300);
+  border-color: var(--gray-400);
+  color: var(--gray-800);
+}
+
 .btn-nav-icon {
   padding: 8px;
   font-size: 16px;
@@ -895,4 +910,231 @@ footer {
   .tabs { gap: 5px; }
   .tab { padding: 10px 15px; font-size: 14px; }
   .report-meta { flex-direction: column; gap: 8px; }
+}
+
+/* Layout session avec panneau IA */
+.session-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 20px;
+  height: calc(100vh - 80px);
+  padding: 20px;
+}
+
+.session-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.session-sidebar {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+/* Panneau IA */
+.ai-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ai-panel-title {
+  font-size: 18px;
+  font-weight: 600;
+  padding: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-section {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-section:last-child {
+  border-bottom: none;
+}
+
+.ai-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+.ai-section-header h4 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+}
+
+.ai-badge {
+  background: var(--primary);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.ai-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  flex: 1;
+  max-height: 400px;
+}
+
+.ai-empty {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-light);
+  font-size: 13px;
+  font-style: italic;
+}
+
+.ai-item {
+  background: var(--gray-100);
+  border-left: 3px solid;
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.ai-item:hover {
+  background: var(--gray-200);
+  transform: translateX(2px);
+}
+
+.action-item {
+  border-left-color: var(--success);
+}
+
+.decision-item {
+  border-left-color: var(--warning);
+}
+
+.ai-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ai-time {
+  font-size: 11px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.priority-badge,
+.impact-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.priority-haute {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.priority-moyenne {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.priority-basse {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.impact-fort {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.impact-moyen {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.impact-faible {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.ai-item-text {
+  line-height: 1.4;
+  color: var(--text);
+}
+
+/* Dark mode pour le panneau IA */
+[data-theme="dark"] .ai-panel-title {
+  background: linear-gradient(135deg, #4c51bf 0%, #553c9a 100%);
+}
+
+[data-theme="dark"] .ai-item {
+  background: var(--gray-800);
+}
+
+[data-theme="dark"] .ai-item:hover {
+  background: var(--gray-700);
+}
+
+[data-theme="dark"] .priority-haute,
+[data-theme="dark"] .impact-fort {
+  background: rgba(220, 38, 38, 0.2);
+  color: #fca5a5;
+}
+
+[data-theme="dark"] .priority-moyenne,
+[data-theme="dark"] .impact-moyen {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+}
+
+[data-theme="dark"] .priority-basse,
+[data-theme="dark"] .impact-faible {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+}
+
+/* Responsive pour panneau IA */
+@media (max-width: 1200px) {
+  .session-layout {
+    grid-template-columns: 1fr 320px;
+  }
+}
+
+@media (max-width: 968px) {
+  .session-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .session-sidebar {
+    display: none;
+  }
 }

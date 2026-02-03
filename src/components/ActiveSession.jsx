@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Pause, Play, Square, AlertCircle } from 'lucide-react';
+import { Mic, MicOff, Pause, Play, Square, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-react';
 
 export default function ActiveSession({ config, onEnd }) {
   const [transcript, setTranscript] = useState([]);
@@ -9,6 +9,8 @@ export default function ActiveSession({ config, onEnd }) {
   const [micStatus, setMicStatus] = useState('Initialisation...');
   const [audioDetected, setAudioDetected] = useState(false);
   const [speechDetected, setSpeechDetected] = useState(false);
+  const [detectedActions, setDetectedActions] = useState([]);
+  const [detectedDecisions, setDetectedDecisions] = useState([]);
   const recognitionRef = useRef(null);
   const transcriptEndRef = useRef(null);
   const restartCountRef = useRef(0);
@@ -106,14 +108,20 @@ export default function ActiveSession({ config, onEnd }) {
         if (isFinal) {
           console.log('✅ Résultat final ajouté à la transcription');
           setMicStatus('✅ Transcription active');
-          setTranscript(prev => [...prev, {
+          
+          const newEntry = {
             id: Date.now(),
             timestamp: Date.now(),
             text: text.trim().replace(/\.0$/, ''),
             speaker: 'Participant',
             confidence: confidence,
             isFinal: true
-          }]);
+          };
+          
+          setTranscript(prev => [...prev, newEntry]);
+          
+          // Analyse IA en temps réel
+          analyzeTextForActionsAndDecisions(text);
         } else {
           const preview = text.length > 40 ? text.substring(0, 40) + '...' : text;
           setMicStatus(`🎤 ${preview}`);
@@ -248,10 +256,102 @@ export default function ActiveSession({ config, onEnd }) {
     setIsPaused(!isPaused);
   };
 
+  // Analyse IA en temps réel des actions et décisions
+  const analyzeTextForActionsAndDecisions = (text) => {
+    const lowerText = text.toLowerCase();
+    
+    // Mots-clés pour actions
+    const actionKeywords = [
+      'doit', 'dois', 'devons', 'devez', 'va', 'vais', 'allons', 'allez',
+      'devra', 'faut', 'il faut', 'faudra', 'besoin', 'action', 'faire',
+      'réaliser', 'tâche', 'planifier', 'organiser', 'préparer', 'prévoir',
+      'créer', 'mettre en place', 'lancer', 'développer', 'implémenter',
+      'à suivre', 'next step', 'prochaine étape', 'todo'
+    ];
+    
+    // Mots-clés pour décisions
+    const decisionKeywords = [
+      'décidons', 'décidé', 'décision', 'on part sur', 'on choisit',
+      'on valide', 'validé', 'approuvé', 'refusé', 'rejeté', 'accepté',
+      'accord', 'd\'accord', 'ok pour', 'go pour', 'on fait', 'on ne fait pas',
+      'décide', 'resolved', 'résolu', 'statué', 'tranché'
+    ];
+    
+    // Détection d'action
+    const hasAction = actionKeywords.some(keyword => lowerText.includes(keyword));
+    if (hasAction) {
+      const newAction = {
+        id: Date.now() + Math.random(),
+        text: text.trim(),
+        timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+        priority: determinePriority(text)
+      };
+      
+      setDetectedActions(prev => {
+        // Éviter les doublons
+        const isDuplicate = prev.some(action => 
+          action.text.toLowerCase() === newAction.text.toLowerCase()
+        );
+        if (!isDuplicate) {
+          return [...prev, newAction];
+        }
+        return prev;
+      });
+    }
+    
+    // Détection de décision
+    const hasDecision = decisionKeywords.some(keyword => lowerText.includes(keyword));
+    if (hasDecision) {
+      const newDecision = {
+        id: Date.now() + Math.random(),
+        text: text.trim(),
+        timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+        impact: determineImpact(text)
+      };
+      
+      setDetectedDecisions(prev => {
+        // Éviter les doublons
+        const isDuplicate = prev.some(decision => 
+          decision.text.toLowerCase() === newDecision.text.toLowerCase()
+        );
+        if (!isDuplicate) {
+          return [...prev, newDecision];
+        }
+        return prev;
+      });
+    }
+  };
+
+  const determinePriority = (text) => {
+    const urgent = ['urgent', 'immédiat', 'asap', 'prioritaire', 'critique'];
+    const high = ['important', 'doit', 'faut', 'rapidement', 'vite'];
+    
+    const lowerText = text.toLowerCase();
+    if (urgent.some(word => lowerText.includes(word))) return 'Haute';
+    if (high.some(word => lowerText.includes(word))) return 'Moyenne';
+    return 'Basse';
+  };
+
+  const determineImpact = (text) => {
+    const high = ['stratégique', 'majeur', 'important', 'critique', 'essentiel'];
+    const medium = ['significatif', 'notable', 'conséquent'];
+    
+    const lowerText = text.toLowerCase();
+    if (high.some(word => lowerText.includes(word))) return 'Fort';
+    if (medium.some(word => lowerText.includes(word))) return 'Moyen';
+    return 'Faible';
+  };
+
   const handleStop = () => {
     if (confirm('🛑 Voulez-vous vraiment terminer cette session ?')) {
       stopRecording();
-      onEnd(transcript, duration);
+      // Ajouter les actions et décisions détectées à la session
+      const enhancedData = {
+        ...transcript,
+        detectedActions,
+        detectedDecisions
+      };
+      onEnd(transcript, duration, { detectedActions, detectedDecisions });
     }
   };
 
@@ -280,20 +380,23 @@ export default function ActiveSession({ config, onEnd }) {
 
   return (
     <div className="screen active-session">
-      <div className="session-header">
-        <div className="session-info">
-          <h2>{config.title}</h2>
-          <div className="recording-indicator">
-            {!isPaused && <span className="red-dot"></span>}
-            {isPaused ? '⏸️ En pause' : '🔴 Enregistrement en cours'} • {formatDuration(duration)}
-          </div>
-          
-          <div className="mic-status" style={{ fontSize: '14px', marginTop: '8px', opacity: 0.8 }}>
-            {micStatus}
-          </div>
+      <div className="session-layout">
+        {/* Panneau principal - Transcription */}
+        <div className="session-main">
+          <div className="session-header">
+            <div className="session-info">
+              <h2>{config.title}</h2>
+              <div className="recording-indicator">
+                {!isPaused && <span className="red-dot"></span>}
+                {isPaused ? '⏸️ En pause' : '🔴 Enregistrement en cours'} • {formatDuration(duration)}
+              </div>
+              
+              <div className="mic-status" style={{ fontSize: '14px', marginTop: '8px', opacity: 0.8 }}>
+                {micStatus}
+              </div>
 
-          {/* Indicateurs de détection */}
-          <div style={{ display: 'flex', gap: '12px', marginTop: '8px', fontSize: '12px' }}>
+              {/* Indicateurs de détection */}
+              <div style={{ display: 'flex', gap: '12px', marginTop: '8px', fontSize: '12px' }}>
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
@@ -435,6 +538,73 @@ export default function ActiveSession({ config, onEnd }) {
         >
           <Square size={18} /> Terminer la session
         </button>
+      </div>
+        </div>
+
+        {/* Panneau latéral - Analyse IA en temps réel */}
+        <div className="session-sidebar">
+          <div className="ai-panel">
+            <h3 className="ai-panel-title">🤖 Analyse IA en temps réel</h3>
+            
+            {/* Actions détectées */}
+            <div className="ai-section">
+              <div className="ai-section-header">
+                <CheckCircle size={18} />
+                <h4>Actions à suivre</h4>
+                <span className="ai-badge">{detectedActions.length}</span>
+              </div>
+              
+              <div className="ai-items">
+                {detectedActions.length === 0 ? (
+                  <div className="ai-empty">
+                    Aucune action détectée pour le moment
+                  </div>
+                ) : (
+                  detectedActions.map(action => (
+                    <div key={action.id} className="ai-item action-item">
+                      <div className="ai-item-meta">
+                        <span className="ai-time">{action.timestamp}</span>
+                        <span className={`priority-badge priority-${action.priority.toLowerCase()}`}>
+                          {action.priority}
+                        </span>
+                      </div>
+                      <div className="ai-item-text">{action.text}</div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Décisions détectées */}
+            <div className="ai-section">
+              <div className="ai-section-header">
+                <AlertTriangle size={18} />
+                <h4>Décisions prises</h4>
+                <span className="ai-badge">{detectedDecisions.length}</span>
+              </div>
+              
+              <div className="ai-items">
+                {detectedDecisions.length === 0 ? (
+                  <div className="ai-empty">
+                    Aucune décision détectée pour le moment
+                  </div>
+                ) : (
+                  detectedDecisions.map(decision => (
+                    <div key={decision.id} className="ai-item decision-item">
+                      <div className="ai-item-meta">
+                        <span className="ai-time">{decision.timestamp}</span>
+                        <span className={`impact-badge impact-${decision.impact.toLowerCase()}`}>
+                          Impact {decision.impact}
+                        </span>
+                      </div>
+                      <div className="ai-item-text">{decision.text}</div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
