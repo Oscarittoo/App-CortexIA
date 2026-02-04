@@ -602,13 +602,15 @@ footer {
 }
 
 .transcript-line {
-  margin-bottom: 15px;
-  padding: 12px 15px;
+  margin-bottom: 18px;
+  padding: 16px 20px;
   background: var(--white);
   border-radius: 8px;
   border-left: 4px solid transparent;
   animation: slideIn 0.3s ease;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 @keyframes slideIn {
@@ -630,8 +632,8 @@ footer {
 
 .timestamp {
   color: var(--text-light);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
   margin-right: 12px;
   font-family: 'Courier New', monospace;
 }
@@ -639,7 +641,8 @@ footer {
 .speaker {
   font-weight: 700;
   color: var(--color-primary);
-  margin-right: 8px;
+  margin-right: 10px;
+  font-size: 15px;
 }
 
 .text { color: var(--text); }
@@ -1109,9 +1112,10 @@ footer {
   background: var(--color-bg-secondary);
   border-left: 3px solid;
   border-radius: 6px;
-  padding: 12px;
-  font-size: 13px;
+  padding: 14px;
+  font-size: 14px;
   transition: all 0.2s ease;
+  line-height: 1.5;
 }
 
 .ai-item:hover {
@@ -1135,16 +1139,16 @@ footer {
 }
 
 .ai-time {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-light);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .priority-badge,
 .impact-badge {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
-  padding: 2px 6px;
+  padding: 3px 8px;
   border-radius: 4px;
   text-transform: uppercase;
 }
@@ -1180,8 +1184,10 @@ footer {
 }
 
 .ai-item-text {
-  line-height: 1.4;
+  line-height: 1.6;
   color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
 }
 
 /* Dark mode pour le panneau IA */

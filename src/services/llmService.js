@@ -373,31 +373,76 @@ CORTEXIA`;
   generateMockReport(transcript, sessionInfo) {
     const { language, title, duration } = sessionInfo;
     
+    // Extraire le texte réel de la transcription
+    const realText = transcript
+      .filter(line => !line.isSystem && line.text)
+      .map(line => line.text)
+      .join(' ');
+    
+    // Générer un résumé basé sur la vraie transcription
+    const textPreview = realText.length > 300 ? realText.substring(0, 300) + '...' : realText;
+    
+    // Extraire les actions mentionnées dans le texte
+    const extractedActions = [];
+    const actionPatterns = [
+      /(?:faire|réaliser|préparer|organiser|valider|créer)\s+(?:le|la|les|l'|un|une|des)\s+([^.,!?]+)/gi,
+      /(?:il faut|on doit|nous devons)\s+([^.,!?]+)/gi
+    ];
+    
+    actionPatterns.forEach(pattern => {
+      let match;
+      while ((match = pattern.exec(realText)) !== null && extractedActions.length < 3) {
+        extractedActions.push({
+          id: extractedActions.length + 1,
+          task: match[1].trim().substring(0, 80),
+          responsible: 'Équipe',
+          deadline: 'À définir',
+          priority: 'Moyenne'
+        });
+      }
+    });
+    
+    // Extraire les décisions mentionnées
+    const extractedDecisions = [];
+    const decisionPatterns = [
+      /(?:décision|on décide|validation)\s+(?:de|d')\s+([^.,!?]+)/gi,
+      /(?:adoption|mise en place)\s+(?:de|d'|du)\s+([^.,!?]+)/gi
+    ];
+    
+    decisionPatterns.forEach(pattern => {
+      let match;
+      while ((match = pattern.exec(realText)) !== null && extractedDecisions.length < 3) {
+        extractedDecisions.push({
+          id: extractedDecisions.length + 1,
+          text: match[0].trim().substring(0, 80),
+          impact: 'Fonctionnel'
+        });
+      }
+    });
+    
     const mockData = {
       fr: {
-        summary: `Cette réunion de ${Math.floor(duration / 60)} minutes a porté sur ${title}. Les participants ont discuté des objectifs principaux, analysé les options disponibles et défini les prochaines étapes. Un consensus a été trouvé sur la direction à prendre pour les semaines à venir.`,
-        actions: [
-          { id: 1, task: 'Préparer le document de spécifications', responsible: 'Équipe Tech', deadline: 'Vendredi prochain', priority: 'Haute' },
-          { id: 2, task: 'Organiser point de suivi', responsible: 'Project Manager', deadline: 'Dans 2 semaines', priority: 'Moyenne' },
-          { id: 3, task: 'Valider le budget avec la direction', responsible: 'Finance', deadline: 'Fin du mois', priority: 'Haute' }
+        summary: realText.length > 50 
+          ? `Cette réunion de ${Math.floor(duration / 60)} minutes a porté sur ${title}. Les participants ont discuté des points suivants : ${textPreview}`
+          : `Cette réunion de ${Math.floor(duration / 60)} minutes a porté sur ${title}. Les participants ont discuté des objectifs principaux, analysé les options disponibles et défini les prochaines étapes.`,
+        actions: extractedActions.length > 0 ? extractedActions : [
+          { id: 1, task: 'Faire le suivi avec l\'équipe', responsible: 'Équipe', deadline: 'À définir', priority: 'Moyenne' },
+          { id: 2, task: 'Passer sur la documentation', responsible: 'Équipe', deadline: 'À définir', priority: 'Haute' }
         ],
-        decisions: [
-          { id: 1, text: 'Adoption de la nouvelle architecture proposée', impact: 'Technique' },
-          { id: 2, text: 'Validation du planning pour Q2 2026', impact: 'Fonctionnel' },
-          { id: 3, text: 'Mise en place d\'un audit de sécurité', impact: 'Sécurité' }
+        decisions: extractedDecisions.length > 0 ? extractedDecisions : [
+          { id: 1, text: 'Décisions prises durant la session', impact: 'Fonctionnel' }
         ]
       },
       en: {
-        summary: `This ${Math.floor(duration / 60)}-minute meeting focused on ${title}. Participants discussed main objectives, analyzed available options, and defined next steps. Consensus was reached on the direction for the coming weeks.`,
-        actions: [
-          { id: 1, task: 'Prepare specification document', responsible: 'Tech Team', deadline: 'Next Friday', priority: 'High' },
-          { id: 2, task: 'Schedule follow-up meeting', responsible: 'Project Manager', deadline: 'In 2 weeks', priority: 'Medium' },
-          { id: 3, task: 'Validate budget with management', responsible: 'Finance', deadline: 'End of month', priority: 'High' }
+        summary: realText.length > 50
+          ? `This ${Math.floor(duration / 60)}-minute meeting focused on ${title}. Participants discussed: ${textPreview}`
+          : `This ${Math.floor(duration / 60)}-minute meeting focused on ${title}. Participants discussed main objectives, analyzed available options, and defined next steps.`,
+        actions: extractedActions.length > 0 ? extractedActions : [
+          { id: 1, task: 'Follow up with the team', responsible: 'Team', deadline: 'TBD', priority: 'Medium' },
+          { id: 2, task: 'Review documentation', responsible: 'Team', deadline: 'TBD', priority: 'High' }
         ],
-        decisions: [
-          { id: 1, text: 'Adoption of the proposed new architecture', impact: 'Technical' },
-          { id: 2, text: 'Validation of Q2 2026 planning', impact: 'Functional' },
-          { id: 3, text: 'Implementation of a security audit', impact: 'Security' }
+        decisions: extractedDecisions.length > 0 ? extractedDecisions : [
+          { id: 1, text: 'Decisions made during the session', impact: 'Functional' }
         ]
       }
     };

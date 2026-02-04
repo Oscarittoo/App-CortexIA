@@ -103,8 +103,13 @@ export default function ActiveSession({ config, onEnd }) {
 
         // Log du texte brut pour debug
         console.log('Texte brut:', JSON.stringify(text));
-        // Nettoyage : supprime les '0' parasites en fin de texte (.0, 0 seul, ou espace+0)
-        text = text.trim().replace(/[\s\.]*0+$/g, '');
+        
+        // Nettoyage robuste : supprime les patterns .0, 0 en fin, espaces+0, etc.
+        text = text.trim()
+          .replace(/\.0+\s*$/g, '')      // .0 ou .00 etc en fin
+          .replace(/\s+0+\s*$/g, '')      // espace suivi de 0 en fin
+          .replace(/\.0+(\s+|$)/g, '$1') // .0 suivi d'espace ou fin
+          .trim();
 
         console.log('Transcription:', {
           text,
@@ -117,10 +122,17 @@ export default function ActiveSession({ config, onEnd }) {
           console.log('✅ Résultat final ajouté à la transcription');
           setMicStatus('✅ Transcription active');
           
+          // Nettoyage final du texte avant ajout
+          const cleanedText = text.trim()
+            .replace(/\.0+\s*$/g, '')
+            .replace(/\s+0+\s*$/g, '')
+            .replace(/\.0+(\s+|$)/g, '$1')
+            .trim();
+          
           const newEntry = {
             id: Date.now(),
             timestamp: Date.now(),
-            text: text.trim().replace(/[\s\.]*0+$/g, ''),
+            text: cleanedText,
             speaker: 'Participant',
             confidence: confidence,
             isFinal: true
@@ -129,7 +141,7 @@ export default function ActiveSession({ config, onEnd }) {
           setTranscript(prev => [...prev, newEntry]);
           
           // Analyse IA en temps réel
-          analyzeTextForActionsAndDecisions(text);
+          analyzeTextForActionsAndDecisions(cleanedText);
         } else {
           const preview = text.length > 40 ? text.substring(0, 40) + '...' : text;
           setMicStatus(`🎤 ${preview}`);
@@ -507,7 +519,16 @@ export default function ActiveSession({ config, onEnd }) {
               })}
             </span>
             <span className="speaker">{item.speaker}:</span>
-            <span className="text">{typeof item.text === 'string' ? item.text.trim().replace(/[\s\.]*0+$/g, '') : item.text}</span>
+            <span className="text">
+              {typeof item.text === 'string' 
+                ? item.text.trim()
+                    .replace(/\.0+\s*$/g, '')
+                    .replace(/\s+0+\s*$/g, '')
+                    .replace(/\.0+(\s+|$)/g, '$1')
+                    .trim()
+                : item.text
+              }
+            </span>
             {item.confidence && (
               <span style={{ 
                 fontSize: '11px', 

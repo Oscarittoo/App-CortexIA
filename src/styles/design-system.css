@@ -22,6 +22,16 @@
   --color-primary: #6366f1;
   --color-primary-hover: #4f46e5;
   --color-primary-light: #eef2ff;
+  
+  /* Legacy variables for compatibility */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --radius: 8px;
+  --white: #ffffff;
+  --light: #f9fafb;
+  --dark: #111827;
+  --text: var(--color-text-primary);
+  --text-light: var(--color-text-secondary);
   --color-primary-dark: #4338ca;
   
   /* Semantic Colors */
@@ -100,6 +110,7 @@
 }
 
 [data-theme="dark"] {
+  --color-bg-page: #000000;
   --color-bg-primary: #0a0a0a;
   --color-bg-secondary: #141414;
   --color-bg-tertiary: #1f1f1f;
@@ -118,6 +129,15 @@
   --color-primary: #8b5cf6;
   --color-primary-hover: #7c3aed;
   --color-primary-light: #2e1065;
+  
+  /* Legacy variables for dark mode */
+  --success: #34d399;
+  --warning: #fbbf24;
+  --white: #0a0a0a;
+  --light: #141414;
+  --dark: #fafafa;
+  --text: var(--color-text-primary);
+  --text-light: var(--color-text-secondary);
   
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.6), 0 1px 2px 0 rgba(0, 0, 0, 0.5);
