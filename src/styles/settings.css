@@ -52,20 +52,20 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--space-lg);
-  border-bottom: 1px solid var(--gray-200);
+  border-bottom: 1px solid var(--color-border-medium);
 }
 
 .settings-header h2 {
   margin: 0;
   font-size: 24px;
-  color: var(--gray-900);
+  color: var(--color-text-primary);
 }
 
 .btn-close {
   background: none;
   border: none;
   font-size: 24px;
-  color: var(--gray-500);
+  color: var(--color-text-tertiary);
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 6px;
@@ -73,15 +73,15 @@
 }
 
 .btn-close:hover {
-  background: var(--gray-100);
-  color: var(--gray-900);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
 }
 
 .settings-tabs {
   display: flex;
   gap: 4px;
   padding: 0 var(--space-lg);
-  border-bottom: 1px solid var(--gray-200);
+  border-bottom: 1px solid var(--color-border-medium);
   overflow-x: auto;
 }
 
@@ -91,7 +91,7 @@
   padding: 12px 20px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--gray-600);
+  color: var(--color-text-secondary);
   cursor: pointer;
   border-bottom: 2px solid transparent;
   transition: all 0.15s ease;
@@ -99,13 +99,13 @@
 }
 
 .settings-tab:hover {
-  color: var(--gray-900);
-  background: var(--gray-50);
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
 }
 
 .settings-tab.active {
-  color: var(--primary);
-  border-bottom-color: var(--primary);
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
 }
 
 .settings-content {
@@ -117,18 +117,18 @@
 .settings-section h3 {
   margin: 0 0 var(--space-sm);
   font-size: 18px;
-  color: var(--gray-900);
+  color: var(--color-text-primary);
 }
 
 .section-description {
   margin: 0 0 var(--space-lg);
-  color: var(--gray-600);
+  color: var(--color-text-secondary);
   font-size: 14px;
 }
 
 .integration-card {
-  background: var(--gray-50);
-  border: 1px solid var(--gray-200);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-medium);
   border-radius: 12px;
   padding: var(--space-lg);
   margin-bottom: var(--space-md);
@@ -136,7 +136,7 @@
 }
 
 .integration-card:hover {
-  border-color: var(--gray-300);
+  border-color: var(--color-border-strong);
   box-shadow: var(--shadow-sm);
 }
 
@@ -165,13 +165,13 @@
 .integration-info h4 {
   margin: 0 0 4px;
   font-size: 16px;
-  color: var(--gray-900);
+  color: var(--color-text-primary);
 }
 
 .integration-info p {
   margin: 0;
   font-size: 13px;
-  color: var(--gray-600);
+  color: var(--color-text-secondary);
 }
 
 .integration-status {
@@ -184,8 +184,8 @@
   border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
-  background: var(--gray-200);
-  color: var(--gray-700);
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
 }
 
 .status-badge.connected {
@@ -207,7 +207,7 @@
   margin-bottom: 6px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--gray-700);
+  color: var(--color-text-secondary);
 }
 
 .settings-field input[type="text"],
@@ -215,7 +215,7 @@
 .settings-field select {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid var(--gray-300);
+  border: 1px solid var(--color-border-medium);
   border-radius: 8px;
   font-size: 14px;
   font-family: inherit;
@@ -225,8 +225,8 @@
 .settings-field input:focus,
 .settings-field select:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(8, 145, 212, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 .input-with-action {
@@ -240,8 +240,8 @@
 }
 
 .btn-icon {
-  background: var(--gray-100);
-  border: 1px solid var(--gray-300);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-medium);
   border-radius: 8px;
   padding: 10px 12px;
   cursor: pointer;
@@ -250,7 +250,7 @@
 }
 
 .btn-icon:hover {
-  background: var(--gray-200);
+  background: var(--color-bg-hover);
 }
 
 .integration-actions {
@@ -258,7 +258,7 @@
   gap: var(--space-sm);
   margin-top: var(--space-md);
   padding-top: var(--space-md);
-  border-top: 1px solid var(--gray-200);
+  border-top: 1px solid var(--color-border-medium);
 }
 
 .btn-sm {
@@ -272,14 +272,14 @@
   gap: 6px;
   padding: 8px 16px;
   font-size: 13px;
-  color: var(--primary);
+  color: var(--color-primary);
   text-decoration: none;
   border-radius: 8px;
   transition: all 0.15s ease;
 }
 
 .btn-link:hover {
-  background: var(--gray-100);
+  background: var(--color-bg-secondary);
 }
 
 .checkbox-label {
@@ -288,7 +288,7 @@
   gap: var(--space-sm);
   cursor: pointer;
   font-size: 14px;
-  color: var(--gray-700);
+  color: var(--color-text-secondary);
 }
 
 .checkbox-label input[type="checkbox"] {
@@ -302,8 +302,8 @@
   gap: var(--space-sm);
   justify-content: flex-end;
   padding: var(--space-lg);
-  border-top: 1px solid var(--gray-200);
-  background: var(--gray-50);
+  border-top: 1px solid var(--color-border-medium);
+  background: var(--color-bg-secondary);
   border-radius: 0 0 16px 16px;
 }
 

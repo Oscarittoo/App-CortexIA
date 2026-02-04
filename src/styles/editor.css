@@ -32,18 +32,18 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--space-lg);
-  border-bottom: 1px solid var(--gray-200);
+  border-bottom: 1px solid var(--color-border-medium);
 }
 
 .editor-header h2 {
   margin: 0;
   font-size: 24px;
-  color: var(--gray-900);
+  color: var(--color-text-primary);
 }
 
 .editor-toolbar {
   padding: var(--space-lg);
-  border-bottom: 1px solid var(--gray-200);
+  border-bottom: 1px solid var(--color-border-medium);
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
@@ -52,7 +52,7 @@
 .title-input {
   width: 100%;
   padding: 12px;
-  border: 2px solid var(--gray-300);
+  border: 2px solid var(--color-border-medium);
   border-radius: 8px;
   font-size: 18px;
   font-weight: 600;
@@ -61,8 +61,8 @@
 
 .title-input:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(8, 145, 212, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 .tags-section {
@@ -74,7 +74,7 @@
 
 .tags-section label {
   font-weight: 600;
-  color: var(--gray-700);
+  color: var(--color-text-secondary);
 }
 
 .tags-list {
@@ -92,20 +92,20 @@
 .participants-list {
   margin-bottom: var(--space-lg);
   padding: var(--space-md);
-  background: var(--gray-50);
+  background: var(--color-bg-secondary);
   border-radius: 8px;
 }
 
 .participants-list h4 {
   margin: 0 0 var(--space-sm);
   font-size: 14px;
-  color: var(--gray-700);
+  color: var(--color-text-secondary);
 }
 
 .participant-badge {
   display: inline-block;
   padding: 4px 10px;
-  background: var(--primary);
+  background: var(--color-primary);
   color: white;
   border-radius: 12px;
   font-size: 12px;
@@ -122,14 +122,14 @@
 
 .transcript-line-editor {
   padding: var(--space-md);
-  background: white;
-  border: 2px solid var(--gray-200);
+  background: var(--color-bg-primary);
+  border: 2px solid var(--color-border-medium);
   border-radius: 10px;
   transition: all 0.2s ease;
 }
 
 .transcript-line-editor:hover {
-  border-color: var(--gray-300);
+  border-color: var(--color-border-strong);
   box-shadow: var(--shadow-sm);
 }
 
@@ -140,7 +140,7 @@
 
 .transcript-line-editor.marked {
   background: #f0f9ff;
-  border-color: var(--primary);
+  border-color: var(--color-primary);
 }
 
 .line-meta {
@@ -152,18 +152,18 @@
 
 .timestamp {
   font-size: 12px;
-  color: var(--gray-500);
+  color: var(--color-text-tertiary);
   font-family: 'Courier New', monospace;
 }
 
 .speaker-select {
   padding: 4px 8px;
-  border: 1px solid var(--gray-300);
+  border: 1px solid var(--color-border-medium);
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--primary);
-  background: white;
+  color: var(--color-primary);
+  background: var(--color-bg-primary);
   cursor: pointer;
 }
 
@@ -174,7 +174,7 @@
 .line-display p {
   margin: 0;
   line-height: 1.6;
-  color: var(--gray-900);
+  color: var(--color-text-primary);
   padding-right: 80px;
 }
 
@@ -193,7 +193,7 @@
 }
 
 .line-actions button {
-  background: var(--gray-100);
+  background: var(--color-bg-secondary);
   border: none;
   border-radius: 6px;
   padding: 6px 10px;
@@ -203,14 +203,14 @@
 }
 
 .line-actions button:hover {
-  background: var(--gray-200);
+  background: var(--color-border-medium);
   transform: scale(1.1);
 }
 
 .line-edit textarea {
   width: 100%;
   padding: 10px;
-  border: 2px solid var(--primary);
+  border: 2px solid var(--color-primary);
   border-radius: 8px;
   font-size: 14px;
   font-family: inherit;
@@ -235,8 +235,8 @@
   gap: var(--space-sm);
   justify-content: flex-end;
   padding: var(--space-lg);
-  border-top: 1px solid var(--gray-200);
-  background: var(--gray-50);
+  border-top: 1px solid var(--color-border-medium);
+  background: var(--color-bg-secondary);
   border-radius: 0 0 16px 16px;
 }
 

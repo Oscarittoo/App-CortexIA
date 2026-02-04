@@ -184,8 +184,6 @@
   color: var(--color-text-primary);
   font-weight: 600;
 }
-  color: var(--gray-900);
-}
 
 .recent-sessions {
   background: var(--color-bg-primary);
