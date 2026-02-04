@@ -113,7 +113,6 @@ export default function App() {
       // Plan gratuit - si connecté, aller vers nouvelle session, sinon connexion
       if (isAuthenticated) {
         setCurrentView('new');
-        toast.success('Bienvenue ! Commencez votre première session');
       } else {
         setCurrentView('login');
       }
