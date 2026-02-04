@@ -46,8 +46,13 @@ export default function App() {
   }, []);
 
   const handleGetStarted = () => {
-    // Rediriger vers la page tarifs
-    setCurrentView('pricing');
+    // Si déjà connecté, aller vers nouvelle session
+    // Sinon, aller vers connexion
+    if (isAuthenticated) {
+      setCurrentView('new');
+    } else {
+      setCurrentView('login');
+    }
   };
 
   const handleStartSession = (config) => {
@@ -160,19 +165,19 @@ export default function App() {
           </a>
           <a
             className={`nav-link ${currentView === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setCurrentView(isAuthenticated ? 'dashboard' : 'pricing')}
+            onClick={() => setCurrentView(isAuthenticated ? 'dashboard' : 'login')}
           >
             Tableau de bord
           </a>
           <a
             className={`nav-link ${currentView === 'new' || currentView === 'active' ? 'active' : ''}`}
-            onClick={() => setCurrentView(isAuthenticated ? 'new' : 'pricing')}
+            onClick={() => setCurrentView(isAuthenticated ? 'new' : 'login')}
           >
             Nouvelle Session
           </a>
           <a
             className={`nav-link ${currentView === 'history' ? 'active' : ''}`}
-            onClick={() => setCurrentView(isAuthenticated ? 'history' : 'pricing')}
+            onClick={() => setCurrentView(isAuthenticated ? 'history' : 'login')}
           >
             Historique
           </a>
