@@ -110,14 +110,19 @@ export default function App() {
 
   const handleSelectPlan = (planId) => {
     if (planId === 'free') {
-      // Plan gratuit - rediriger vers connexion/inscription
-      setCurrentView('login');
+      // Plan gratuit - si connecté, aller vers nouvelle session, sinon connexion
+      if (isAuthenticated) {
+        setCurrentView('new');
+        toast.success('Bienvenue ! Commencez votre première session');
+      } else {
+        setCurrentView('login');
+      }
     } else if (planId === 'enterprise') {
       // Plan entreprise - contacter l'équipe
       toast.info('Notre équipe vous contactera sous 24h');
       // TODO: Ouvrir un formulaire de contact
     } else {
-      // Plan Pro - initialiser Stripe
+      // Plan Pro/Business - initialiser Stripe
       if (isAuthenticated && currentUser) {
         stripeService.initialize().then(() => {
           stripeService.createCheckoutSession(planId, currentUser.email).catch(err => {
