@@ -1,74 +1,100 @@
 /**
- * Service d'authentification pour CORTEXIA
+ * Service d'authentification pour CORTEXIA (Supabase)
  * Gère la connexion, l'inscription et la session utilisateur
  */
+import { supabase } from './supabaseClient';
 
 class AuthService {
   constructor() {
     this.currentUser = null;
-    this.loadCurrentUser();
-  }
-
-  /**
-   * Charge l'utilisateur actuel depuis localStorage
-   */
-  loadCurrentUser() {
-    try {
-      const userData = localStorage.getItem('cortexia_user');
-      if (userData) {
-        this.currentUser = JSON.parse(userData);
-      }
-    } catch (error) {
-      console.error('Erreur lors du chargement de l\'utilisateur:', error);
-    }
   }
 
   /**
    * Connecte un utilisateur
    */
-  login(email, password) {
-    // TODO: Implémenter la vraie authentification avec backend
-    const userData = {
+  async login(email, password) {
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
-      plan: 'free',
+      password
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    const client = await this.getClientById(data.user.id);
+    const userData = {
+      id: data.user.id,
+      email: data.user.email,
+      companyName: client?.company_name || null,
+      plan: client?.plan || 'free',
+      stripeSubscriptionId: client?.stripe_subscription_id || null,
+      role: client?.role || this.determineRole(data.user.email),
       loginAt: Date.now()
     };
-    
+
     this.currentUser = userData;
-    localStorage.setItem('cortexia_user', JSON.stringify(userData));
-    
+    await this.saveToClientDatabase({
+      id: data.user.id,
+      email: data.user.email,
+      company_name: client?.company_name || null,
+      plan: client?.plan || 'free',
+      stripe_subscription_id: client?.stripe_subscription_id || null,
+      role: userData.role
+    });
     return userData;
   }
 
   /**
    * Crée un nouveau compte
    */
-  register(email, password, companyName, plan = 'free') {
-    // TODO: Implémenter le vrai enregistrement avec backend
-    const userData = {
-      id: `user-${Date.now()}`,
+  async register(email, password, companyName, plan = 'free') {
+    const { data, error } = await supabase.auth.signUp({
       email,
+      password,
+      options: {
+        data: {
+          company_name: companyName,
+          plan
+        }
+      }
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    if (data.user) {
+      try {
+        await this.saveToClientDatabase({
+          id: data.user.id,
+          email: data.user.email,
+          company_name: companyName,
+          plan
+        });
+      } catch (e) {
+        console.warn('Insertion client différée (email confirmation active):', e?.message || e);
+      }
+    }
+
+    const userData = {
+      id: data.user?.id || null,
+      email: data.user?.email || email,
       companyName,
       plan,
-      registeredAt: Date.now(),
-      trialEndsAt: Date.now() + (14 * 24 * 60 * 60 * 1000) // 14 jours
+      registeredAt: Date.now()
     };
 
     this.currentUser = userData;
-    localStorage.setItem('cortexia_user', JSON.stringify(userData));
-
-    // Sauvegarder aussi dans la base de données clients
-    this.saveToClientDatabase(userData);
-    
     return userData;
   }
 
   /**
    * Déconnecte l'utilisateur
    */
-  logout() {
+  async logout() {
+    await supabase.auth.signOut();
     this.currentUser = null;
-    localStorage.removeItem('cortexia_user');
   }
 
   /**
@@ -81,86 +107,146 @@ class AuthService {
   /**
    * Récupère l'utilisateur actuel
    */
-  getCurrentUser() {
-    return this.currentUser;
+  async getCurrentUser() {
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error || !data?.user) {
+      return null;
+    }
+
+    const client = await this.getClientById(data.user.id);
+    const userData = {
+      id: data.user.id,
+      email: data.user.email,
+      companyName: client?.company_name || null,
+      plan: client?.plan || 'free',
+      stripeSubscriptionId: client?.stripe_subscription_id || null,
+      role: client?.role || this.determineRole(data.user.email)
+    };
+
+    this.currentUser = userData;
+    return userData;
   }
 
   /**
    * Met à jour le plan de l'utilisateur
    */
-  updatePlan(plan, stripeSubscriptionId = null) {
-    if (!this.currentUser) return null;
+  async updatePlan(plan, stripeSubscriptionId = null) {
+    const user = this.currentUser || await this.getCurrentUser();
+    if (!user?.id) return null;
 
-    this.currentUser.plan = plan;
-    this.currentUser.stripeSubscriptionId = stripeSubscriptionId;
-    this.currentUser.updatedAt = Date.now();
+    const updates = {
+      plan,
+      stripe_subscription_id: stripeSubscriptionId,
+      last_updated: new Date().toISOString()
+    };
 
-    localStorage.setItem('cortexia_user', JSON.stringify(this.currentUser));
-    this.saveToClientDatabase(this.currentUser);
+    await supabase.from('clients')
+      .update(updates)
+      .eq('id', user.id);
+
+    this.currentUser = {
+      ...user,
+      plan,
+      stripeSubscriptionId
+    };
 
     return this.currentUser;
   }
 
   /**
    * Sauvegarde les données client dans la base de données
-   * (pour accès admin uniquement)
    */
-  saveToClientDatabase(userData) {
-    try {
-      const clients = JSON.parse(localStorage.getItem('cortexia_clients_db') || '[]');
-      
-      // Vérifier si le client existe déjà
-      const existingIndex = clients.findIndex(c => c.email === userData.email);
-      
-      if (existingIndex !== -1) {
-        // Mettre à jour
-        clients[existingIndex] = {
-          ...clients[existingIndex],
-          ...userData,
-          lastUpdated: Date.now()
-        };
-      } else {
-        // Ajouter nouveau
-        clients.push({
-          ...userData,
-          createdAt: Date.now(),
-          lastUpdated: Date.now()
-        });
-      }
+  async saveToClientDatabase(userData) {
+    const payload = {
+      id: userData.id || null,
+      email: userData.email,
+      company_name: userData.company_name || userData.companyName || null,
+      plan: userData.plan || 'free',
+      stripe_subscription_id: userData.stripe_subscription_id || userData.stripeSubscriptionId || null,
+      created_at: new Date().toISOString(),
+      last_updated: new Date().toISOString()
+    };
 
-      localStorage.setItem('cortexia_clients_db', JSON.stringify(clients));
-    } catch (error) {
+    const { error } = await supabase
+      .from('clients')
+      .upsert(payload, { onConflict: 'id' });
+
+    if (error) {
       console.error('Erreur lors de la sauvegarde dans la BD clients:', error);
     }
   }
 
   /**
    * Récupère tous les clients (admin uniquement)
-   * TODO: Protéger avec authentification admin
    */
-  getAllClients() {
-    try {
-      return JSON.parse(localStorage.getItem('cortexia_clients_db') || '[]');
-    } catch (error) {
+  async getAllClients() {
+    const { data, error } = await supabase
+      .from('clients')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
       console.error('Erreur lors de la récupération des clients:', error);
       return [];
     }
+
+    return data || [];
   }
 
   /**
    * Recherche un client par email (admin uniquement)
    */
-  getClientByEmail(email) {
-    const clients = this.getAllClients();
-    return clients.find(c => c.email === email);
+  async getClientByEmail(email) {
+    const { data, error } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Erreur lors de la récupération du client:', error);
+      return null;
+    }
+
+    return data || null;
+  }
+
+  /**
+   * Récupère un client par ID
+   */
+  async getClientById(id) {
+    if (!id) return null;
+
+    const { data, error } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) {
+      return null;
+    }
+
+    return data || null;
+  }
+
+  /**
+   * Détermine le rôle en fonction de l'email (liste d'admins)
+   */
+  determineRole(email) {
+    const adminEmails = [
+      'oscarbrixon@gmail.com'
+    ];
+    return adminEmails.includes(email?.toLowerCase()) ? 'admin' : 'user';
   }
 
   /**
    * Récupère les statistiques clients (admin uniquement)
    */
-  getClientStats() {
-    const clients = this.getAllClients();
-    
+  async getClientStats() {
+    const clients = await this.getAllClients();
+
     const planCounts = clients.reduce((acc, client) => {
       acc[client.plan] = (acc[client.plan] || 0) + 1;
       return acc;
@@ -169,9 +255,7 @@ class AuthService {
     return {
       totalClients: clients.length,
       planDistribution: planCounts,
-      recentClients: clients
-        .sort((a, b) => b.createdAt - a.createdAt)
-        .slice(0, 10)
+      recentClients: clients.slice(0, 10)
     };
   }
 }

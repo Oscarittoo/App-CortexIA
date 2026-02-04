@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ClipboardList, Video, Mic, Monitor, MessageSquare, Gamepad2, Calendar } from 'lucide-react';
 import storageService from '../utils/storage';
 
 export default function SessionsHistory({ onViewSession }) {
@@ -129,15 +130,15 @@ export default function SessionsHistory({ onViewSession }) {
 
   const getPlatformIcon = (platform) => {
     const icons = {
-      local: '🎤',
-      zoom: '🎥',
-      'google-meet': '📹',
-      teams: '💼',
-      webex: '🌐',
-      slack: '💬',
-      discord: '🎮'
+      local: <Mic size={16} />,
+      zoom: <Video size={16} />,
+      'google-meet': <Video size={16} />,
+      teams: <Monitor size={16} />,
+      webex: <Monitor size={16} />,
+      slack: <MessageSquare size={16} />,
+      discord: <Gamepad2 size={16} />
     };
-    return icons[platform] || '🎤';
+    return icons[platform] || <Mic size={16} />;
   };
 
   return (
@@ -159,56 +160,41 @@ export default function SessionsHistory({ onViewSession }) {
               width: '140px',
               height: '140px',
               margin: '0 auto 40px',
-              background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-              borderRadius: '32px',
+              background: 'var(--color-bg-secondary)',
+              border: '2px solid var(--color-border-medium)',
+              borderRadius: '24px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '72px',
-              boxShadow: '0 20px 60px rgba(139, 92, 246, 0.3)',
-              animation: 'float 3s ease-in-out infinite'
-            }}>📋</div>
+              color: 'var(--color-text-tertiary)',
+            }}>
+              <ClipboardList size={64} strokeWidth={1.5} />
+            </div>
             <h2 style={{
-              fontSize: '32px',
-              fontWeight: '700',
-              color: '#1e293b',
-              marginBottom: '16px',
-              letterSpacing: '-0.02em'
+              fontSize: '28px',
+              fontWeight: '600',
+              color: 'var(--color-text-primary)',
+              marginBottom: '12px',
+              letterSpacing: '-0.01em'
             }}>Aucune session enregistrée</h2>
             <p style={{
-              fontSize: '18px',
-              color: '#64748b',
-              lineHeight: '1.7',
-              marginBottom: '40px',
+              fontSize: '16px',
+              color: 'var(--color-text-secondary)',
+              lineHeight: '1.6',
+              marginBottom: '32px',
               fontWeight: '400'
             }}>
               Commencez par créer votre première réunion pour construire votre historique et accéder à des statistiques détaillées.
             </p>
             <button 
               onClick={() => window.location.hash = '#new'}
+              className="btn-primary"
               style={{
-                padding: '16px 40px',
-                background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '12px',
-                fontSize: '17px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                boxShadow: '0 8px 24px rgba(139, 92, 246, 0.4)',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                letterSpacing: '0.01em'
-              }}
-              onMouseOver={(e) => {
-                e.target.style.transform = 'translateY(-3px)';
-                e.target.style.boxShadow = '0 12px 32px rgba(139, 92, 246, 0.5)';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 8px 24px rgba(139, 92, 246, 0.4)';
+                padding: '12px 32px',
+                fontSize: '15px',
               }}
             >
-              🎯 Créer ma première session
+              Créer ma première session
             </button>
           </div>
         </div>
@@ -264,19 +250,25 @@ export default function SessionsHistory({ onViewSession }) {
             </select>
 
             <div className="date-filters">
-              <input
-                type="date"
-                value={filters.dateFrom || ''}
-                onChange={(e) => setFilters({...filters, dateFrom: e.target.value})}
-                placeholder="De"
-              />
+              <div className="date-input-wrapper">
+                <Calendar size={16} strokeWidth={2} />
+                <input
+                  type="date"
+                  value={filters.dateFrom || ''}
+                  onChange={(e) => setFilters({...filters, dateFrom: e.target.value})}
+                  placeholder="De"
+                />
+              </div>
               <span>→</span>
-              <input
-                type="date"
-                value={filters.dateTo || ''}
-                onChange={(e) => setFilters({...filters, dateTo: e.target.value})}
-                placeholder="À"
-              />
+              <div className="date-input-wrapper">
+                <Calendar size={16} strokeWidth={2} />
+                <input
+                  type="date"
+                  value={filters.dateTo || ''}
+                  onChange={(e) => setFilters({...filters, dateTo: e.target.value})}
+                  placeholder="À"
+                />
+              </div>
             </div>
 
             {(searchQuery || filters.tags.length > 0 || filters.platform || filters.language || filters.dateFrom) && (
@@ -309,7 +301,6 @@ export default function SessionsHistory({ onViewSession }) {
             <button
               key={tag.id}
               className={`tag-chip ${filters.tags.includes(tag.id) ? 'active' : ''}`}
-              style={{ '--tag-color': tag.color }}
               onClick={() => toggleTag(tag.id)}
             >
               {tag.name}
@@ -342,14 +333,16 @@ export default function SessionsHistory({ onViewSession }) {
             width: '120px',
             height: '120px',
             margin: '0 auto 32px',
-            background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-            borderRadius: '24px',
+            background: 'var(--color-bg-secondary)',
+            border: '2px solid var(--color-border-medium)',
+            borderRadius: '20px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '56px',
-            boxShadow: '0 10px 30px rgba(139, 92, 246, 0.2)'
-          }}>📋</div>
+            color: 'var(--color-text-tertiary)',
+          }}>
+            <ClipboardList size={56} strokeWidth={1.5} />
+          </div>
           <h3 style={{
             fontSize: '24px',
             fontWeight: '600',
@@ -372,42 +365,16 @@ export default function SessionsHistory({ onViewSession }) {
           {sessions.length === 0 ? (
             <button 
               onClick={() => window.location.hash = '#new'}
-              style={{
-                padding: '14px 32px',
-                background: '#8b5cf6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)',
-                transition: 'all 0.2s'
-              }}
-              onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
-              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+              className="btn-primary"
             >
-              🎯 Créer ma première session
+              Créer une session
             </button>
           ) : (
             <button 
               onClick={clearFilters}
-              style={{
-                padding: '14px 32px',
-                background: '#0891d4',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(8, 145, 212, 0.3)',
-                transition: 'all 0.2s'
-              }}
-              onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
-              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+              className="btn-secondary"
             >
-              🔄 Réinitialiser les filtres
+              Réinitialiser les filtres
             </button>
           )}
         </div>
@@ -424,13 +391,13 @@ export default function SessionsHistory({ onViewSession }) {
 
               <div className="session-card-meta">
                 <span className="meta-item">
-                  📅 {formatDate(session.createdAt)}
+                  {formatDate(session.createdAt)}
                 </span>
                 <span className="meta-item">
                   {formatDuration(session.duration || 0)}
                 </span>
                 <span className="meta-item">
-                  💬 {session.transcript?.length || 0} segments
+                  {session.transcript?.length || 0} segments
                 </span>
               </div>
 
@@ -439,7 +406,7 @@ export default function SessionsHistory({ onViewSession }) {
                   {session.tags.map(tagId => {
                     const tag = tags.find(t => t.id === tagId);
                     return tag ? (
-                      <span key={tagId} className="tag-small" style={{ backgroundColor: tag.color }}>
+                      <span key={tagId} className="tag-small">
                         {tag.name}
                       </span>
                     ) : null;
@@ -452,13 +419,13 @@ export default function SessionsHistory({ onViewSession }) {
                   className="btn-secondary btn-sm"
                   onClick={() => onViewSession(session)}
                 >
-                  👁️ Voir
+                  Voir
                 </button>
                 <button
                   className="btn-secondary btn-sm"
                   onClick={() => handleDelete(session.id)}
                 >
-                  🗑️ Supprimer
+                  Supprimer
                 </button>
               </div>
             </div>

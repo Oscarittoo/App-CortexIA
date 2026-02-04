@@ -37,16 +37,33 @@ export default function Pricing({ onSelectPlan }) {
         'Support prioritaire'
       ],
       limitations: [],
-      cta: 'Essayer 14 jours gratuits',
+      cta: 'Choisir Pro',
       popular: true
+    },
+    {
+      id: 'business',
+      name: 'Business',
+      price: '49',
+      description: 'Pour les équipes en croissance',
+      features: [
+        'Tout du plan Pro',
+        'Espaces d\'équipe',
+        'Rôles & permissions',
+        'Rapports avancés',
+        'Intégrations premium',
+        'Support prioritaire renforcé'
+      ],
+      limitations: [],
+      cta: 'Passer Business',
+      popular: false
     },
     {
       id: 'enterprise',
       name: 'Entreprise',
-      price: 'Sur mesure',
+      price: 'Sur demande',
       description: 'Pour les grandes organisations',
       features: [
-        'Tout du plan Pro',
+        'Tout du plan Business',
         'API personnalisée',
         'Déploiement on-premise',
         'SSO et sécurité avancée',
@@ -83,7 +100,7 @@ export default function Pricing({ onSelectPlan }) {
             <div className="plan-header">
               <h3>{plan.name}</h3>
               <div className="plan-price">
-                {plan.price === 'Sur mesure' ? (
+                {plan.price === 'Sur mesure' || plan.price === 'Sur demande' ? (
                   <span className="price-custom">{plan.price}</span>
                 ) : (
                   <>
@@ -106,7 +123,7 @@ export default function Pricing({ onSelectPlan }) {
               <ul>
                 {plan.features.map((feature, index) => (
                   <li key={index}>
-                    <Check size={18} className="feature-icon" />
+                    <Check size={14} strokeWidth={2} className="feature-icon" />
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -142,9 +159,10 @@ export default function Pricing({ onSelectPlan }) {
 
         .pricing-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-          gap: var(--space-8);
+          grid-template-columns: repeat(4, minmax(240px, 1fr));
+          gap: var(--space-6);
           margin-bottom: var(--space-16);
+          align-items: stretch;
         }
 
         .pricing-card {
@@ -152,8 +170,10 @@ export default function Pricing({ onSelectPlan }) {
           background: var(--color-bg-primary);
           border: 2px solid var(--color-border-light);
           border-radius: var(--radius-xl);
-          padding: var(--space-8);
+          padding: var(--space-6);
           transition: all var(--transition-base);
+          display: flex;
+          flex-direction: column;
         }
 
         .pricing-card:hover {
@@ -170,6 +190,18 @@ export default function Pricing({ onSelectPlan }) {
 
         .pricing-card.popular:hover {
           transform: scale(1.05) translateY(-4px);
+        }
+
+        @media (max-width: 1200px) {
+          .pricing-grid {
+            grid-template-columns: repeat(2, minmax(260px, 1fr));
+          }
+        }
+
+        @media (max-width: 768px) {
+          .pricing-grid {
+            grid-template-columns: 1fr;
+          }
         }
 
         .popular-badge {
@@ -189,7 +221,7 @@ export default function Pricing({ onSelectPlan }) {
 
         .plan-header {
           text-align: center;
-          margin-bottom: var(--space-6);
+          margin-bottom: var(--space-4);
         }
 
         .plan-header h3 {
@@ -226,7 +258,8 @@ export default function Pricing({ onSelectPlan }) {
         }
 
         .plan-features {
-          margin-top: var(--space-6);
+          margin-top: var(--space-4);
+          flex: 1;
         }
 
         .plan-features ul {
@@ -238,21 +271,23 @@ export default function Pricing({ onSelectPlan }) {
         .plan-features li {
           display: flex;
           align-items: flex-start;
-          gap: var(--space-3);
-          padding: var(--space-3) 0;
+          gap: var(--space-2);
+          padding: var(--space-2) 0;
           color: var(--color-text-primary);
-          font-size: var(--font-size-sm);
+          font-size: var(--font-size-xs);
         }
 
         .feature-icon {
+          width: 14px;
+          height: 14px;
           color: var(--color-success);
           flex-shrink: 0;
-          margin-top: 2px;
+          margin-top: 3px;
         }
 
         .btn-lg {
           width: 100%;
-          margin-bottom: var(--space-4);
+          margin-bottom: var(--space-3);
         }
       `}</style>
     </div>

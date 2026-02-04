@@ -16,7 +16,7 @@ import toast from './components/Toast';
 import useDarkMode from './hooks/useDarkMode';
 import authService from './services/authService';
 import stripeService from './services/stripeService';
-import logo from './assets/logo.svg';
+import logo from '../Logo cortexia.jpeg';
 import './styles/design-system.css';
 import './styles/app.css';
 import './styles/home.css';
@@ -34,11 +34,15 @@ export default function App() {
 
   // Vérifier l'authentification au démarrage
   useEffect(() => {
-    const user = authService.getCurrentUser();
-    if (user) {
-      setIsAuthenticated(true);
-      setCurrentUser(user);
-    }
+    const loadUser = async () => {
+      const user = await authService.getCurrentUser();
+      if (user) {
+        setIsAuthenticated(true);
+        setCurrentUser(user);
+      }
+    };
+
+    loadUser();
   }, []);
 
   const handleGetStarted = () => {
@@ -129,8 +133,8 @@ export default function App() {
     setCurrentView('new'); // Rediriger vers nouvelle session après connexion
   };
 
-  const handleLogout = () => {
-    authService.logout();
+  const handleLogout = async () => {
+    await authService.logout();
     setIsAuthenticated(false);
     setCurrentUser(null);
     setCurrentView('home');
@@ -151,16 +155,28 @@ export default function App() {
           <a className={`nav-link ${currentView === 'home' ? 'active' : ''}`} onClick={handleGoHome}>
             Accueil
           </a>
-          <a className={`nav-link ${currentView === 'dashboard' ? 'active' : ''}`} onClick={() => setCurrentView('dashboard')}>
+          <a className={`nav-link ${currentView === 'pricing' ? 'active' : ''}`} onClick={() => setCurrentView('pricing')}>
+            Prix
+          </a>
+          <a
+            className={`nav-link ${currentView === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setCurrentView(isAuthenticated ? 'dashboard' : 'pricing')}
+          >
             Tableau de bord
           </a>
-          <a className={`nav-link ${currentView === 'new' || currentView === 'active' ? 'active' : ''}`} onClick={() => setCurrentView('new')}>
+          <a
+            className={`nav-link ${currentView === 'new' || currentView === 'active' ? 'active' : ''}`}
+            onClick={() => setCurrentView(isAuthenticated ? 'new' : 'pricing')}
+          >
             Nouvelle Session
           </a>
-          <a className={`nav-link ${currentView === 'history' ? 'active' : ''}`} onClick={() => setCurrentView('history')}>
+          <a
+            className={`nav-link ${currentView === 'history' ? 'active' : ''}`}
+            onClick={() => setCurrentView(isAuthenticated ? 'history' : 'pricing')}
+          >
             Historique
           </a>
-          {isAuthenticated && (
+          {isAuthenticated && currentUser?.role === 'admin' && (
             <a className={`nav-link ${currentView === 'admin' ? 'active' : ''}`} onClick={() => setCurrentView('admin')}>
               Admin
             </a>
@@ -229,7 +245,7 @@ export default function App() {
             onEdit={() => handleEditSession(reportData)}
           />
         )}
-        {currentView === 'admin' && isAuthenticated && <AdminDashboard />}
+        {currentView === 'admin' && isAuthenticated && currentUser?.role === 'admin' && <AdminDashboard />}
       </main>
 
       <footer>

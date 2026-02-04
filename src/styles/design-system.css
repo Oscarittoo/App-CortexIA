@@ -1,36 +1,38 @@
-/* Professional Design System - Inspired by Linear, Notion, Slack */
+/* Professional Design System - Inspired by Supabase, Linear, Vercel */
 
 :root {
-  /* Colors - Neutral Palette */
+  /* Colors - Neutral Palette (Light Mode) */
   --color-bg-primary: #ffffff;
-  --color-bg-secondary: #f8f9fa;
-  --color-bg-tertiary: #f1f3f5;
-  --color-bg-hover: #e9ecef;
-  --color-bg-active: #dee2e6;
+  --color-bg-secondary: #f5f5f7;
+  --color-bg-tertiary: #e8e9ed;
+  --color-bg-hover: #ececef;
+  --color-bg-active: #dcdce0;
+  --color-bg-page: #f5f5f7;
   
-  --color-text-primary: #1a1a1a;
-  --color-text-secondary: #6c757d;
-  --color-text-tertiary: #adb5bd;
-  --color-text-disabled: #ced4da;
+  --color-text-primary: #0a0a0a;
+  --color-text-secondary: #525252;
+  --color-text-tertiary: #a3a3a3;
+  --color-text-disabled: #d4d4d4;
   
-  --color-border-light: #e9ecef;
-  --color-border-medium: #dee2e6;
-  --color-border-strong: #ced4da;
+  --color-border-light: #f5f5f5;
+  --color-border-medium: #e5e5e5;
+  --color-border-strong: #d4d4d4;
   
-  /* Brand Colors */
+  /* Brand Colors - Violet sobre et professionnel */
   --color-primary: #6366f1;
   --color-primary-hover: #4f46e5;
   --color-primary-light: #eef2ff;
+  --color-primary-dark: #4338ca;
   
   /* Semantic Colors */
-  --color-success: #10b981;
+  --color-success: #059669;
   --color-success-light: #d1fae5;
-  --color-warning: #f59e0b;
+  --color-warning: #d97706;
   --color-warning-light: #fef3c7;
-  --color-error: #ef4444;
+  --color-error: #dc2626;
   --color-error-light: #fee2e2;
-  --color-info: #3b82f6;
-  --color-info-light: #dbeafe;
+  --color-info: #0284c7;
+  --color-info-light: #e0f2fe;
   
   /* Spacing - 8px Grid */
   --space-1: 4px;
@@ -98,30 +100,30 @@
 }
 
 [data-theme="dark"] {
-  --color-bg-primary: #0d1117;
-  --color-bg-secondary: #161b22;
-  --color-bg-tertiary: #21262d;
-  --color-bg-hover: #30363d;
-  --color-bg-active: #484f58;
+  --color-bg-primary: #0a0a0a;
+  --color-bg-secondary: #141414;
+  --color-bg-tertiary: #1f1f1f;
+  --color-bg-hover: #292929;
+  --color-bg-active: #333333;
   
-  --color-text-primary: #f0f6fc;
-  --color-text-secondary: #8b949e;
-  --color-text-tertiary: #6e7681;
-  --color-text-disabled: #484f58;
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #a3a3a3;
+  --color-text-tertiary: #737373;
+  --color-text-disabled: #525252;
   
-  --color-border-light: #30363d;
-  --color-border-medium: #484f58;
-  --color-border-strong: #6e7681;
+  --color-border-light: #1f1f1f;
+  --color-border-medium: #292929;
+  --color-border-strong: #404040;
   
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
-  --color-primary-light: #1e1b4b;
+  --color-primary: #8b5cf6;
+  --color-primary-hover: #7c3aed;
+  --color-primary-light: #2e1065;
   
-  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.6), 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 2px 4px -1px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -2px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.5);
 }
 
 /* Reset & Base Styles */

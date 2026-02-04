@@ -9,20 +9,20 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
+    const loadClients = async () => {
+      const allClients = await authService.getAllClients();
+      setClients(allClients);
+
+      const statistics = await authService.getClientStats();
+      setStats(statistics);
+    };
+
     loadClients();
   }, []);
 
-  const loadClients = () => {
-    const allClients = authService.getAllClients();
-    setClients(allClients);
-    
-    const statistics = authService.getClientStats();
-    setStats(statistics);
-  };
-
   const filteredClients = clients.filter(client =>
     client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.companyName?.toLowerCase().includes(searchTerm.toLowerCase())
+    client.company_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -99,7 +99,7 @@ export default function AdminDashboard() {
                   <td>
                     <div className="cell-with-icon">
                       <Building size={16} />
-                      {client.companyName || '-'}
+                      {client.company_name || '-'}
                     </div>
                   </td>
                   <td>
@@ -110,14 +110,14 @@ export default function AdminDashboard() {
                   <td>
                     <div className="cell-with-icon">
                       <Calendar size={16} />
-                      {client.createdAt ? format(new Date(client.createdAt), 'dd/MM/yyyy HH:mm') : '-'}
+                      {client.created_at ? format(new Date(client.created_at), 'dd/MM/yyyy HH:mm') : '-'}
                     </div>
                   </td>
                   <td>
-                    {client.lastUpdated ? format(new Date(client.lastUpdated), 'dd/MM/yyyy HH:mm') : '-'}
+                    {client.last_updated ? format(new Date(client.last_updated), 'dd/MM/yyyy HH:mm') : '-'}
                   </td>
                   <td>
-                    <code className="stripe-id">{client.stripeSubscriptionId || '-'}</code>
+                    <code className="stripe-id">{client.stripe_subscription_id || '-'}</code>
                   </td>
                 </tr>
               ))

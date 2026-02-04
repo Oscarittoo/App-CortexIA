@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import toast from './Toast';
+import authService from '../services/authService';
 
 export default function Login({ onLogin, onBack }) {
   const [email, setEmail] = useState('');
@@ -9,7 +10,7 @@ export default function Login({ onLogin, onBack }) {
   const [isRegistering, setIsRegistering] = useState(false);
   const [companyName, setCompanyName] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!email || !password) {
@@ -22,19 +23,17 @@ export default function Login({ onLogin, onBack }) {
       return;
     }
 
-    // Simulation de connexion
-    const userData = {
-      email,
-      companyName: isRegistering ? companyName : 'Entreprise Demo',
-      plan: 'free',
-      registeredAt: Date.now()
-    };
+    try {
+      const userData = isRegistering
+        ? await authService.register(email, password, companyName, 'free')
+        : await authService.login(email, password);
 
-    // Sauvegarder dans localStorage
-    localStorage.setItem('cortexia_user', JSON.stringify(userData));
-    
-    toast.success(isRegistering ? 'Compte créé avec succès !' : 'Connexion réussie !');
-    onLogin(userData);
+      toast.success(isRegistering ? 'Compte créé avec succès !' : 'Connexion réussie !');
+      onLogin(userData);
+    } catch (error) {
+      const message = error?.message || 'Erreur de connexion. Vérifiez vos identifiants.';
+      toast.error(message);
+    }
   };
 
   return (

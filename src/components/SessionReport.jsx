@@ -18,11 +18,54 @@ export default function SessionReport({ data, onNewSession, onEdit }) {
   const generateReport = async () => {
     setIsGenerating(true);
     
-    // Utiliser directement l'analyse locale (pas d'API)
-    console.log('📊 Analyse locale de la transcription...');
+    console.log('🤖 Génération du rapport avec IA OpenAI...');
     
     try {
-      // Génération locale basée sur la vraie transcription
+      // Préparer les données de la session
+      const sessionInfo = {
+        title: data.title || 'Sans titre',
+        language: data.language || 'fr',
+        duration: data.duration || 0
+      };
+      
+      // Appeler le service LLM pour générer le rapport complet
+      const aiReport = await llmService.generateReport(data.transcript || [], sessionInfo);
+      
+      console.log('✅ Rapport IA généré avec succès');
+      
+      // Mettre à jour l'UI avec les résultats de l'IA
+      const fullTranscript = data.transcript
+        ?.map(t => t.text)
+        .filter(text => text && text.trim())
+        .join(' ') || '';
+      
+      setSummary(`📋 Compte-rendu de la réunion "${data.title || 'Sans titre'}"\n\n📅 **Date :** ${new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}\n⏱️ **Durée :** ${formatDuration(data.duration)}\n🌍 **Langue :** ${data.language === 'fr' ? 'Français' : 'English'}\n\n---\n\n## 📝 Résumé par IA\n\n${aiReport.summary}\n\n---\n\n💡 *Ce rapport a été généré automatiquement par GPT-4o*`);
+
+      setActions(aiReport.actions || []);
+      setDecisions(aiReport.decisions || []);
+      setFollowUpEmail(aiReport.email || '');
+      
+      // Sauvegarder la session avec le rapport IA
+      const sessionToSave = {
+        ...data,
+        summary: aiReport.summary,
+        actions: aiReport.actions,
+        decisions: aiReport.decisions,
+        email: aiReport.email,
+        generatedAt: Date.now(),
+        aiGenerated: true
+      };
+      
+      storageService.saveSession(sessionToSave);
+      console.log('✅ Session sauvegardée avec rapport IA');
+
+      setIsGenerating(false);
+      
+    } catch (error) {
+      console.error('❌ Erreur génération IA:', error);
+      console.log('⚠️ Fallback sur analyse locale...');
+      
+      // Fallback sur extraction manuelle si l'IA échoue
       const fullTranscript = data.transcript
         ?.map(t => t.text)
         .join(' ') || '';
@@ -30,29 +73,25 @@ export default function SessionReport({ data, onNewSession, onEdit }) {
       const extractedActions = extractActions(fullTranscript);
       const extractedDecisions = extractDecisions(fullTranscript);
       
-      setSummary(`📋 Compte-rendu de la réunion "${data.title || 'Sans titre'}"\n\n📅 **Date :** ${new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}\n⏱️ **Durée :** ${formatDuration(data.duration)}\n🌍 **Langue :** ${data.language === 'fr' ? 'Français' : 'English'}\n\n---\n\n## 📝 Transcription complète\n\n${fullTranscript || 'Aucune transcription disponible'}\n\n---\n\n## 🔑 Points clés de la discussion\n\n${extractKeyPoints(fullTranscript)}\n\n---\n\n💡 *Note: Ce résumé a été généré par analyse locale de la transcription. Pour un résumé IA professionnel, rechargez vos crédits OpenAI.*`);
+      setSummary(`📋 Compte-rendu de la réunion "${data.title || 'Sans titre'}"\n\n📅 **Date :** ${new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}\n⏱️ **Durée :** ${formatDuration(data.duration)}\n🌍 **Langue :** ${data.language === 'fr' ? 'Français' : 'English'}\n\n---\n\n## 📝 Transcription complète\n\n${fullTranscript || 'Aucune transcription disponible'}\n\n---\n\n## 🔑 Points clés de la discussion\n\n${extractKeyPoints(fullTranscript)}\n\n---\n\n⚠️ *L'IA n'a pas pu générer le résumé (${error.message}). Analyse locale utilisée.*`);
 
       setActions(extractedActions);
       setDecisions(extractedDecisions);
 
-      setFollowUpEmail(`Objet : Compte-rendu - ${data.title || 'Réunion'}\n\nBonjour,\n\nVoici le récapitulatif de notre réunion "${data.title || 'Sans titre'}" du ${new Date().toLocaleDateString('fr-FR')}.\n\nDURÉE : ${formatDuration(data.duration)}\n\n${extractedDecisions.length > 0 && extractedDecisions[0].text !== 'Aucune décision formelle détectée dans la transcription' ? `DÉCISIONS PRISES\n${extractedDecisions.map(d => `• ${d.text} (${d.impact})`).join('\n')}\n\n` : ''}${extractedActions.length > 0 && extractedActions[0].task !== 'Aucune action spécifique détectée dans la transcription' ? `ACTIONS À SUIVRE\n${extractedActions.map(a => `• ${a.task}\n  Responsable: ${a.responsible} | Échéance: ${new Date(a.deadline).toLocaleDateString('fr-FR')} | Priorité: ${a.priority}`).join('\n\n')}\n\n` : ''}TRANSCRIPTION
-${fullTranscript.substring(0, 800)}${fullTranscript.length > 800 ? '...\n\n[Transcription complète disponible dans le compte-rendu joint]' : ''}\n\nCordialement,\nCORTEXIA`);
+      setFollowUpEmail(`Objet : Compte-rendu - ${data.title || 'Réunion'}\n\nBonjour,\n\nVoici le récapitulatif de notre réunion "${data.title || 'Sans titre'}" du ${new Date().toLocaleDateString('fr-FR')}.\n\nDURÉE : ${formatDuration(data.duration)}\n\n${extractedDecisions.length > 0 && extractedDecisions[0].text !== 'Aucune décision formelle détectée dans la transcription' ? `DÉCISIONS PRISES\n${extractedDecisions.map(d => `• ${d.text} (${d.impact})`).join('\n')}\n\n` : ''}${extractedActions.length > 0 && extractedActions[0].task !== 'Aucune action spécifique détectée dans la transcription' ? `ACTIONS À SUIVRE\n${extractedActions.map(a => `• ${a.task}\n  Responsable: ${a.responsible} | Échéance: ${new Date(a.deadline).toLocaleDateString('fr-FR')} | Priorité: ${a.priority}`).join('\n\n')}\n\n` : ''}TRANSCRIPTION\n${fullTranscript.substring(0, 800)}${fullTranscript.length > 800 ? '...\n\n[Transcription complète disponible dans le compte-rendu joint]' : ''}\n\nCordialement,\nCORTEXIA`);
       
-      // Sauvegarder la session
       const sessionToSave = {
         ...data,
         summary: `Compte-rendu - ${data.title}`,
         actions: extractedActions,
         decisions: extractedDecisions,
-        generatedAt: Date.now()
+        generatedAt: Date.now(),
+        aiGenerated: false
       };
       
       storageService.saveSession(sessionToSave);
-      console.log('✅ Session sauvegardée');
+      console.log('✅ Session sauvegardée (mode local)');
 
-      setIsGenerating(false);
-    } catch (error) {
-      console.error('❌ Erreur génération:', error);
       setIsGenerating(false);
     }
   };
@@ -248,8 +287,9 @@ ${actions.map(a => `- [ ] **${a.task}**\n  - Responsable: ${a.responsible}\n  - 
       <div className="screen session-report">
         <div className="loading">
           <div className="spinner"></div>
-          <p>🤖 Analyse de la transcription en cours...</p>
-          <small>Génération du résumé, extraction des actions et décisions</small>
+          <p>🤖 Génération IA en cours...</p>
+          <small>GPT-4o analyse votre transcription pour extraire résumé, actions et décisions</small>
+          <small style={{ display: 'block', marginTop: '8px', opacity: 0.7 }}>Cela peut prendre 10-30 secondes selon la longueur</small>
         </div>
       </div>
     );

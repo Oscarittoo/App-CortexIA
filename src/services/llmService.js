@@ -54,26 +54,40 @@ class LLMService {
    */
   async generateSummary(transcriptText, language) {
     const prompt = language === 'fr' 
-      ? `Analyse cette transcription de réunion et génère un résumé structuré en français avec:
+      ? `Analyse cette transcription de réunion et génère un résumé professionnel et structuré en français.
 
-1. Un paragraphe de contexte (2-3 phrases)
-2. Les points clés discutés (liste à puces)
-3. Les conclusions principales
+STRUCTURE ATTENDUE:
+1. **Contexte** (2-3 phrases) - De quoi parlait cette réunion ?
+2. **Points Clés** (3-5 points avec •) - Qu'est-ce qui a été discuté d'important ?
+3. **Conclusions** (2-3 phrases) - Quelles sont les grandes décisions ou orientations ?
 
-Transcription:
+STYLE:
+- Professionnel et concis
+- Sans émoticônes
+- Phrases complètes et claires
+- Utilise les vrais noms et termes mentionnés
+
+TRANSCRIPTION:
 ${transcriptText}
 
-Réponds uniquement avec le résumé structuré, sans préambule.`
-      : `Analyze this meeting transcript and generate a structured summary in English with:
+Réponds directement avec le résumé formaté en Markdown, sans préambule.`
+      : `Analyze this meeting transcript and generate a professional structured summary in English.
 
-1. A context paragraph (2-3 sentences)
-2. Key points discussed (bullet list)
-3. Main conclusions
+EXPECTED STRUCTURE:
+1. **Context** (2-3 sentences) - What was this meeting about?
+2. **Key Points** (3-5 points with •) - What important topics were discussed?
+3. **Conclusions** (2-3 sentences) - What are the main decisions or directions?
 
-Transcript:
+STYLE:
+- Professional and concise
+- No emojis
+- Complete and clear sentences
+- Use real names and terms mentioned
+
+TRANSCRIPT:
 ${transcriptText}
 
-Respond only with the structured summary, no preamble.`;
+Respond directly with the summary formatted in Markdown, no preamble.`;
 
     if (this.provider === 'openai') {
       return await this.callOpenAI(prompt);
@@ -87,45 +101,70 @@ Respond only with the structured summary, no preamble.`;
    */
   async extractActions(transcriptText, language) {
     const prompt = language === 'fr'
-      ? `Analyse cette transcription et extrais UNIQUEMENT les actions concrètes mentionnées.
+      ? `Analyse cette transcription de réunion et extrais les actions concrètes mentionnées.
 
-Pour chaque action, retourne un JSON avec:
-- task: La tâche à réaliser (max 100 caractères)
-- responsible: Le responsable mentionné (ou "À définir")
-- deadline: L'échéance mentionnée (ou "À définir")
-- priority: "Haute", "Moyenne" ou "Basse"
+RÈGLES D'EXTRACTION:
+- Cherche les phrases avec "doit", "va", "faut", "action", "faire", "préparer", "organiser", "planifier"
+- Identifie qui est responsable (nom de personne ou équipe)
+- Détecte les échéances mentionnées (dates, "demain", "la semaine prochaine", etc.)
+- Évalue la priorité selon l'urgence exprimée
 
-Transcription:
+TRANSCRIPTION:
 ${transcriptText}
 
-Réponds UNIQUEMENT avec un array JSON d'actions, rien d'autre.
-Format: [{"task": "...", "responsible": "...", "deadline": "...", "priority": "..."}]`
-      : `Analyze this transcript and extract ONLY the concrete action items mentioned.
+Retourne un JSON avec la structure suivante (s'il n'y a aucune action, retourne un array vide []):
+{
+  "actions": [
+    {
+      "task": "Description claire de l'action",
+      "responsible": "Nom de la personne ou 'À définir'",
+      "deadline": "Date ou description temporelle ou 'À définir'",
+      "priority": "Haute" ou "Moyenne" ou "Basse"
+    }
+  ]
+}
 
-For each action, return a JSON with:
-- task: The task to do (max 100 chars)
-- responsible: The person responsible (or "TBD")
-- deadline: The deadline mentioned (or "TBD")
-- priority: "High", "Medium" or "Low"
+Réponds UNIQUEMENT avec le JSON, sans texte additionnel.`
+      : `Analyze this meeting transcript and extract concrete action items.
 
-Transcript:
+EXTRACTION RULES:
+- Look for phrases with "must", "should", "will", "need to", "action", "prepare", "organize", "plan"
+- Identify who is responsible (person name or team)
+- Detect mentioned deadlines (dates, "tomorrow", "next week", etc.)
+- Assess priority based on expressed urgency
+
+TRANSCRIPT:
 ${transcriptText}
 
-Respond ONLY with a JSON array of actions, nothing else.
-Format: [{"task": "...", "responsible": "...", "deadline": "...", "priority": "..."}]`;
+Return JSON with this structure (if no actions, return empty array []):
+{
+  "actions": [
+    {
+      "task": "Clear action description",
+      "responsible": "Person name or 'TBD'",
+      "deadline": "Date or time description or 'TBD'",
+      "priority": "High" or "Medium" or "Low"
+    }
+  ]
+}
+
+Respond ONLY with JSON, no additional text.`;
 
     try {
       const response = this.provider === 'openai'
         ? await this.callOpenAI(prompt, true)
         : await this.callClaude(prompt, true);
 
-      const actions = JSON.parse(response);
-      return actions.map((action, index) => ({
+      const parsed = JSON.parse(response);
+      const actions = parsed.actions || parsed;
+      
+      return Array.isArray(actions) ? actions.map((action, index) => ({
         id: index + 1,
         ...action
-      }));
+      })) : [];
     } catch (error) {
       console.error('Erreur parsing actions:', error);
+      console.error('Réponse brute:', response);
       return [];
     }
   }
@@ -135,41 +174,80 @@ Format: [{"task": "...", "responsible": "...", "deadline": "...", "priority": ".
    */
   async extractDecisions(transcriptText, language) {
     const prompt = language === 'fr'
-      ? `Analyse cette transcription et extrais UNIQUEMENT les décisions formelles prises.
+      ? `Analyse cette transcription de réunion et extrais les décisions formelles prises.
 
-Pour chaque décision, retourne un JSON avec:
-- text: La décision prise (max 150 caractères)
-- impact: "Technique", "Sécurité", "Fonctionnel" ou "Légal"
+RÈGLES D'EXTRACTION:
+- Cherche les phrases avec "décidé", "décision", "on part sur", "validé", "approuvé", "on choisit", "accord"
+- Évite les simples opinions ou suggestions
+- Catégorise l'impact de chaque décision
 
-Transcription:
+TRANSCRIPTION:
 ${transcriptText}
 
-Réponds UNIQUEMENT avec un array JSON de décisions, rien d'autre.
-Format: [{"text": "...", "impact": "..."}]`
-      : `Analyze this transcript and extract ONLY the formal decisions made.
+CATÉGORies D'IMPACT:
+- Technique: Architecture, technologie, infrastructure
+- Sécurité: Protection des données, accès, conformité
+- Fonctionnel: Features, produit, UX
+- Stratégique: Vision, objectifs long terme
+- Financier: Budget, coûts, investissements
+- Légal: Contrats, RGPD, juridique
 
-For each decision, return a JSON with:
-- text: The decision made (max 150 chars)
-- impact: "Technical", "Security", "Functional" or "Legal"
+Retourne un JSON (s'il n'y a aucune décision, retourne un array vide []):
+{
+  "decisions": [
+    {
+      "text": "Description concise de la décision",
+      "impact": "Catégorie parmi la liste ci-dessus"
+    }
+  ]
+}
 
-Transcript:
+Réponds UNIQUEMENT avec le JSON, sans texte additionnel.`
+      : `Analyze this meeting transcript and extract formal decisions made.
+
+EXTRACTION RULES:
+- Look for phrases with "decided", "decision", "going with", "approved", "validated", "chose", "agreed"
+- Avoid simple opinions or suggestions
+- Categorize the impact of each decision
+
+TRANSCRIPT:
 ${transcriptText}
 
-Respond ONLY with a JSON array of decisions, nothing else.
-Format: [{"text": "...", "impact": "..."}]`;
+IMPACT CATEGORIES:
+- Technical: Architecture, technology, infrastructure
+- Security: Data protection, access, compliance
+- Functional: Features, product, UX
+- Strategic: Vision, long-term goals
+- Financial: Budget, costs, investments
+- Legal: Contracts, GDPR, juridical
+
+Return JSON (if no decisions, return empty array []):
+{
+  "decisions": [
+    {
+      "text": "Concise decision description",
+      "impact": "Category from list above"
+    }
+  ]
+}
+
+Respond ONLY with JSON, no additional text.`;
 
     try {
       const response = this.provider === 'openai'
         ? await this.callOpenAI(prompt, true)
         : await this.callClaude(prompt, true);
 
-      const decisions = JSON.parse(response);
-      return decisions.map((decision, index) => ({
+      const parsed = JSON.parse(response);
+      const decisions = parsed.decisions || parsed;
+      
+      return Array.isArray(decisions) ? decisions.map((decision, index) => ({
         id: index + 1,
         ...decision
-      }));
+      })) : [];
     } catch (error) {
       console.error('Erreur parsing décisions:', error);
+      console.error('Réponse brute:', response);
       return [];
     }
   }
@@ -185,7 +263,7 @@ Format: [{"text": "...", "impact": "..."}]`;
         'Authorization': `Bearer ${this.openaiKey}`
       },
       body: JSON.stringify({
-        model: 'gpt-4-turbo-preview',
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
@@ -197,7 +275,7 @@ Format: [{"text": "...", "impact": "..."}]`;
           }
         ],
         temperature: 0.3,
-        max_tokens: jsonMode ? 2000 : 1000,
+        max_tokens: jsonMode ? 2000 : 1500,
         response_format: jsonMode ? { type: 'json_object' } : undefined
       })
     });

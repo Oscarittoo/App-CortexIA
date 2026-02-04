@@ -45,12 +45,12 @@ export default function Home({ onGetStarted }) {
             </div>
             <div className="stat-divider"></div>
             <div className="stat-item">
-              <div className="stat-number">30min</div>
+              <div className="stat-number">2 Heures</div>
               <div className="stat-label">Temps économisé moy.</div>
             </div>
             <div className="stat-divider"></div>
             <div className="stat-item">
-              <div className="stat-number">50+</div>
+              <div className="stat-number">10+</div>
               <div className="stat-label">Langues</div>
             </div>
           </div>

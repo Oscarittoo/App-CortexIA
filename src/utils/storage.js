@@ -112,10 +112,10 @@ class StorageService {
   getAllTags() {
     const data = localStorage.getItem(STORAGE_KEYS.TAGS);
     return data ? JSON.parse(data) : [
-      { id: 'work', name: 'Travail', color: '#0891d4' },
-      { id: 'personal', name: 'Personnel', color: '#AB47BC' },
-      { id: 'urgent', name: 'Urgent', color: '#dc3545' },
-      { id: 'meeting', name: 'Réunion', color: '#10b981' },
+      { id: 'work', name: 'Travail', color: '#64748b' },
+      { id: 'personal', name: 'Personnel', color: '#64748b' },
+      { id: 'urgent', name: 'Urgent', color: '#64748b' },
+      { id: 'meeting', name: 'Réunion', color: '#64748b' },
     ];
   }
   

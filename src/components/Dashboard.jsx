@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { BarChart3 } from 'lucide-react';
 import storageService from '../utils/storage';
 import {
   Chart as ChartJS,
@@ -92,9 +93,9 @@ export default function Dashboard() {
     datasets: [{
       label: 'Sessions par jour',
       data: getSessionsPerDay(),
-      backgroundColor: 'rgba(8, 145, 212, 0.8)',
-      borderColor: 'rgba(8, 145, 212, 1)',
-      borderWidth: 2,
+      backgroundColor: 'rgba(99, 102, 241, 0.8)',
+      borderColor: 'rgba(99, 102, 241, 1)',
+      borderWidth: 1.5,
     }]
   };
 
@@ -103,13 +104,14 @@ export default function Dashboard() {
     datasets: [{
       data: Object.values(stats?.platformUsage || {}),
       backgroundColor: [
-        '#0891d4',
-        '#AB47BC',
-        '#10b981',
-        '#f59e0b',
-        '#dc3545',
-        '#6366f1'
+        '#6366f1',
+        '#8b5cf6',
+        '#a855f7',
+        '#c084fc',
+        '#d8b4fe',
+        '#e9d5ff'
       ],
+      borderWidth: 0,
     }]
   };
 
@@ -118,10 +120,13 @@ export default function Dashboard() {
     datasets: [{
       label: 'Durée (minutes)',
       data: getDurationTrend(),
-      borderColor: '#AB47BC',
-      backgroundColor: 'rgba(171, 71, 188, 0.1)',
-      tension: 0.4,
+      borderColor: '#8b5cf6',
+      backgroundColor: 'rgba(139, 92, 246, 0.08)',
+      tension: 0.3,
       fill: true,
+      borderWidth: 2,
+      pointRadius: 3,
+      pointBackgroundColor: '#8b5cf6',
     }]
   };
 
@@ -167,6 +172,19 @@ export default function Dashboard() {
     return durations.map((d, i) => counts[i] > 0 ? Math.round(d / counts[i] / 60) : 0);
   }
 
+  function getPlatformName(platform) {
+    const names = {
+      local: 'Local',
+      zoom: 'Zoom',
+      'google-meet': 'Meet',
+      teams: 'Teams',
+      webex: 'Webex',
+      slack: 'Slack',
+      discord: 'Discord'
+    };
+    return names[platform] || 'Local';
+  }
+
   if (!stats) return <div className="loading">Chargement...</div>;
 
   // Si aucune session n'existe
@@ -186,44 +204,37 @@ export default function Dashboard() {
             width: '120px',
             height: '120px',
             margin: '0 auto 32px',
-            background: 'linear-gradient(135deg, #0891d4 0%, #06b6d4 100%)',
-            borderRadius: '24px',
+            background: 'var(--color-bg-secondary)',
+            border: '2px solid var(--color-border-medium)',
+            borderRadius: '20px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '56px',
-            boxShadow: '0 10px 30px rgba(8, 145, 212, 0.2)'
-          }}>📊</div>
+            color: 'var(--color-text-tertiary)',
+          }}>
+            <BarChart3 size={56} strokeWidth={1.5} />
+          </div>
           <h3 style={{
             fontSize: '24px',
             fontWeight: '600',
-            color: '#1e293b',
+            color: 'var(--color-text-primary)',
             marginBottom: '12px'
           }}>Commencez votre première session</h3>
           <p style={{
-            fontSize: '16px',
-            color: '#64748b',
+            fontSize: '15px',
+            color: 'var(--color-text-secondary)',
             lineHeight: '1.6',
             marginBottom: '32px'
           }}>Créez une session de réunion pour voir vos statistiques, graphiques et analyses apparaître ici.</p>
           <button 
             onClick={() => window.location.hash = '#new'}
+            className="btn-primary"
             style={{
-              padding: '14px 32px',
-              background: '#0891d4',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '16px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(8, 145, 212, 0.3)',
-              transition: 'all 0.2s'
+              padding: '12px 32px',
+              fontSize: '15px',
             }}
-            onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
-            onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
           >
-            🚀 Créer ma première session
+            Créer ma première session
           </button>
         </div>
       </div>
@@ -299,6 +310,26 @@ export default function Dashboard() {
               maintainAspectRatio: false,
               plugins: {
                 legend: { display: false }
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    precision: 0,
+                    font: { size: 11 }
+                  },
+                  grid: {
+                    color: 'rgba(0, 0, 0, 0.05)'
+                  }
+                },
+                x: {
+                  ticks: {
+                    font: { size: 11 }
+                  },
+                  grid: {
+                    display: false
+                  }
+                }
               }
             }}
           />
@@ -313,7 +344,15 @@ export default function Dashboard() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                  legend: { position: 'bottom' }
+                  legend: { 
+                    position: 'bottom',
+                    labels: {
+                      padding: 12,
+                      font: { size: 11 },
+                      boxWidth: 12,
+                      boxHeight: 12
+                    }
+                  }
                 }
               }}
             />
@@ -337,9 +376,19 @@ export default function Dashboard() {
               scales: {
                 y: {
                   beginAtZero: true,
-                  title: {
-                    display: true,
-                    text: 'Minutes'
+                  ticks: {
+                    font: { size: 11 }
+                  },
+                  grid: {
+                    color: 'rgba(0, 0, 0, 0.05)'
+                  }
+                },
+                x: {
+                  ticks: {
+                    font: { size: 11 }
+                  },
+                  grid: {
+                    display: false
                   }
                 }
               }
@@ -352,14 +401,12 @@ export default function Dashboard() {
         <h3>Statistiques</h3>
         <div className="insights-grid">
           <div className="insight-card">
-            <span className="insight-emoji">🔥</span>
             <div className="insight-text">
               <strong>Streak actuel :</strong> {stats.sessionsThisWeek} sessions cette semaine
             </div>
           </div>
 
           <div className="insight-card">
-            <span className="insight-emoji">⚡</span>
             <div className="insight-text">
               <strong>Le plus productif :</strong> {stats.sessionsThisMonth} sessions ce mois-ci
             </div>
@@ -367,7 +414,6 @@ export default function Dashboard() {
 
           {stats.mostUsedTags && stats.mostUsedTags.length > 0 && (
             <div className="insight-card">
-              <span className="insight-emoji">🏷️</span>
               <div className="insight-text">
                 <strong>Tag favori :</strong> {stats.mostUsedTags[0].tag} ({stats.mostUsedTags[0].count} sessions)
               </div>
@@ -375,7 +421,6 @@ export default function Dashboard() {
           )}
 
           <div className="insight-card">
-            <span className="insight-emoji">💰</span>
             <div className="insight-text">
               <strong>Temps économisé :</strong> ~{Math.round(stats.totalDuration / 60 * 0.3)}min de prise de notes évitées
             </div>
@@ -400,10 +445,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="session-platform">
-                {session.platform === 'local' && '🎤'}
-                {session.platform === 'zoom' && '🎥'}
-                {session.platform === 'google-meet' && '📹'}
-                {session.platform === 'teams' && '💼'}
+                {getPlatformName(session.platform)}
               </div>
             </div>
           ))}

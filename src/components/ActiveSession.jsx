@@ -14,12 +14,15 @@ export default function ActiveSession({ config, onEnd }) {
   const recognitionRef = useRef(null);
   const transcriptEndRef = useRef(null);
   const restartCountRef = useRef(0);
+  const isPausedRef = useRef(false);
+  const durationRef = useRef(0);
 
   useEffect(() => {
     startRecording();
     const timer = setInterval(() => {
-      if (!isPaused) {
-        setDuration(d => d + 1);
+      if (!isPausedRef.current) {
+        durationRef.current += 1;
+        setDuration(durationRef.current);
       }
     }, 1000);
 
@@ -28,6 +31,11 @@ export default function ActiveSession({ config, onEnd }) {
       stopRecording();
     };
   }, []);
+
+  // Synchroniser le ref avec le state
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
 
   useEffect(() => {
     // Auto-scroll vers le bas
@@ -95,8 +103,8 @@ export default function ActiveSession({ config, onEnd }) {
 
         // Log du texte brut pour debug
         console.log('Texte brut:', JSON.stringify(text));
-        // Nettoyage strict : trim puis supprime tout '.0', ' 0' ou '0' final
-        text = text.trim().replace(/\.0$/, '');
+        // Nettoyage : supprime les '0' parasites en fin de texte (.0, 0 seul, ou espace+0)
+        text = text.trim().replace(/[\s\.]*0+$/g, '');
 
         console.log('Transcription:', {
           text,
@@ -112,7 +120,7 @@ export default function ActiveSession({ config, onEnd }) {
           const newEntry = {
             id: Date.now(),
             timestamp: Date.now(),
-            text: text.trim().replace(/\.0$/, ''),
+            text: text.trim().replace(/[\s\.]*0+$/g, ''),
             speaker: 'Participant',
             confidence: confidence,
             isFinal: true
@@ -499,7 +507,7 @@ export default function ActiveSession({ config, onEnd }) {
               })}
             </span>
             <span className="speaker">{item.speaker}:</span>
-            <span className="text">{typeof item.text === 'string' ? item.text.trim().replace(/\.0$/, '') : item.text}</span>
+            <span className="text">{typeof item.text === 'string' ? item.text.trim().replace(/[\s\.]*0+$/g, '') : item.text}</span>
             {item.confidence && (
               <span style={{ 
                 fontSize: '11px', 
