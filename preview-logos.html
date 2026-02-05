@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prévisualisation Logos Meetizy</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #e2e8f0;
+      padding: 40px 20px;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      text-align: center;
+      font-size: 42px;
+      margin-bottom: 10px;
+      color: #38bdf8;
+      text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+    }
+    
+    .subtitle {
+      text-align: center;
+      color: #94a3b8;
+      margin-bottom: 50px;
+      font-size: 18px;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+    
+    .logo-card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 2px solid rgba(56, 189, 248, 0.2);
+      border-radius: 16px;
+      padding: 30px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .logo-card:hover {
+      border-color: #38bdf8;
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
+      transform: translateY(-5px);
+    }
+    
+    .logo-preview {
+      width: 100%;
+      height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.8);
+      border-radius: 12px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .logo-preview::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(56, 189, 248, 0.1) 0%, transparent 70%);
+    }
+    
+    .logo-preview img {
+      max-width: 200px;
+      max-height: 200px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .logo-title {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #38bdf8;
+    }
+    
+    .logo-description {
+      color: #94a3b8;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .size-previews {
+      display: flex;
+      gap: 15px;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid rgba(56, 189, 248, 0.1);
+    }
+    
+    .size-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .size-preview img {
+      background: rgba(15, 23, 42, 0.5);
+      padding: 8px;
+      border-radius: 6px;
+    }
+    
+    .size-label {
+      font-size: 11px;
+      color: #64748b;
+    }
+    
+    .best-choice {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: #38bdf8;
+      color: #0f172a;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      z-index: 2;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 Logos Meetizy</h1>
+    <p class="subtitle">Sélectionnez votre logo préféré parmi ces 4 propositions</p>
+    
+    <div class="grid">
+      <div class="logo-card">
+        <div class="logo-preview">
+          <span class="best-choice">⭐ Recommandé</span>
+          <img src="./src/assets/logo_option1_micro.svg" alt="Logo Option 1">
+        </div>
+        <div class="logo-title">Option 1 : Micro Intelligent</div>
+        <div class="logo-description">
+          Un microphone stylisé avec ondes sonores animées. Symbole universel et immédiatement reconnaissable pour les réunions audio/vidéo. Parfait pour les petits formats (favicon).
+        </div>
+        <div class="size-previews">
+          <div class="size-preview">
+            <img src="./src/assets/logo_option1_micro.svg" width="64" height="64" alt="64px">
+            <span class="size-label">64x64</span>
+          </div>
+          <div class="size-preview">
+            <img src="./src/assets/logo_option1_micro.svg" width="32" height="32" alt="32px">
+            <span class="size-label">32x32</span>
+          </div>
+          <div class="size-preview">
+            <img src="./src/assets/logo_option1_micro.svg" width="16" height="16" alt="16px">
+            <span class="size-label">16x16</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="logo-card">
+        <div class="logo-preview">
+          <img src="./src/assets/logo_option2_onde.svg" alt="Logo Option 2">
+        </div>
+        <div class="logo-title">Option 2 : Onde Audio Circulaire</div>
+        <div class="logo-description">
+          Forme d'onde audio géométrique avec centre pulsant. Design très moderne et dynamique qui évoque l'intelligence artificielle et le traitement audio en temps réel.
+        </div>
+        <div class="size-previews">
+          <div class="size-preview">
+            <img src="./src/assets/logo_option2_onde.svg" width="64" height="64" alt="64px">
+            <span class="size-label">64x64</span>
+          </div>
+          <div class="size-preview">
+            <img src="./src/assets/logo_option2_onde.svg" width="32" height="32" alt="32px">
+            <span class="size-label">32x32</span>
+          </div>
+          <div class="size-preview">
+            <img src="./src/assets/logo_option2_onde.svg" width="16" height="16" alt="16px">
+            <span class="size-label">16x16</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="logo-card">
+        <div class="logo-preview">
+          <img src="./src/assets/logo_option3_m.svg" alt="Logo Option 3">
+        </div>
+        <div class="logo-title">Option 3 : M Connecté</div>
+        <div class="logo-description">
+          Lettre M stylisée avec nœuds de réseau animés. Représente la connexion entre participants et l'aspect collaboratif des réunions. Design minimaliste et mémorable.
+        </div>
+        <div class="size-previews">
+          <div class="size-preview">
+            <img src="./src/assets/logo_option3_m.svg" width="64" height="64" alt="64px">
+            <span class="size-label">64x64</span>
+          </div>
+          <div class="size-preview">
+            <img src="./src/assets/logo_option3_m.svg" width="32" height="32" alt="32px">
+            <span class="size-label">32x32</span>
+          </div>
+          <div class="size-preview">
+            <img src="./src/assets/logo_option3_m.svg" width="16" height="16" alt="16px">
+            <span class="size-label">16x16</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="logo-card">
+        <div class="logo-preview">
+          <img src="./src/assets/logo_option4_minimal.svg" alt="Logo Option 4">
+        </div>
+        <div class="logo-title">Option 4 : Hexagone Tech</div>
+        <div class="logo-description">
+          Forme d'onde dans un hexagone avec effet scanning. Style futuriste et épuré qui évoque la technologie de pointe et l'analyse audio sophistiquée.
+        </div>
+        <div class="size-previews">
+          <div class="size-preview">
+            <img src="./src/assets/logo_option4_minimal.svg" width="64" height="64" alt="64px">
+            <span class="size-label">64x64</span>
+          </div>
+          <div class="size-preview">
+            <img src="./src/assets/logo_option4_minimal.svg" width="32" height="32" alt="32px">
+            <span class="size-label">32x32</span>
+          </div>
+          <div class="size-preview">
+            <img src="./src/assets/logo_option4_minimal.svg" width="16" height="16" alt="16px">
+            <span class="size-label">16x16</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

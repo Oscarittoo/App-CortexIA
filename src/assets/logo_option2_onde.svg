@@ -1,0 +1,57 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cercle de base -->
+  <circle cx="100" cy="100" r="85" stroke="#38bdf8" stroke-width="3" opacity="0.3" fill="none"/>
+  
+  <!-- Forme d'onde audio circulaire -->
+  <path d="M 100 30 
+           L 110 50 L 105 70 L 115 90 L 100 100 
+           L 85 90 L 95 70 L 90 50 Z" 
+        fill="url(#waveGradient1)" opacity="0.9"/>
+  
+  <path d="M 100 100 
+           L 115 110 L 110 130 L 120 150 L 100 170 
+           L 80 150 L 90 130 L 85 110 Z" 
+        fill="url(#waveGradient2)" opacity="0.9"/>
+  
+  <path d="M 30 100 
+           L 50 90 L 70 95 L 90 85 L 100 100 
+           L 90 115 L 70 105 L 50 110 Z" 
+        fill="url(#waveGradient3)" opacity="0.9"/>
+  
+  <path d="M 100 100 
+           L 110 85 L 130 90 L 150 80 L 170 100 
+           L 150 120 L 130 110 L 110 115 Z" 
+        fill="url(#waveGradient4)" opacity="0.9"/>
+  
+  <!-- Centre lumineux -->
+  <circle cx="100" cy="100" r="15" fill="#38bdf8" opacity="0.8">
+    <animate attributeName="r" values="12;18;12" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Points de connexion -->
+  <circle cx="100" cy="40" r="5" fill="#38bdf8"/>
+  <circle cx="100" cy="160" r="5" fill="#38bdf8"/>
+  <circle cx="40" cy="100" r="5" fill="#38bdf8"/>
+  <circle cx="160" cy="100" r="5" fill="#38bdf8"/>
+  
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="waveGradient1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#38bdf8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:0.5" />
+    </linearGradient>
+    <linearGradient id="waveGradient2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:0.5" />
+      <stop offset="100%" style="stop-color:#38bdf8;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="waveGradient3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#38bdf8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:0.5" />
+    </linearGradient>
+    <linearGradient id="waveGradient4" x1="100%" y1="0%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#38bdf8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:0.5" />
+    </linearGradient>
+  </defs>
+</svg>

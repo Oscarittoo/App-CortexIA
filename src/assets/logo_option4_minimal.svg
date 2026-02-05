@@ -1,0 +1,55 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Hexagone de base -->
+  <path d="M 100 25 L 165 62.5 L 165 137.5 L 100 175 L 35 137.5 L 35 62.5 Z" 
+        stroke="#38bdf8" 
+        stroke-width="3" 
+        fill="none" 
+        opacity="0.4"/>
+  
+  <!-- Forme d'onde centrale (stylisée et simplifiée) -->
+  <path d="M 60 100 L 70 85 L 80 110 L 90 75 L 100 100 L 110 125 L 120 90 L 130 115 L 140 100" 
+        stroke="url(#waveGradientSimple)" 
+        stroke-width="5" 
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        fill="none">
+    <animate attributeName="stroke-width" values="4;6;4" dur="2s" repeatCount="indefinite"/>
+  </path>
+  
+  <!-- Points lumineux sur la forme d'onde -->
+  <circle cx="70" cy="85" r="4" fill="#38bdf8">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="90" cy="75" r="4" fill="#38bdf8">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" begin="0.3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="110" cy="125" r="4" fill="#38bdf8">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" begin="0.6s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="130" cy="115" r="4" fill="#38bdf8">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" begin="0.9s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Lignes de scanning (effet tech) -->
+  <line x1="50" y1="80" x2="150" y2="80" stroke="#38bdf8" stroke-width="1" opacity="0.2">
+    <animate attributeName="y1" values="60;140;60" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="y2" values="60;140;60" dur="3s" repeatCount="indefinite"/>
+  </line>
+  
+  <!-- Points aux coins de l'hexagone -->
+  <circle cx="100" cy="25" r="5" fill="#38bdf8" opacity="0.8"/>
+  <circle cx="165" cy="62.5" r="5" fill="#38bdf8" opacity="0.8"/>
+  <circle cx="165" cy="137.5" r="5" fill="#38bdf8" opacity="0.8"/>
+  <circle cx="100" cy="175" r="5" fill="#38bdf8" opacity="0.8"/>
+  <circle cx="35" cy="137.5" r="5" fill="#38bdf8" opacity="0.8"/>
+  <circle cx="35" cy="62.5" r="5" fill="#38bdf8" opacity="0.8"/>
+  
+  <!-- Gradient -->
+  <defs>
+    <linearGradient id="waveGradientSimple" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#38bdf8;stop-opacity:0.8" />
+      <stop offset="50%" style="stop-color:#0ea5e9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#38bdf8;stop-opacity:0.8" />
+    </linearGradient>
+  </defs>
+</svg>

@@ -1,0 +1,37 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Ondes sonores (arrière-plan) -->
+  <circle cx="100" cy="100" r="80" stroke="#38bdf8" stroke-width="2" opacity="0.2" fill="none"/>
+  <circle cx="100" cy="100" r="65" stroke="#38bdf8" stroke-width="2" opacity="0.3" fill="none"/>
+  <circle cx="100" cy="100" r="50" stroke="#38bdf8" stroke-width="2" opacity="0.4" fill="none"/>
+  
+  <!-- Microphone principal -->
+  <rect x="80" y="60" width="40" height="55" rx="20" fill="url(#micGradient)" stroke="#38bdf8" stroke-width="3"/>
+  
+  <!-- Support du micro -->
+  <path d="M 100 115 L 100 145" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+  <path d="M 75 145 L 125 145" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Lignes audio (gauche) -->
+  <path d="M 50 85 Q 45 85 42 87" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+  <path d="M 48 100 Q 40 100 35 102" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+  
+  <!-- Lignes audio (droite) -->
+  <path d="M 150 85 Q 155 85 158 87" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+  <path d="M 152 100 Q 160 100 165 102" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+  
+  <!-- Circuit IA (points lumineux) -->
+  <circle cx="90" cy="80" r="3" fill="#38bdf8" opacity="0.9">
+    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="110" cy="90" r="3" fill="#38bdf8" opacity="0.9">
+    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Gradient -->
+  <defs>
+    <linearGradient id="micGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#38bdf8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>
