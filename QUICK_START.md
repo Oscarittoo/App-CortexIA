@@ -244,7 +244,7 @@ Template auto-formats report sections
 1. Export sessions to PDF regularly
 2. Copy localStorage data:
    - F12 → Application → Local Storage
-   - Copy all CORTEXIA keys
+   - Copy all MEETIZY keys
    - Save to text file
 3. Future: SQLite backup feature
 
@@ -315,3 +315,4 @@ After your first session:
 **You're ready to start!** Click "Commencer" and record your first session.
 
 For detailed documentation, see `PROFESSIONAL_FEATURES.md`
+

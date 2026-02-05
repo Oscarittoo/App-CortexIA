@@ -1,4 +1,4 @@
-# 🧪 Guide de test - CORTEXIA
+# 🧪 Guide de test - MEETIZY
 
 Ce guide vous permet de tester toutes les fonctionnalités implémentées.
 
@@ -51,7 +51,7 @@ L'application sera accessible à : **http://localhost:5173**
 2. ✅ Vérifier la redirection vers la page login
 3. ✅ Cliquer sur "Créer un compte"
 4. ✅ Remplir les champs :
-   - Email : `test@cortexia.com`
+   - Email : `test@meetizy.com`
    - Nom d'entreprise : `Test Company`
    - Mot de passe : `Test1234`
 5. ✅ Cliquer sur "Créer mon compte"
@@ -78,7 +78,7 @@ L'application sera accessible à : **http://localhost:5173**
 4. Sur la page tarifs, choisir n'importe quel plan
 5. ✅ Vérifier que le formulaire de connexion s'affiche
 6. ✅ Remplir :
-   - Email : `test@cortexia.com`
+   - Email : `test@meetizy.com`
    - Mot de passe : `Test1234`
 7. ✅ Cliquer sur "Se connecter"
 8. ✅ Vérifier la connexion réussie
@@ -110,7 +110,7 @@ L'application sera accessible à : **http://localhost:5173**
 
 **Résultat attendu** :
 - Dashboard avec cartes de statistiques
-- Tableau avec le client `test@cortexia.com`
+- Tableau avec le client `test@meetizy.com`
 - Recherche fonctionnelle (live search)
 - Badge coloré pour le plan
 
@@ -124,7 +124,7 @@ L'application sera accessible à : **http://localhost:5173**
 
 **Étapes** :
 1. Ouvrir http://localhost:5173 dans **Chrome ou Edge**
-2. Se connecter avec `test@cortexia.com`
+2. Se connecter avec `test@meetizy.com`
 3. Cliquer sur "Nouvelle Session" dans la navigation
 4. ✅ Remplir le formulaire :
    - Titre : `Test Analyse IA`
@@ -249,9 +249,9 @@ L'application sera accessible à : **http://localhost:5173**
 **Étapes** :
 1. Ouvrir DevTools → Application → Storage → Local Storage
 2. ✅ Vérifier la présence des clés :
-   - `cortexia_user` : Utilisateur connecté
-   - `cortexia_clients_db` : Base de données clients
-   - `cortexia_sessions` : Sessions enregistrées
+   - `meetizy_user` : Utilisateur connecté
+   - `meetizy_clients_db` : Base de données clients
+   - `meetizy_sessions` : Sessions enregistrées
 3. ✅ Vérifier le format JSON des données
 4. ✅ Vérifier que les données persistent après refresh (F5)
 
@@ -386,7 +386,7 @@ L'application sera accessible à : **http://localhost:5173**
 ### Template de rapport
 
 ```
-# Test CORTEXIA - [Date]
+# Test MEETIZY - [Date]
 
 ## Environnement
 - OS : Windows/Mac/Linux
@@ -452,3 +452,4 @@ L'application sera accessible à : **http://localhost:5173**
 
 **Date de création** : 3 février 2026  
 **Version** : 1.0.0
+

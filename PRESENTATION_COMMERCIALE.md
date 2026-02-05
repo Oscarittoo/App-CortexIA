@@ -1,4 +1,4 @@
-# CORTEXIA - Présentation Commerciale
+# MEETIZY - Présentation Commerciale
 
 ## L'Assistant Intelligent qui Transforme vos Réunions en Actions
 
@@ -19,13 +19,13 @@
 
 ---
 
-## La Solution : CORTEXIA
+## La Solution : MEETIZY
 
-**CORTEXIA transforme automatiquement vos réunions en comptes-rendus actionnables.**
+**MEETIZY transforme automatiquement vos réunions en comptes-rendus actionnables.**
 
 ### En 3 clics :
 1. **Démarrez** → Lancez la transcription
-2. **Parlez** → CORTEXIA écoute et transcrit en temps réel
+2. **Parlez** → MEETIZY écoute et transcrit en temps réel
 3. **Obtenez** → Compte-rendu structuré + email de suivi prêt
 
 **Résultat :** Vos équipes sont 100% concentrées sur la discussion, pas sur la prise de notes.
@@ -91,13 +91,13 @@
 
 ### Pour une équipe de 20 personnes
 
-**Avant CORTEXIA :**
+**Avant MEETIZY :**
 - 5 réunions/semaine/personne = 100 réunions
 - 20 min de notes par réunion = 33 heures/semaine
 - Coût horaire moyen 50€ = **1 650€/semaine**
 - **85 800€ /an** juste en prise de notes
 
-**Avec CORTEXIA :**
+**Avec MEETIZY :**
 - Temps de notes → 0 min
 - Rédaction compte-rendu → 5 min (vs 30 min)
 - **Économie : 72 000€ /an**
@@ -125,7 +125,7 @@
 
 ---
 
-## 🚀 Pourquoi Choisir CORTEXIA ?
+## 🚀 Pourquoi Choisir MEETIZY ?
 
 ### ⚡ Rapide
 **Prêt en 30 secondes**
@@ -202,7 +202,7 @@
 ## 🌟 Témoignages
 
 > ### "Un game-changer pour notre productivité"
-> *"Nous avons réduit le temps de nos réunions de 30% et augmenté le suivi des actions de 80%. CORTEXIA paie pour lui-même dès la première semaine."*
+> *"Nous avons réduit le temps de nos réunions de 30% et augmenté le suivi des actions de 80%. MEETIZY paie pour lui-même dès la première semaine."*
 > 
 > **— Marie Dubois, COO @ TechStart (120 employés)**
 
@@ -250,7 +250,7 @@
 
 ---
 
-## 🎯 Qui Utilise CORTEXIA ?
+## 🎯 Qui Utilise MEETIZY ?
 
 ### Entreprises Tech
 - Startups agiles : Stand-ups, rétrospectives
@@ -275,7 +275,7 @@
 ### 3 étapes simples :
 
 1. **Créez votre compte gratuit**
-   → [cortexia.app/essai](http://cortexia.app/essai)
+   → [meetizy.app/essai](http://meetizy.app/essai)
 
 2. **Téléchargez l'application**
    → Windows, Mac, Linux
@@ -294,9 +294,9 @@
 
 ### Vous avez des questions ?
 
-**Email :** commercial@cortexia.app  
+**Email :** commercial@meetizy.app  
 **Téléphone :** +33 1 23 45 67 89  
-**Demo personnalisée :** [Réserver un créneau](http://cortexia.app/demo)
+**Demo personnalisée :** [Réserver un créneau](http://meetizy.app/demo)
 
 ### Nous sommes là pour vous aider
 - 📧 Réponse < 2h en journée
@@ -317,7 +317,7 @@
 - ✅ Traçabilité totale
 - ✅ ROI immédiat
 
-### La question n'est pas "Pourquoi CORTEXIA ?"
+### La question n'est pas "Pourquoi MEETIZY ?"
 ### Mais plutôt "Pourquoi pas encore ?"
 
 ---
@@ -329,7 +329,7 @@
 **Valable jusqu'au 31/03/2026**
 
 <div style="text-align: center; margin: 50px 0;">
-  <a href="http://cortexia.app/essai" style="
+  <a href="http://meetizy.app/essai" style="
     display: inline-block;
     padding: 20px 50px;
     background: linear-gradient(135deg, #3498db, #2c5aa0);
@@ -348,26 +348,27 @@
 
 ## 📱 Suivez-nous
 
-- 🌐 **Site web :** [cortexia.app](http://cortexia.app)
-- 💼 **LinkedIn :** [linkedin.com/company/cortexia](http://linkedin.com/company/cortexia)
-- 🐦 **Twitter :** [@CortexiaApp](http://twitter.com/CortexiaApp)
-- 📺 **YouTube :** [Démos & Tutos](http://youtube.com/@cortexia)
+- 🌐 **Site web :** [meetizy.app](http://meetizy.app)
+- 💼 **LinkedIn :** [linkedin.com/company/meetizy](http://linkedin.com/company/meetizy)
+- 🐦 **Twitter :** [@MeetizyApp](http://twitter.com/MeetizyApp)
+- 📺 **YouTube :** [Démos & Tutos](http://youtube.com/@meetizy)
 
 ---
 
 <div style="text-align: center; padding: 50px 0; background: linear-gradient(135deg, #3498db, #2c5aa0); color: white; border-radius: 20px;">
 
-# 🧠 CORTEXIA
+# 🧠 MEETIZY
 
 **L'Assistant Intelligent qui Transforme vos Réunions**
 
 *Plus de notes. Plus d'actions. Plus de résultats.*
 
-### [Essayez Gratuitement →](http://cortexia.app/essai)
+### [Essayez Gratuitement →](http://meetizy.app/essai)
 
 </div>
 
 ---
 
-**© 2026 CORTEXIA - Tous droits réservés**  
+**© 2026 MEETIZY - Tous droits réservés**  
 *Document commercial - Version 1.0 - Janvier 2026*
+

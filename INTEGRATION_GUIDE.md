@@ -1,8 +1,8 @@
-# Configuration des Intégrations CORTEXIA
+# Configuration des Intégrations MEETIZY
 
 ## 🎯 Vue d'ensemble
 
-CORTEXIA supporte l'intégration avec de nombreuses plateformes de visioconférence, services de transcription et outils de productivité.
+MEETIZY supporte l'intégration avec de nombreuses plateformes de visioconférence, services de transcription et outils de productivité.
 
 ---
 
@@ -15,7 +15,7 @@ CORTEXIA supporte l'intégration avec de nombreuses plateformes de visioconfére
 1. Créez une application sur le Zoom App Marketplace
 2. Obtenez votre Client ID et Client Secret
 3. Activez les permissions : `meeting:read`, `recording:read`
-4. Ajoutez les clés dans CORTEXIA → Paramètres → Intégrations
+4. Ajoutez les clés dans MEETIZY → Paramètres → Intégrations
 
 **Fonctionnalités :**
 - ✅ Accès aux meetings programmés
@@ -283,3 +283,4 @@ VITE_SLACK_CLIENT_ID=...
 ---
 
 **Documentation complète :** [DOCUMENTATION_TECHNIQUE.md](DOCUMENTATION_TECHNIQUE.md)
+

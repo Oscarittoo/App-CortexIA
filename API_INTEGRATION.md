@@ -78,7 +78,7 @@ L'application fonctionne **même sans API configurée** :
 
 ## Test de connexion
 
-Dans l'interface CORTEXIA, allez dans **Paramètres** :
+Dans l'interface MEETIZY, allez dans **Paramètres** :
 
 1. Onglet **Intégrations**
 2. Entrez vos clés API
@@ -174,3 +174,4 @@ VITE_MAX_TRANSCRIPT_LENGTH=50000         # Max caractères
 ---
 
 **Note** : L'application fonctionne parfaitement sans aucune API configurée, avec des fonctionnalités de fallback intelligentes. Les APIs sont optionnelles pour améliorer la qualité.
+

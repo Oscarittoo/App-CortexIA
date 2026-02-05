@@ -1,4 +1,4 @@
-# 📋 Résumé des fonctionnalités implémentées - CORTEXIA
+# 📋 Résumé des fonctionnalités implémentées - MEETIZY
 
 ## ✅ Tâches accomplies (9/9)
 
@@ -117,8 +117,8 @@
 - `getClientStats()` - Statistiques agrégées
 
 **Stockage** :
-- localStorage : `cortexia_user` (utilisateur connecté)
-- localStorage : `cortexia_clients_db` (base de données clients)
+- localStorage : `meetizy_user` (utilisateur connecté)
+- localStorage : `meetizy_clients_db` (base de données clients)
 
 **Fichiers créés** :
 - [src/services/authService.js](src/services/authService.js) - 187 lignes
@@ -444,7 +444,7 @@
 - **Web Speech API** - Transcription
 
 ### Contact
-- Projet CORTEXIA
+- Projet MEETIZY
 - Documentation complète disponible dans le dossier racine
 - Tous les guides accessibles via les liens ci-dessus
 
@@ -453,3 +453,4 @@
 **Date de complétion** : 3 février 2026  
 **Version** : 1.0.0  
 **Status** : ✅ Production Ready (après configuration Stripe)
+

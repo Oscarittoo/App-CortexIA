@@ -17,15 +17,15 @@ export default function ApiDocs({ onBack }) {
       case 'overview':
         return (
           <>
-            <h1 className="doc-title">Plateforme Cortexia API</h1>
+            <h1 className="doc-title">Plateforme Meetizy API</h1>
             <p className="doc-lead">
-              L'API Cortexia expose toute la puissance de notre moteur d'intelligence artificielle conversationnelle aux développeurs et intégrateurs d'entreprise.
+              L'API Meetizy expose toute la puissance de notre moteur d'intelligence artificielle conversationnelle aux développeurs et intégrateurs d'entreprise.
             </p>
 
             <section className="doc-section">
               <h2>Introduction</h2>
               <p>
-                Cortexia n'est pas simplement un outil de transcription. C'est une plateforme d'analyse sémantique complète conçue pour transformer des flux audio non structurés (réunions, appels, conférences) en données structurées et exploitables par les systèmes d'information (ERP, CRM, GED).
+                Meetizy n'est pas simplement un outil de transcription. C'est une plateforme d'analyse sémantique complète conçue pour transformer des flux audio non structurés (réunions, appels, conférences) en données structurées et exploitables par les systèmes d'information (ERP, CRM, GED).
               </p>
               <p>
                 Cette documentation technique s'adresse aux DSI, architectes logiciels et développeurs souhaitant intégrer ces capacités d'analyse au cœur de leurs processus métier, garantissant ainsi une continuité de la donnée entre la parole et l'écrit.
@@ -35,7 +35,7 @@ export default function ApiDocs({ onBack }) {
             <section className="doc-section">
               <h2>Architecture de la Solution</h2>
               <p>
-                L'infrastructure Cortexia est bâtie sur une architecture micro-services résiliente, permettant de traiter des volumes massifs de données audio en quasi temps réel.
+                L'infrastructure Meetizy est bâtie sur une architecture micro-services résiliente, permettant de traiter des volumes massifs de données audio en quasi temps réel.
               </p>
               <div className="features-grid">
                 <div className="feature-card">
@@ -72,7 +72,7 @@ export default function ApiDocs({ onBack }) {
         return (
           <>
             <h1 className="doc-title">Capacités du Moteur IA</h1>
-            <p className="doc-lead">Détail des traitements appliqués aux données par le moteur Cortexia.</p>
+            <p className="doc-lead">Détail des traitements appliqués aux données par le moteur Meetizy.</p>
 
             <section className="doc-section">
               <h2>Diarisation & Identification</h2>
@@ -94,7 +94,7 @@ export default function ApiDocs({ onBack }) {
             <section className="doc-section">
               <h2>Analyse Sémantique</h2>
               <p>
-                Au-delà de la transcription littérale, Cortexia analyse le sens :
+                Au-delà de la transcription littérale, Meetizy analyse le sens :
               </p>
               <ul className="data-list">
                 <li><strong>Synthèse Contextuelle :</strong> Génération de résumé exécutif mettant en avant les décisions clés.</li>
@@ -122,7 +122,7 @@ export default function ApiDocs({ onBack }) {
             <section className="doc-section">
               <h2>Provisionning des Clés</h2>
               <p>
-                L'authentification repose sur des jetons opaques (Bearer Tokens) à longue durée de vie, gérés directement depuis l'interface d'administration de votre instance Cortexia Enterprise.
+                L'authentification repose sur des jetons opaques (Bearer Tokens) à longue durée de vie, gérés directement depuis l'interface d'administration de votre instance Meetizy Enterprise.
                 Ces clés disposent des droits "Scope:All" sur votre périmètre organisationnel.
               </p>
               <div className="warning-box">
@@ -199,7 +199,7 @@ export default function ApiDocs({ onBack }) {
               <h2>Principe de fonctionnement</h2>
               <p>
                 Plutôt que de solliciter l'API en boucle (Polling), configurez des Webhooks pour recevoir les données dès qu'elles sont disponibles.
-                Cortexia effectuera une requête <code>POST</code> vers votre URL de callback configurée.
+                Meetizy effectuera une requête <code>POST</code> vers votre URL de callback configurée.
               </p>
             </section>
 
@@ -238,7 +238,7 @@ export default function ApiDocs({ onBack }) {
         {/* SIDEBAR NAVIGATION */}
         <aside className="docs-nav">
            <div className="nav-header">
-             CORTEXIA <span className="highlight">DEV</span>
+             MEETIZY <span className="highlight">DEV</span>
            </div>
            <ul>
              {menuItems.map(item => (

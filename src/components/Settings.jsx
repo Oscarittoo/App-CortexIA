@@ -34,14 +34,14 @@ export default function Settings() {
   });
 
   useEffect(() => {
-    const savedSettings = localStorage.getItem('cortexia_settings');
+    const savedSettings = localStorage.getItem('meetizy_settings');
     if (savedSettings) {
       setSettings({ ...settings, ...JSON.parse(savedSettings) });
     }
   }, []);
 
   const handleSave = () => {
-    localStorage.setItem('cortexia_settings', JSON.stringify(settings));
+    localStorage.setItem('meetizy_settings', JSON.stringify(settings));
     alert('✅ Paramètres sauvegardés avec succès !');
   };
 

@@ -1,4 +1,4 @@
-# 🧠 CORTEXIA - Assistant Intelligent de Réunions
+# 🧠 MEETIZY - Assistant Intelligent de Réunions
 
 Assistant de transcription et de compte-rendu de réunions en temps réel, développé avec Electron et React.
 
@@ -47,7 +47,7 @@ npm run build
 ## 📋 Architecture
 
 ```
-cortexia/
+meetizy/
 ├── electron/           # Code Electron (main process)
 │   └── main.js        # Point d'entrée Electron
 ├── src/
@@ -184,3 +184,4 @@ Développé avec ❤️ pour améliorer la productivité des réunions
 - GPT-4 ou Claude pour résumés et extraction intelligente
 - SQLite avec chiffrement pour stockage sécurisé
 - jsPDF ou Puppeteer pour export PDF de qualité
+

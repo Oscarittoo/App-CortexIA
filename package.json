@@ -1,5 +1,5 @@
 {
-  "name": "cortexia",
+  "name": "meetizy",
   "version": "1.0.0",
   "description": "Assistant de réunions et d'appels avec transcription temps réel",
   "main": "electron/main.js",

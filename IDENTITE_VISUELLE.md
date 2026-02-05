@@ -1,8 +1,8 @@
-# 🧠 CORTEXIA - Identité Visuelle
+# 🧠 MEETIZY - Identité Visuelle
 
 ## Logo
 
-Le logo CORTEXIA représente un cerveau stylisé avec un design de circuit imprimé, symbolisant l'intelligence artificielle et la technologie de pointe.
+Le logo MEETIZY représente un cerveau stylisé avec un design de circuit imprimé, symbolisant l'intelligence artificielle et la technologie de pointe.
 
 ### Caractéristiques du logo
 
@@ -34,7 +34,7 @@ background: linear-gradient(135deg, #0891d4 0%, #7b1fa2 100%);
 
 ## Typographie
 
-- **Nom** : CORTEXIA (tout en majuscules)
+- **Nom** : MEETIZY (tout en majuscules)
 - **Police** : Sans-serif moderne (System fonts)
 - **Espacement** : letter-spacing: 1px pour le titre principal
 
@@ -51,10 +51,11 @@ Le logo est affiché avec une taille de 50x50px dans le header avec un effet d'o
 ```
 
 ### Positionnement
-Le logo est aligné horizontalement avec le titre "CORTEXIA" avec un espace de 15px entre les deux.
+Le logo est aligné horizontalement avec le titre "MEETIZY" avec un espace de 15px entre les deux.
 
 ## Signification
 
-**CORTEXIA** = CORTEX (cerveau) + IA (Intelligence Artificielle)
+**MEETIZY** = CORTEX (cerveau) + IA (Intelligence Artificielle)
 
 Le nom évoque l'intelligence et la capacité cognitive tout en soulignant la dimension technologique de l'assistant de réunions.
+

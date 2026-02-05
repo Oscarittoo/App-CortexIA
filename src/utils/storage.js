@@ -1,12 +1,12 @@
-// Service de gestion du stockage local pour CORTEXIA
+// Service de gestion du stockage local pour MEETIZY
 
 const STORAGE_KEYS = {
-  SESSIONS: 'cortexia_sessions',
-  SETTINGS: 'cortexia_settings',
-  API_KEYS: 'cortexia_api_keys',
-  TAGS: 'cortexia_tags',
-  TEMPLATES: 'cortexia_templates',
-  STATS: 'cortexia_stats',
+  SESSIONS: 'meetizy_sessions',
+  SETTINGS: 'meetizy_settings',
+  API_KEYS: 'meetizy_api_keys',
+  TAGS: 'meetizy_tags',
+  TEMPLATES: 'meetizy_templates',
+  STATS: 'meetizy_stats',
 };
 
 class StorageService {

@@ -1,8 +1,8 @@
-# Documentation Technique Complète - CORTEXIA
+# Documentation Technique Complète - MEETIZY
 
 **Version :** 1.0.0 (MVP)  
 **Date :** 20 janvier 2026  
-**Équipe :** Développement CORTEXIA  
+**Équipe :** Développement MEETIZY  
 
 ---
 
@@ -26,7 +26,7 @@
 ## Vue d'ensemble
 
 ### Objectif du projet
-CORTEXIA est un assistant intelligent de transcription et de compte-rendu de réunions en temps réel. L'application permet de :
+MEETIZY est un assistant intelligent de transcription et de compte-rendu de réunions en temps réel. L'application permet de :
 - Capturer l'audio d'une réunion (micro ou système)
 - Transcrire en temps réel (FR/EN)
 - Générer automatiquement des résumés
@@ -291,7 +291,7 @@ const blob = new Blob([content], { type: 'text/markdown' });
 ## Structure du code
 
 ```
-cortexia/
+meetizy/
 ├── package.json                 # Dépendances et scripts
 ├── vite.config.js              # Configuration Vite
 ├── index.html                  # Point d'entrée HTML
@@ -503,7 +503,7 @@ App.jsx (State central)
 
 ```bash
 # 1. Cloner ou extraire le projet
-cd C:\Users\Utilisateur\Downloads\cortexia
+cd C:\Users\Utilisateur\Downloads\meetizy
 
 # 2. Installer les dépendances
 npm install
@@ -866,7 +866,7 @@ MIT License - Voir fichier LICENSE
 ---
 
 **Dernière mise à jour :** 20 janvier 2026  
-**Mainteneur :** Équipe CORTEXIA  
+**Mainteneur :** Équipe MEETIZY  
 **Version documentation :** 1.0.0
 
 ---
@@ -884,3 +884,4 @@ MIT License - Voir fichier LICENSE
 - **Couleur secondaire :** #8e24aa (violet innovation)
 - **Police :** System fonts (Segoe UI, Roboto)
 - **Style :** Moderne, technologique, professionnel
+

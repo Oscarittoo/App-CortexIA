@@ -1,4 +1,4 @@
--- CORTEXIA - Supabase schema
+-- MEETIZY - Supabase schema
 -- Exécuter dans Supabase SQL Editor
 
 create table if not exists public.clients (

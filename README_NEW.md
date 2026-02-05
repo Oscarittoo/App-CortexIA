@@ -1,4 +1,4 @@
-# 🧠 CORTEXIA - Assistant IA de réunions professionnel
+# 🧠 MEETIZY - Assistant IA de réunions professionnel
 
 > Assistant intelligent pour vos réunions et appels professionnels avec **analyse IA en temps réel**, transcription automatique, et système de paiement intégré.
 
@@ -81,8 +81,8 @@ Consultez le **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** pour tou
 
 ```bash
 # Cloner le repository
-git clone https://github.com/votre-repo/cortexia.git
-cd cortexia
+git clone https://github.com/votre-repo/meetizy.git
+cd meetizy
 
 # Installer les dépendances
 npm install
@@ -377,4 +377,5 @@ Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de 
 
 ---
 
-Made with ❤️ by the CORTEXIA team
+Made with ❤️ by the MEETIZY team
+

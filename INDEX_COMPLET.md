@@ -1,4 +1,4 @@
-# 📑 Index des fichiers - CORTEXIA
+# 📑 Index des fichiers - MEETIZY
 
 ## 🎯 Par où commencer ?
 
@@ -131,7 +131,7 @@ cortexa/
 - **[main.jsx](src/main.jsx)** - Point d'entrée React
 
 #### Assets (src/assets/)
-- **[logo.svg](src/assets/logo.svg)** ⭐ - Logo CORTEXIA **[MODIFIÉ - Nouveau cerveau]**
+- **[logo.svg](src/assets/logo.svg)** ⭐ - Logo MEETIZY **[MODIFIÉ - Nouveau cerveau]**
 
 ### 📂 electron/ - Application Electron
 - **[main.js](electron/main.js)** - Process principal Electron
@@ -305,7 +305,7 @@ npm run electron
 4. **[ADMIN_GUIDE.md](ADMIN_GUIDE.md)** - Administration
 
 ### Contact
-- Projet : CORTEXIA
+- Projet : MEETIZY
 - Version : 1.0.0
 - Date : 3 février 2026
 
@@ -315,3 +315,4 @@ npm run electron
 **Fichiers totaux documentés** : 60+  
 **Nouveaux fichiers aujourd'hui** : 10  
 **Modifications aujourd'hui** : 4
+

@@ -1,11 +1,11 @@
-# Guide d'administration - CORTEXIA
+# Guide d'administration - MEETIZY
 
 ## 📊 Accès au Dashboard Admin
 
 Le dashboard admin vous permet de visualiser tous les clients inscrits et leurs abonnements.
 
 ### Accès
-1. Connectez-vous à l'application CORTEXIA
+1. Connectez-vous à l'application MEETIZY
 2. Dans la barre de navigation, cliquez sur **"Admin"**
 3. Le dashboard s'affiche avec les statistiques et la liste des clients
 
@@ -35,7 +35,7 @@ Tableau avec les informations suivantes :
 ## 💾 Stockage des données
 
 ### Base de données clients
-Les données sont stockées dans **localStorage** sous la clé `cortexia_clients_db`.
+Les données sont stockées dans **localStorage** sous la clé `meetizy_clients_db`.
 
 #### Structure d'un client
 ```json
@@ -267,7 +267,7 @@ Script de migration :
 
 ```javascript
 // migrate.js
-const clients = JSON.parse(localStorage.getItem('cortexia_clients_db') || '[]');
+const clients = JSON.parse(localStorage.getItem('meetizy_clients_db') || '[]');
 
 async function migrate() {
   for (const client of clients) {
@@ -300,7 +300,7 @@ Pour sécuriser l'accès au dashboard admin en production :
 1. **Créer un rôle admin** dans la table clients :
 ```sql
 ALTER TABLE clients ADD COLUMN role VARCHAR(50) DEFAULT 'user';
-UPDATE clients SET role = 'admin' WHERE email = 'admin@cortexia.com';
+UPDATE clients SET role = 'admin' WHERE email = 'admin@meetizy.com';
 ```
 
 2. **Vérifier le rôle** dans le composant :
@@ -366,3 +366,4 @@ Pour toute question sur l'administration :
 - Documentation technique : [DOCUMENTATION_TECHNIQUE.md](./DOCUMENTATION_TECHNIQUE.md)
 - Configuration Stripe : [STRIPE_CONFIGURATION.md](./STRIPE_CONFIGURATION.md)
 - Architecture générale : [PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md)
+

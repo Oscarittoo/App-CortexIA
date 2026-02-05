@@ -1,5 +1,5 @@
 /**
- * Service d'authentification pour CORTEXIA (Supabase)
+ * Service d'authentification pour MEETIZY (Supabase)
  * Gère la connexion, l'inscription et la session utilisateur
  */
 import { supabase } from './supabaseClient';

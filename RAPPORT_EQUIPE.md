@@ -1,15 +1,15 @@
-# Rapport d'Avancement Projet - CORTEXIA
+# Rapport d'Avancement Projet - MEETIZY
 
 **Date :** 20 janvier 2026  
 **Version :** 1.0.0 (MVP)  
 **Statut :** ✅ MVP Fonctionnel et déployable  
-**Équipe :** Développement CORTEXIA  
+**Équipe :** Développement MEETIZY  
 
 ---
 
 ## Résumé Exécutif
 
-Le **MVP de CORTEXIA** est **complètement fonctionnel** et prêt pour des tests utilisateurs. L'application permet de transcrire des réunions en temps réel, de générer des comptes-rendus automatiques et d'exporter les résultats. 
+Le **MVP de MEETIZY** est **complètement fonctionnel** et prêt pour des tests utilisateurs. L'application permet de transcrire des réunions en temps réel, de générer des comptes-rendus automatiques et d'exporter les résultats. 
 
 **Temps de développement :** Sprint 1 complété  
 **Fonctionnalités MVP :** 100% implémentées  
@@ -416,8 +416,9 @@ Le **MVP de CORTEXIA** est **complètement fonctionnel** et prêt pour des tests
 
 ## Logo et Identité Visuelle
 
-**Logo CORTEXIA créé :** ✅  
+**Logo MEETIZY créé :** ✅  
 - Cerveau stylisé avec circuits technologiques
 - Gradient bleu vers violet (innovation + intelligence)
 - Pixels flottants pour effet moderne
 - Intégré dans le header de l'application
+

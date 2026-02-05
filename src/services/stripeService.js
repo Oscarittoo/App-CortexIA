@@ -1,5 +1,5 @@
 /**
- * Service Stripe pour CORTEXIA
+ * Service Stripe pour MEETIZY
  * Gère les paiements et abonnements
  * 
  * TODO: Configurer avec vos vraies clés Stripe

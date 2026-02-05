@@ -18,7 +18,7 @@ export default function Features({ onGetStarted }) {
       <div className="page-header">
         <div className="badge-new">NOUVELLE GÉNÉRATION</div>
         <h1>L'Intelligence Artificielle <br/> <span className="text-gradient">Au Cœur de Vos Échanges</span></h1>
-        <p>CORTEXIA ne se contente pas d'écouter. Elle comprend, analyse et organise votre mémoire collective.</p>
+        <p>MEETIZY ne se contente pas d'écouter. Elle comprend, analyse et organise votre mémoire collective.</p>
       </div>
       
       {/* FEATURE 1: TRANSCRIPTION */}
@@ -92,7 +92,7 @@ export default function Features({ onGetStarted }) {
             <ListTodo size={32} />
           </div>
           <h2>Plan d'Action Automatisé</h2>
-          <p>Transformez les parole en actes. CORTEXIA détecte les engagements et crée vos tickets automatiquement.</p>
+          <p>Transformez les parole en actes. MEETIZY détecte les engagements et crée vos tickets automatiquement.</p>
           <ul className="feature-list">
             <li><CheckCircle2 size={16} /> Extraction intelligente des tâches</li>
             <li><CheckCircle2 size={16} /> Assignation automatique aux membres</li>

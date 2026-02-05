@@ -1,4 +1,4 @@
-# Configuration Stripe pour CORTEXIA
+# Configuration Stripe pour MEETIZY
 
 ## Prérequis
 - Un compte Stripe (https://stripe.com)
@@ -28,13 +28,13 @@
 2. Créez les produits suivants :
 
 #### Plan Professionnel
-- **Nom** : CORTEXIA Pro
+- **Nom** : MEETIZY Pro
 - **Description** : Pour les professionnels et équipes
 - **Prix** : 29€/mois (ou 290€/an avec 17% de réduction)
 - **Facturation** : Récurrente, mensuelle ou annuelle
 
 #### Plan Entreprise
-- **Nom** : CORTEXIA Enterprise
+- **Nom** : MEETIZY Enterprise
 - **Description** : Pour les grandes organisations
 - **Prix** : Sur mesure (créer un prix personnalisé après contact)
 
@@ -250,3 +250,4 @@ Cette adresse sera utilisée pour :
 - [ ] Tests de paiement réussis
 - [ ] Email de notification configuré
 - [ ] Mode production activé
+

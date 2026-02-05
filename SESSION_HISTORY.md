@@ -1,6 +1,6 @@
-# Historique de la Session - CORTEXIA
+# Historique de la Session - MEETIZY
 **Dernière mise à jour:** 21 janvier 2026  
-**Objectif:** Transformation complète du branding, interface et fonctionnalités de CortexA vers CORTEXIA
+**Objectif:** Transformation complète du branding, interface et fonctionnalités de CortexA vers MEETIZY
 
 ---
 
@@ -9,7 +9,7 @@
 ### Demandes Initiales
 
 ### 1. Changement de nom et logo
-**Demande:** Remplacer le nom "CortexA" par "CORTEXIA" avec un nouveau logo basé sur une image de cerveau avec circuits
+**Demande:** Remplacer le nom "CortexA" par "MEETIZY" avec un nouveau logo basé sur une image de cerveau avec circuits
 **Solution:** 
 - Création d'un logo SVG représentant un cerveau anatomique avec circuits électroniques
 - Côté gauche: Gradient cyan → bleu (#3DD5F3 → #0D47A1)
@@ -38,10 +38,10 @@
 
 ### Core Application
 1. **package.json**
-   - Nom changé: `cortexa` → `cortexia`
+   - Nom changé: `cortexa` → `meetizy`
 
 2. **index.html**
-   - Titre: "CORTEXIA - Assistant de Réunions"
+   - Titre: "MEETIZY - Assistant de Réunions"
 
 3. **src/App.jsx**
    - Ajout de la navigation sticky avec logo et onglets
@@ -55,7 +55,7 @@
    - Modernisation des styles de formulaire
 
 5. **src/components/SessionReport.jsx**
-   - Remplacement des mentions "CortexA" par "CORTEXIA"
+   - Remplacement des mentions "CortexA" par "MEETIZY"
    - Mise à jour des signatures d'email et exports
 
 ### Assets
@@ -97,16 +97,16 @@
 
 ### Documentation
 11. **README.md**
-    - Mise à jour des références CORTEXIA
+    - Mise à jour des références MEETIZY
     - Structure du projet
 
 12. **DOCUMENTATION_TECHNIQUE.md**
     - Chemins et références mis à jour
 
 13. **PRESENTATION_COMMERCIALE.md**
-    - Toutes les mentions "CortexA" → "CORTEXIA"
-    - URLs mises à jour (cortexa.app → cortexia.app)
-    - Identifiants sociaux (@CortexApp → @CortexiaApp)
+    - Toutes les mentions "CortexA" → "MEETIZY"
+    - URLs mises à jour (cortexa.app → meetizy.app)
+    - Identifiants sociaux (@CortexApp → @MeetizyApp)
 
 ---
 
@@ -187,7 +187,7 @@ Grays: #1f2937 → #f9fafb (900 → 100)
 - Design: Simpliciste, prototype
 
 ### Après
-- Nom: CORTEXIA (professionnel)
+- Nom: MEETIZY (professionnel)
 - Interface: Navigation + Home + Sessions + Reports
 - Style: Icônes SVG modernes
 - Couleurs: Palette complète avec gradients
@@ -963,7 +963,7 @@ VITE_LLM_PROVIDER=openai
 ## 📊 Résumé Global des 3 Sessions
 
 ### Session 1 (20 janvier)
-- ✅ Rebranding : CortexA → CORTEXIA
+- ✅ Rebranding : CortexA → MEETIZY
 - ✅ Logo cerveau avec circuits
 - ✅ Navigation sticky professionnelle
 - ✅ Page d'accueil Hero + Features
@@ -1035,7 +1035,7 @@ VITE_LLM_PROVIDER=openai
 ### Architecture Finale
 
 ```
-CORTEXIA/
+MEETIZY/
 ├── electron/
 │   └── main.js (permissions, ports)
 ├── src/
@@ -1095,3 +1095,4 @@ CORTEXIA/
 ---
 
 **Fin Session 3 - Application 100% Fonctionnelle en Mode Démo ! ✅**
+

@@ -31,7 +31,7 @@ import SettingsPage from './components/Settings';
 import ErrorBoundary from './components/ErrorBoundary';
 import { Toaster } from './components/Toast';
 import toast from './components/Toast';
-import logo from './assets/logo_cortexia.png';
+import logo from './assets/logo_meetizy.png';
 import authService from './services/authService';
 import storageService from './utils/storage';
 
@@ -153,9 +153,9 @@ export default function App() {
           <nav className="topbar" style={{ margin: '18px', width: 'auto' }}>
             <div className="brand" onClick={handleGoHome} style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
                <div className="logo-icon">
-                 <img src={logo} alt="Cortexia Logo" width="48" height="48" />
+                 <img src={logo} alt="Meetizy Logo" width="48" height="48" />
                </div>
-               <span style={{ fontFamily: 'Orbitron, sans-serif', fontWeight: '700', fontSize: '24px', letterSpacing: '1px', color: '#ffffff' }}>CORTEXIA</span>
+               <span style={{ fontFamily: 'Orbitron, sans-serif', fontWeight: '700', fontSize: '24px', letterSpacing: '1px', color: '#ffffff' }}>MEETIZY</span>
             </div>
             
             <div style={{ display: 'flex', gap: '20px', marginLeft: 'auto', alignItems: 'center' }}>
@@ -183,7 +183,7 @@ export default function App() {
           </main>
           
           <footer style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)', borderTop: '1px solid var(--border)' }}>
-            <p>© 2026 CORTEXIA · Premium AI Assistant</p>
+            <p>© 2026 MEETIZY · Premium AI Assistant</p>
           </footer>
         </div>
       </ErrorBoundary>
@@ -200,8 +200,8 @@ export default function App() {
         {/* SIDEBAR */}
         <aside className="sidebar">
           <div className="brand">
-            <img src={logo} alt="Cortexia Logo" width="40" height="40" style={{ borderRadius: '8px' }} />
-            <span style={{ fontFamily: 'Orbitron, sans-serif', letterSpacing: '1px', fontSize: '18px', fontWeight: 'bold', color: 'var(--text-primary)' }}>CORTEXIA</span>
+            <img src={logo} alt="Meetizy Logo" width="40" height="40" style={{ borderRadius: '8px' }} />
+            <span style={{ fontFamily: 'Orbitron, sans-serif', letterSpacing: '1px', fontSize: '18px', fontWeight: 'bold', color: 'var(--text-primary)' }}>MEETIZY</span>
           </div>
 
           <nav>

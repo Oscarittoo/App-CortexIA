@@ -19,7 +19,7 @@ export default function Home({ onGetStarted }) {
           </h1>
           
           <p className="hero-description">
-            CORTEXIA transcrit, résume et extrait automatiquement les tâches de vos réunions en temps réel. 
+            MEETIZY transcrit, résume et extrait automatiquement les tâches de vos réunions en temps réel. 
             Concentrez-vous sur la conversation pendant que l'IA s'occupe du reste.
           </p>
           
@@ -114,7 +114,7 @@ export default function Home({ onGetStarted }) {
             <div className="step-number">01</div>
             <div className="step-content">
               <h3>Participez</h3>
-              <p>Connectez votre calendrier. CORTEXIA rejoint automatiquement vos appels Zoom, Teams ou Meet.</p>
+              <p>Connectez votre calendrier. MEETIZY rejoint automatiquement vos appels Zoom, Teams ou Meet.</p>
             </div>
           </div>
           <div className="process-connector"></div>
@@ -159,7 +159,7 @@ export default function Home({ onGetStarted }) {
       <section className="cta-section">
         <div className="cta-content">
           <h2>Prêt à transformer vos réunions ?</h2>
-          <p>Rejoignez des milliers d'équipes qui économisent déjà du temps avec CORTEXIA</p>
+          <p>Rejoignez des milliers d'équipes qui économisent déjà du temps avec MEETIZY</p>
           <button className="btn-cta" onClick={onGetStarted}>
             Commencer gratuitement
             <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">

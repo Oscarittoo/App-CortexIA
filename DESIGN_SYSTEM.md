@@ -1,4 +1,4 @@
-# CORTEXIA Design System
+# MEETIZY Design System
 
 ## Brand Identity
 
@@ -114,3 +114,4 @@ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
 - **Slack**: Professional messaging, clear hierarchy
 - **Microsoft Teams**: Enterprise-ready, accessible
 - **Otter.ai**: AI-focused, meeting transcription specialist
+

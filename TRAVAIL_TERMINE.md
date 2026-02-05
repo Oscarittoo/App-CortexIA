@@ -176,4 +176,5 @@ L'application est **prête à être testée** et **presque ready pour la product
 
 ---
 
-💪 **Excellent travail ! L'application CORTEXIA est maintenant complète et professionnelle.**
+💪 **Excellent travail ! L'application MEETIZY est maintenant complète et professionnelle.**
+
