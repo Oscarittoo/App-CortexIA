@@ -1,494 +1,349 @@
 import { useState, useEffect } from 'react';
+import { User, Settings as SettingsIcon, Download, CreditCard, Bell, Palette, Globe, FileText, Save } from 'lucide-react';
+import '../styles/settings.css';
 
-export default function Settings({ onClose }) {
-  const [activeTab, setActiveTab] = useState('integrations');
-  const [apiKeys, setApiKeys] = useState({
-    // Visioconférence
-    zoom_client_id: '',
-    zoom_client_secret: '',
-    google_client_id: '',
-    google_client_secret: '',
-    teams_client_id: '',
-    teams_client_secret: '',
-    teams_tenant_id: '',
-    webex_client_id: '',
-    slack_client_id: '',
-    discord_client_id: '',
+export default function Settings() {
+  const [activeTab, setActiveTab] = useState('profile');
+  const [settings, setSettings] = useState({
+    // Profile
+    fullName: 'Jean Dupont',
+    email: 'jean.dupont@entreprise.fr',
+    company: 'Entreprise SAS',
+    position: 'Directeur Commercial',
     
-    // Transcription
-    openai_api_key: '',
-    deepgram_api_key: '',
-    assemblyai_api_key: '',
-    azure_speech_key: '',
-    azure_speech_region: '',
+    // Preferences
+    language: 'fr',
+    theme: 'dark',
+    notifications: true,
+    autoSave: true,
     
-    // Productivité
-    notion_api_key: '',
-    trello_api_key: '',
-    asana_token: '',
-    jira_api_token: '',
-    linear_api_key: '',
+    // Export
+    defaultFormat: 'pdf',
+    companyLogo: null,
+    includeLogo: true,
+    
+    // Subscription
+    plan: 'Professional',
+    nextBillingDate: '2026-03-05',
+    usage: {
+      sessions: 42,
+      maxSessions: 100,
+      storage: 2.4,
+      maxStorage: 10
+    }
   });
 
-  const [testResults, setTestResults] = useState({});
-  const [showKeys, setShowKeys] = useState({});
-
   useEffect(() => {
-    // Charger les clés depuis localStorage
-    const savedKeys = localStorage.getItem('cortexia_api_keys');
-    if (savedKeys) {
-      setApiKeys(JSON.parse(savedKeys));
+    const savedSettings = localStorage.getItem('cortexia_settings');
+    if (savedSettings) {
+      setSettings({ ...settings, ...JSON.parse(savedSettings) });
     }
   }, []);
 
   const handleSave = () => {
-    localStorage.setItem('cortexia_api_keys', JSON.stringify(apiKeys));
-    alert('Configuration sauvegardée avec succès !');
+    localStorage.setItem('cortexia_settings', JSON.stringify(settings));
+    alert('✅ Paramètres sauvegardés avec succès !');
   };
 
-  const handleTestConnection = async (service) => {
-    setTestResults({ ...testResults, [service]: 'testing' });
-    
-    // Simulation de test
-    setTimeout(() => {
-      const success = Math.random() > 0.3;
-      setTestResults({ ...testResults, [service]: success ? 'success' : 'error' });
-    }, 1500);
-  };
-
-  const toggleShowKey = (key) => {
-    setShowKeys({ ...showKeys, [key]: !showKeys[key] });
-  };
-
-  const renderInput = (key, label, placeholder) => {
-    const inputType = showKeys[key] ? 'text' : 'password';
-    
-    return (
-      <div className="settings-field">
-        <label>{label}</label>
-        <div className="input-with-action">
-          <input
-            type={inputType}
-            value={apiKeys[key]}
-            onChange={(e) => setApiKeys({ ...apiKeys, [key]: e.target.value })}
-            placeholder={placeholder}
-          />
-          <button 
-            className="btn-icon" 
-            onClick={() => toggleShowKey(key)}
-            title={showKeys[key] ? 'Masquer' : 'Afficher'}
-          >
-            {showKeys[key] ? '👁️' : '👁️‍🗨️'}
-          </button>
-        </div>
-      </div>
-    );
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file && file.size <= 2 * 1024 * 1024) { // 2MB max
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setSettings({ ...settings, companyLogo: event.target.result });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      alert('⚠️ Le fichier doit faire moins de 2 Mo');
+    }
   };
 
   return (
-    <div className="settings-overlay">
-      <div className="settings-modal">
+    <div className="settings-page">
+      <div className="settings-container">
         <div className="settings-header">
-          <h2>⚙️ Paramètres & Intégrations</h2>
-          <button className="btn-close" onClick={onClose}>✕</button>
+          <div className="settings-title">
+            <SettingsIcon size={28} />
+            <h1>Paramètres</h1>
+          </div>
+          <button className="btn-save" onClick={handleSave}>
+            <Save size={18} />
+            Sauvegarder
+          </button>
         </div>
 
         <div className="settings-tabs">
           <button 
-            className={`settings-tab ${activeTab === 'integrations' ? 'active' : ''}`}
-            onClick={() => setActiveTab('integrations')}
+            className={`settings-tab ${activeTab === 'profile' ? 'active' : ''}`}
+            onClick={() => setActiveTab('profile')}
           >
-            🔌 Intégrations
+            <User size={16} /> Profil
           </button>
           <button 
-            className={`settings-tab ${activeTab === 'transcription' ? 'active' : ''}`}
-            onClick={() => setActiveTab('transcription')}
+            className={`settings-tab ${activeTab === 'preferences' ? 'active' : ''}`}
+            onClick={() => setActiveTab('preferences')}
           >
-            🎤 Transcription
+            <Palette size={16} /> Préférences
           </button>
           <button 
-            className={`settings-tab ${activeTab === 'productivity' ? 'active' : ''}`}
-            onClick={() => setActiveTab('productivity')}
+            className={`settings-tab ${activeTab === 'exports' ? 'active' : ''}`}
+            onClick={() => setActiveTab('exports')}
           >
-            📋 Productivité
+            <Download size={16} /> Exports
           </button>
           <button 
-            className={`settings-tab ${activeTab === 'general' ? 'active' : ''}`}
-            onClick={() => setActiveTab('general')}
+            className={`settings-tab ${activeTab === 'subscription' ? 'active' : ''}`}
+            onClick={() => setActiveTab('subscription')}
           >
-            ⚙️ Général
+            <CreditCard size={16} /> Abonnement
           </button>
         </div>
 
         <div className="settings-content">
-          {activeTab === 'integrations' && (
+          {/* PROFILE TAB */}
+          {activeTab === 'profile' && (
             <div className="settings-section">
-              <h3>🎥 Plateformes de Visioconférence</h3>
+              <h3>Informations personnelles</h3>
               <p className="section-description">
-                Connectez CORTEXIA à vos outils de visioconférence pour enregistrer automatiquement vos réunions.
+                Ces informations seront affichées sur vos rapports et documents exportés.
               </p>
 
-              <div className="integration-card">
-                <div className="integration-header">
-                  <div className="integration-logo">
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="#2D8CFF">
-                      <rect x="4" y="4" width="24" height="24" rx="4" fill="currentColor"/>
-                    </svg>
-                  </div>
-                  <div className="integration-info">
-                    <h4>Zoom</h4>
-                    <p>Enregistrez et transcrivez vos meetings Zoom</p>
-                  </div>
-                  <div className="integration-status">
-                    {apiKeys.zoom_client_id && <span className="status-badge connected">Configuré</span>}
-                    {!apiKeys.zoom_client_id && <span className="status-badge">Non configuré</span>}
-                  </div>
-                </div>
-                
-                {renderInput('zoom_client_id', 'Client ID', 'Votre Zoom Client ID')}
-                {renderInput('zoom_client_secret', 'Client Secret', 'Votre Zoom Client Secret')}
-                
-                <div className="integration-actions">
-                  <button 
-                    className="btn-secondary btn-sm"
-                    onClick={() => handleTestConnection('zoom')}
-                    disabled={!apiKeys.zoom_client_id || !apiKeys.zoom_client_secret}
-                  >
-                    {testResults.zoom === 'testing' && '⏳ Test...'}
-                    {testResults.zoom === 'success' && 'Connexion OK'}
-                    {testResults.zoom === 'error' && '❌ Échec'}
-                    {!testResults.zoom && '🔍 Tester la connexion'}
-                  </button>
-                  <a 
-                    href="https://marketplace.zoom.us/docs/guides/build/jwt-app" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="btn-link"
-                  >
-                    📚 Documentation
-                  </a>
-                </div>
+              <div className="settings-field">
+                <label>Nom complet</label>
+                <input
+                  type="text"
+                  value={settings.fullName}
+                  onChange={(e) => setSettings({ ...settings, fullName: e.target.value })}
+                  placeholder="Jean Dupont"
+                />
               </div>
 
-              <div className="integration-card">
-                <div className="integration-header">
-                  <div className="integration-logo">
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="#4285F4">
-                      <circle cx="16" cy="16" r="12" fill="currentColor"/>
-                    </svg>
-                  </div>
-                  <div className="integration-info">
-                    <h4>Google Meet</h4>
-                    <p>Intégration avec Google Workspace</p>
-                  </div>
-                  <div className="integration-status">
-                    {apiKeys.google_client_id && <span className="status-badge connected">Configuré</span>}
-                    {!apiKeys.google_client_id && <span className="status-badge">Non configuré</span>}
-                  </div>
-                </div>
-                
-                {renderInput('google_client_id', 'Client ID', 'Votre Google Client ID')}
-                {renderInput('google_client_secret', 'Client Secret', 'Votre Google Client Secret')}
-                
-                <div className="integration-actions">
-                  <button 
-                    className="btn-secondary btn-sm"
-                    onClick={() => handleTestConnection('google')}
-                    disabled={!apiKeys.google_client_id}
-                  >
-                    🔍 Tester la connexion
-                  </button>
-                  <a 
-                    href="https://developers.google.com/meet/api" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="btn-link"
-                  >
-                    📚 Documentation
-                  </a>
-                </div>
+              <div className="settings-field">
+                <label>Email professionnel</label>
+                <input
+                  type="email"
+                  value={settings.email}
+                  onChange={(e) => setSettings({ ...settings, email: e.target.value })}
+                  placeholder="jean.dupont@entreprise.fr"
+                />
               </div>
 
-              <div className="integration-card">
-                <div className="integration-header">
-                  <div className="integration-logo">
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="#6264A7">
-                      <rect x="4" y="8" width="24" height="16" rx="2" fill="currentColor"/>
-                    </svg>
-                  </div>
-                  <div className="integration-info">
-                    <h4>Microsoft Teams</h4>
-                    <p>Connectez vos meetings Teams</p>
-                  </div>
-                  <div className="integration-status">
-                    {apiKeys.teams_client_id && <span className="status-badge connected">Configuré</span>}
-                    {!apiKeys.teams_client_id && <span className="status-badge">Non configuré</span>}
-                  </div>
-                </div>
-                
-                {renderInput('teams_client_id', 'Client ID', 'Votre Teams Client ID')}
-                {renderInput('teams_client_secret', 'Client Secret', 'Votre Teams Client Secret')}
-                {renderInput('teams_tenant_id', 'Tenant ID', 'Votre Azure Tenant ID')}
-                
-                <div className="integration-actions">
-                  <button 
-                    className="btn-secondary btn-sm"
-                    onClick={() => handleTestConnection('teams')}
-                    disabled={!apiKeys.teams_client_id}
-                  >
-                    🔍 Tester la connexion
-                  </button>
-                  <a 
-                    href="https://learn.microsoft.com/en-us/graph/api/resources/teams-api-overview" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="btn-link"
-                  >
-                    📚 Documentation
-                  </a>
-                </div>
+              <div className="settings-field">
+                <label>Entreprise</label>
+                <input
+                  type="text"
+                  value={settings.company}
+                  onChange={(e) => setSettings({ ...settings, company: e.target.value })}
+                  placeholder="Nom de votre entreprise"
+                />
               </div>
 
-              <div className="integration-card">
-                <div className="integration-header">
-                  <div className="integration-logo">
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="#00BEF0">
-                      <rect x="6" y="10" width="20" height="12" rx="2" fill="currentColor"/>
-                    </svg>
-                  </div>
-                  <div className="integration-info">
-                    <h4>Cisco Webex</h4>
-                    <p>Support des meetings Webex</p>
-                  </div>
-                  <div className="integration-status">
-                    {apiKeys.webex_client_id && <span className="status-badge connected">Configuré</span>}
-                    {!apiKeys.webex_client_id && <span className="status-badge">Non configuré</span>}
-                  </div>
-                </div>
-                
-                {renderInput('webex_client_id', 'Client ID', 'Votre Webex Client ID')}
-                
-                <div className="integration-actions">
-                  <a 
-                    href="https://developer.webex.com/docs/api/getting-started" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="btn-link"
-                  >
-                    📚 Documentation
-                  </a>
-                </div>
+              <div className="settings-field">
+                <label>Poste / Fonction</label>
+                <input
+                  type="text"
+                  value={settings.position}
+                  onChange={(e) => setSettings({ ...settings, position: e.target.value })}
+                  placeholder="Directeur Commercial"
+                />
               </div>
             </div>
           )}
 
-          {activeTab === 'transcription' && (
+          {/* PREFERENCES TAB */}
+          {activeTab === 'preferences' && (
             <div className="settings-section">
-              <h3>🎤 Services de Transcription</h3>
-              <p className="section-description">
-                Configurez votre service de transcription préféré pour une précision maximale.
-              </p>
-
-              <div className="integration-card">
-                <div className="integration-header">
-                  <div className="integration-info">
-                    <h4>OpenAI Whisper</h4>
-                    <p>Transcription multilingue de haute qualité</p>
-                  </div>
-                  <div className="integration-status">
-                    {apiKeys.openai_api_key && <span className="status-badge connected">Configuré</span>}
-                    {!apiKeys.openai_api_key && <span className="status-badge recommended">Recommandé</span>}
-                  </div>
-                </div>
-                
-                {renderInput('openai_api_key', 'API Key', 'sk-...')}
-                
-                <div className="integration-actions">
-                  <a 
-                    href="https://platform.openai.com/docs/guides/speech-to-text" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="btn-link"
-                  >
-                    📚 Documentation
-                  </a>
-                </div>
-              </div>
-
-              <div className="integration-card">
-                <div className="integration-header">
-                  <div className="integration-info">
-                    <h4>Deepgram</h4>
-                    <p>Transcription en temps réel ultra-rapide</p>
-                  </div>
-                  <div className="integration-status">
-                    {apiKeys.deepgram_api_key && <span className="status-badge connected">Configuré</span>}
-                  </div>
-                </div>
-                
-                {renderInput('deepgram_api_key', 'API Key', 'Votre Deepgram API Key')}
-                
-                <div className="integration-actions">
-                  <a 
-                    href="https://developers.deepgram.com/" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="btn-link"
-                  >
-                    📚 Documentation
-                  </a>
-                </div>
-              </div>
-
-              <div className="integration-card">
-                <div className="integration-header">
-                  <div className="integration-info">
-                    <h4>AssemblyAI</h4>
-                    <p>Transcription avec détection automatique de locuteurs</p>
-                  </div>
-                </div>
-                
-                {renderInput('assemblyai_api_key', 'API Key', 'Votre AssemblyAI API Key')}
-              </div>
-
-              <div className="integration-card">
-                <div className="integration-header">
-                  <div className="integration-info">
-                    <h4>Azure Speech Services</h4>
-                    <p>Service Microsoft de reconnaissance vocale</p>
-                  </div>
-                </div>
-                
-                {renderInput('azure_speech_key', 'Subscription Key', 'Votre Azure Speech Key')}
-                {renderInput('azure_speech_region', 'Région', 'ex: westeurope')}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'productivity' && (
-            <div className="settings-section">
-              <h3>📋 Outils de Productivité</h3>
-              <p className="section-description">
-                Exportez automatiquement vos comptes-rendus et actions vers vos outils favoris.
-              </p>
-
-              <div className="integration-card">
-                <div className="integration-header">
-                  <div className="integration-info">
-                    <h4>Notion</h4>
-                    <p>Exportez vos notes directement vers Notion</p>
-                  </div>
-                </div>
-                {renderInput('notion_api_key', 'Integration Token', 'secret_...')}
-              </div>
-
-              <div className="integration-card">
-                <div className="integration-header">
-                  <div className="integration-info">
-                    <h4>Trello</h4>
-                    <p>Créez des cartes automatiquement depuis les actions</p>
-                  </div>
-                </div>
-                {renderInput('trello_api_key', 'API Key', 'Votre Trello API Key')}
-              </div>
-
-              <div className="integration-card">
-                <div className="integration-header">
-                  <div className="integration-info">
-                    <h4>Asana</h4>
-                    <p>Synchronisez vos tâches avec Asana</p>
-                  </div>
-                </div>
-                {renderInput('asana_token', 'Personal Access Token', 'Votre Asana Token')}
-              </div>
-
-              <div className="integration-card">
-                <div className="integration-header">
-                  <div className="integration-info">
-                    <h4>Jira</h4>
-                    <p>Créez des tickets depuis vos actions</p>
-                  </div>
-                </div>
-                {renderInput('jira_api_token', 'API Token', 'Votre Jira API Token')}
-              </div>
-
-              <div className="integration-card">
-                <div className="integration-header">
-                  <div className="integration-info">
-                    <h4>Linear</h4>
-                    <p>Gestion de projet moderne et rapide</p>
-                  </div>
-                </div>
-                {renderInput('linear_api_key', 'API Key', 'lin_api_...')}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'general' && (
-            <div className="settings-section">
-              <h3>⚙️ Paramètres Généraux</h3>
+              <h3>Préférences d'utilisation</h3>
               
               <div className="settings-field">
-                <label>Langue par défaut</label>
-                <select defaultValue="fr">
+                <label><Globe size={16} /> Langue de l'interface</label>
+                <select 
+                  value={settings.language}
+                  onChange={(e) => setSettings({ ...settings, language: e.target.value })}
+                >
                   <option value="fr">Français</option>
-                  <option value="en">Anglais</option>
-                  <option value="es">Espagnol</option>
-                  <option value="de">Allemand</option>
-                  <option value="it">Italien</option>
+                  <option value="en">English</option>
+                  <option value="es">Español</option>
+                  <option value="de">Deutsch</option>
+                  <option value="it">Italiano</option>
                 </select>
               </div>
 
               <div className="settings-field">
-                <label>Qualité d'enregistrement</label>
-                <select defaultValue="high">
-                  <option value="high">Haute (recommandé)</option>
-                  <option value="medium">Moyenne</option>
-                  <option value="low">Basse</option>
+                <label><Palette size={16} /> Thème de l'interface</label>
+                <select 
+                  value={settings.theme}
+                  onChange={(e) => setSettings({ ...settings, theme: e.target.value })}
+                >
+                  <option value="dark">Sombre (NovaPulse)</option>
+                  <option value="light">Clair</option>
+                  <option value="auto">Automatique (système)</option>
                 </select>
               </div>
 
               <div className="settings-field">
-                <label>Format d'export par défaut</label>
-                <select defaultValue="markdown">
-                  <option value="markdown">Markdown (.md)</option>
-                  <option value="pdf">PDF</option>
+                <label className="checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    checked={settings.notifications}
+                    onChange={(e) => setSettings({ ...settings, notifications: e.target.checked })}
+                  />
+                  <span><Bell size={16} /> Activer les notifications de bureau</span>
+                </label>
+                <p className="field-hint">Recevez une alerte lorsqu'une transcription est terminée.</p>
+              </div>
+
+              <div className="settings-field">
+                <label className="checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    checked={settings.autoSave}
+                    onChange={(e) => setSettings({ ...settings, autoSave: e.target.checked })}
+                  />
+                  <span>Sauvegarde automatique des sessions</span>
+                </label>
+                <p className="field-hint">Les transcriptions sont sauvegardées toutes les 30 secondes.</p>
+              </div>
+
+              <div className="settings-field">
+                <label>Raccourcis clavier</label>
+                <div className="shortcuts-list">
+                  <div className="shortcut-item">
+                    <span className="shortcut-label">Nouvelle session</span>
+                    <kbd>Ctrl</kbd> + <kbd>N</kbd>
+                  </div>
+                  <div className="shortcut-item">
+                    <span className="shortcut-label">Rechercher</span>
+                    <kbd>Ctrl</kbd> + <kbd>F</kbd>
+                  </div>
+                  <div className="shortcut-item">
+                    <span className="shortcut-label">Paramètres</span>
+                    <kbd>Ctrl</kbd> + <kbd>,</kbd>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* EXPORTS TAB */}
+          {activeTab === 'exports' && (
+            <div className="settings-section">
+              <h3>Configuration des exports</h3>
+              
+              <div className="settings-field">
+                <label><FileText size={16} /> Format par défaut</label>
+                <select 
+                  value={settings.defaultFormat}
+                  onChange={(e) => setSettings({ ...settings, defaultFormat: e.target.value })}
+                >
+                  <option value="pdf">PDF (Recommandé)</option>
                   <option value="docx">Word (.docx)</option>
-                  <option value="txt">Texte (.txt)</option>
+                  <option value="markdown">Markdown (.md)</option>
+                  <option value="txt">Texte brut (.txt)</option>
                 </select>
+                <p className="field-hint">Les rapports seront exportés dans ce format par défaut.</p>
+              </div>
+
+              <div className="settings-field">
+                <label>Logo de votre entreprise</label>
+                <div className="logo-upload">
+                  {settings.companyLogo ? (
+                    <div className="logo-preview">
+                      <img src={settings.companyLogo} alt="Logo" />
+                      <button 
+                        className="btn-remove"
+                        onClick={() => setSettings({ ...settings, companyLogo: null })}
+                      >
+                        Supprimer
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="upload-placeholder">
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleLogoUpload}
+                        id="logo-upload"
+                        style={{ display: 'none' }}
+                      />
+                      <label htmlFor="logo-upload" className="upload-btn">
+                        <Download size={20} />
+                        Télécharger un logo
+                      </label>
+                      <p>PNG, JPG ou SVG (max 2 Mo)</p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="settings-field">
                 <label className="checkbox-label">
-                  <input type="checkbox" defaultChecked />
-                  <span>Activer les notifications de bureau</span>
-                </label>
-              </div>
-
-              <div className="settings-field">
-                <label className="checkbox-label">
-                  <input type="checkbox" defaultChecked />
-                  <span>Sauvegarder automatiquement les transcriptions</span>
-                </label>
-              </div>
-
-              <div className="settings-field">
-                <label className="checkbox-label">
-                  <input type="checkbox" />
-                  <span>Mode sombre</span>
+                  <input 
+                    type="checkbox" 
+                    checked={settings.includeLogo}
+                    onChange={(e) => setSettings({ ...settings, includeLogo: e.target.checked })}
+                  />
+                  <span>Inclure le logo sur les exports PDF</span>
                 </label>
               </div>
             </div>
           )}
-        </div>
 
-        <div className="settings-footer">
-          <button className="btn-secondary" onClick={onClose}>
-            Annuler
-          </button>
-          <button className="btn-primary" onClick={handleSave}>
-            💾 Sauvegarder
-          </button>
+          {/* SUBSCRIPTION TAB */}
+          {activeTab === 'subscription' && (
+            <div className="settings-section">
+              <h3>Abonnement & Facturation</h3>
+              
+              <div className="subscription-card">
+                <div className="subscription-header">
+                  <div>
+                    <h4>Plan {settings.plan}</h4>
+                    <p>Renouvellement le {new Date(settings.nextBillingDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                  </div>
+                  <div className="plan-badge">{settings.plan}</div>
+                </div>
+
+                <div className="usage-stats">
+                  <div className="usage-item">
+                    <div className="usage-header">
+                      <span>Sessions ce mois</span>
+                      <span className="usage-count">{settings.usage.sessions} / {settings.usage.maxSessions}</span>
+                    </div>
+                    <div className="usage-bar">
+                      <div 
+                        className="usage-fill" 
+                        style={{ width: `${(settings.usage.sessions / settings.usage.maxSessions) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="usage-item">
+                    <div className="usage-header">
+                      <span>Stockage utilisé</span>
+                      <span className="usage-count">{settings.usage.storage} GB / {settings.usage.maxStorage} GB</span>
+                    </div>
+                    <div className="usage-bar">
+                      <div 
+                        className="usage-fill" 
+                        style={{ width: `${(settings.usage.storage / settings.usage.maxStorage) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="subscription-actions">
+                  <button className="btn-secondary">Modifier l'abonnement</button>
+                  <button className="btn-secondary">Historique de facturation</button>
+                </div>
+              </div>
+
+              <div className="info-box">
+                <p><strong>Besoin d'augmenter vos limites ?</strong></p>
+                <p>Contactez notre équipe commerciale pour un plan Enterprise sur mesure.</p>
+                <button className="btn-primary">Contacter le support</button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

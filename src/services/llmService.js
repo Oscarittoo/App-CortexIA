@@ -18,6 +18,7 @@ class LLMService {
 
     // Préparer le texte de la transcription
     const transcriptText = transcript
+      .filter(line => line.text && line.text.trim() && !line.isSystem)
       .map(line => `[${line.speaker || 'Locuteur'}] ${line.text}`)
       .join('\n');
 
@@ -35,11 +36,14 @@ class LLMService {
         this.extractDecisions(transcriptText, language)
       ]);
 
+      // Générer l'email avec l'IA aussi
+      const email = await this.generateEmailWithAI(summary, actions, decisions, title, language, transcriptText);
+
       return {
         summary,
         actions,
         decisions,
-        email: this.generateEmail(summary, actions, decisions, title, language)
+        email
       };
 
     } catch (error) {
@@ -54,40 +58,86 @@ class LLMService {
    */
   async generateSummary(transcriptText, language) {
     const prompt = language === 'fr' 
-      ? `Analyse cette transcription de réunion et génère un résumé professionnel et structuré en français.
+      ? `Tu es un expert en synthèse de réunions. Analyse cette transcription et génère un résumé PROFESSIONNEL, COHÉRENT et SANS RÉPÉTITIONS.
 
-STRUCTURE ATTENDUE:
-1. **Contexte** (2-3 phrases) - De quoi parlait cette réunion ?
-2. **Points Clés** (3-5 points avec •) - Qu'est-ce qui a été discuté d'important ?
-3. **Conclusions** (2-3 phrases) - Quelles sont les grandes décisions ou orientations ?
+🎯 OBJECTIF:
+Créer un résumé qui reflète fidèlement le contenu de la réunion, en identifiant les vrais sujets discutés (pas juste les mots fréquents).
 
-STYLE:
-- Professionnel et concis
-- Sans émoticônes
-- Phrases complètes et claires
-- Utilise les vrais noms et termes mentionnés
+📋 ÉTAPE 1 - ANALYSE DU CONTENU:
+1. Identifie QUI parle (combien de personnes, rôles si mentionnés)
+2. Repère les SUJETS RÉELS abordés (projets, problèmes, objectifs)
+3. Extrais les mots-clés TECHNIQUES et SPÉCIFIQUES (évite: réunion, présentation, entreprise, équipe, etc.)
+4. Note les décisions, actions, dates, chiffres importants
+
+✍️ ÉTAPE 2 - RÉDACTION DU RÉSUMÉ:
+
+**Contexte** (2-3 phrases max)
+- Décris le contexte réel de la discussion
+- Utilise les vrais sujets et termes techniques identifiés
+- JAMAIS de formules génériques comme "Cette réunion a porté sur..."
+- Évite absolument de répéter les mêmes mots
+
+**Points Clés** (3-4 points avec -)
+- Chaque point doit être unique et spécifique
+- Utilise les termes exacts de la transcription
+- Mentionne les décisions concrètes
+- PAS de répétitions entre les points
+
+**Conclusion** (1 phrase)
+- Prochaines étapes ou orientations
+
+⚠️ RÈGLES STRICTES:
+- MAXIMUM 120 mots
+- PAS de répétitions (varie le vocabulaire)
+- PAS de mots génériques (réunion, présentation, entreprise)
+- PAS de formules creuses
+- Ton professionnel, phrases fluides
+- Ignore les mots parasites (euh, donc, alors, voilà)
 
 TRANSCRIPTION:
 ${transcriptText}
 
-Réponds directement avec le résumé formaté en Markdown, sans préambule.`
-      : `Analyze this meeting transcript and generate a professional structured summary in English.
+Réponds directement avec le résumé en Markdown (max 120 mots).`
+      : `You are a meeting synthesis expert. Analyze this transcript and generate a PROFESSIONAL, COHERENT summary WITHOUT REPETITIONS.
 
-EXPECTED STRUCTURE:
-1. **Context** (2-3 sentences) - What was this meeting about?
-2. **Key Points** (3-5 points with •) - What important topics were discussed?
-3. **Conclusions** (2-3 sentences) - What are the main decisions or directions?
+🎯 OBJECTIVE:
+Create a summary that faithfully reflects the meeting content, identifying real discussed topics (not just frequent words).
 
-STYLE:
-- Professional and concise
-- No emojis
-- Complete and clear sentences
-- Use real names and terms mentioned
+📋 STEP 1 - CONTENT ANALYSIS:
+1. Identify WHO speaks (how many people, roles if mentioned)
+2. Identify REAL topics discussed (projects, problems, objectives)
+3. Extract TECHNICAL and SPECIFIC keywords (avoid: meeting, presentation, company, team, etc.)
+4. Note decisions, actions, dates, important numbers
+
+✍️ STEP 2 - WRITING THE SUMMARY:
+
+**Context** (2-3 sentences max)
+- Describe the real context of the discussion
+- Use real topics and technical terms identified
+- NEVER generic formulas like "This meeting focused on..."
+- Absolutely avoid repeating the same words
+
+**Key Points** (3-4 points with -)
+- Each point must be unique and specific
+- Use exact terms from transcript
+- Mention concrete decisions
+- NO repetitions between points
+
+**Conclusion** (1 sentence)
+- Next steps or directions
+
+⚠️ STRICT RULES:
+- MAXIMUM 120 words
+- NO repetitions (vary vocabulary)
+- NO generic words (meeting, presentation, company)
+- NO hollow formulas
+- Professional tone, fluid sentences
+- Ignore filler words (uh, so, well, okay)
 
 TRANSCRIPT:
 ${transcriptText}
 
-Respond directly with the summary formatted in Markdown, no preamble.`;
+Respond directly with the summary in Markdown (max 120 words).`;
 
     if (this.provider === 'openai') {
       return await this.callOpenAI(prompt);
@@ -321,7 +371,60 @@ Respond ONLY with JSON, no additional text.`;
   }
 
   /**
-   * Génère un email de suivi
+   * Génère un email de suivi avec l'IA
+   */
+  async generateEmailWithAI(summary, actions, decisions, title, language, transcriptText) {
+    const prompt = language === 'fr'
+      ? `Génère un email professionnel de compte-rendu de réunion en français.
+
+CONTEXTE:
+Titre: ${title}
+Résumé: ${summary}
+
+Actions: ${actions.map(a => a.task).join(', ')}
+Décisions: ${decisions.map(d => d.text).join(', ')}
+
+INSTRUCTIONS:
+- Email professionnel et concis (maximum 250 mots)
+- Structure: Objet, Salutation, Contexte bref (2-3 phrases), Points clés (actions et décisions), Formule de politesse
+- Ton formel et direct
+- Sans emoji
+- Inclure seulement l'essentiel
+
+Génère l'email complet avec l'objet.`
+      : `Generate a professional meeting follow-up email in English.
+
+CONTEXT:
+Title: ${title}
+Summary: ${summary}
+
+Actions: ${actions.map(a => a.task).join(', ')}
+Decisions: ${decisions.map(d => d.text).join(', ')}
+
+INSTRUCTIONS:
+- Professional and concise email (max 250 words)
+- Structure: Subject, Greeting, Brief context (2-3 sentences), Key points (actions and decisions), Closing
+- Formal and direct tone
+- No emojis
+- Include only essentials
+
+Generate the complete email with subject line.`;
+
+    try {
+      const emailText = this.provider === 'openai'
+        ? await this.callOpenAI(prompt)
+        : await this.callClaude(prompt);
+      
+      return emailText;
+    } catch (error) {
+      console.error('Erreur génération email IA:', error);
+      // Fallback sur génération manuelle
+      return this.generateEmail(summary, actions, decisions, title, language);
+    }
+  }
+
+  /**
+   * Génère un email de suivi (fallback manuel)
    */
   generateEmail(summary, actions, decisions, title, language) {
     if (language === 'fr') {
@@ -365,6 +468,162 @@ The full report is attached.
 Best regards,
 CORTEXIA`;
     }
+  }
+
+  /**
+   * Génère un résumé local intelligent basé sur la transcription
+   */
+  generateLocalSummary(text, title, duration, language = 'fr') {
+    // Nettoyer le texte des artefacts et répétitions
+    text = text.replace(/\.0+\s*$/g, '')
+               .replace(/\s+0+\s*$/g, '')
+               .replace(/\.0+(\s+|$)/g, '$1')
+               .replace(/\b0+\b/g, '')
+               .replace(/\b(\w+)\s+\1\b/gi, '$1')  // Supprimer répétitions de mots (ex: "peut peut" → "peut")
+               .replace(/\b(\w+\s+\w+)\s+\1\b/gi, '$1') // Supprimer répétitions de 2 mots (ex: "nous allons" x2)
+               .replace(/\b([A-Z]{2,5})\1\b/g, '$1') // Corriger acronymes doublés (ex: "RHRH" → "RH")
+               .trim();
+    
+    // Analyser la fréquence des mots pour identifier les vrais sujets
+    const wordFrequency = this.analyzeKeywords(text, language);
+    const topKeywords = wordFrequency.length > 0 
+      ? wordFrequency.slice(0, 3).map(w => w.word)
+      : [];
+    
+    // Diviser en phrases significatives
+    const sentences = text.split(/[.!?]+/)
+      .map(s => s.trim())
+      .map(s => s.replace(/^(donc|alors|bon|bah|ben|ensuite|voilà|du\s+coup|en\s+fait)\s+/i, '').trim())
+      .filter(s => s.length > 20 && s.length < 300)
+      .filter(s => !s.toLowerCase().includes('euh') && !s.toLowerCase().includes('hmm'))
+      .filter(s => !s.match(/^0+$/))
+      .filter(s => s.length > 0);
+    
+    if (sentences.length < 3) {
+      const cleanPreview = text.substring(0, 350).replace(/\b0+\b/g, '').trim();
+      return language === 'fr' 
+        ? `**Contexte**\n\n${cleanPreview}${topKeywords.length > 0 ? '\n\n**Mots-clés identifiés** : ' + topKeywords.join(', ') : ''}`
+        : `**Context**\n\n${cleanPreview}${topKeywords.length > 0 ? '\n\n**Keywords identified**: ' + topKeywords.join(', ') : ''}`;
+    }
+    
+    // Identifier les speakers si présents dans le texte
+    const speakerPattern = /\[(\w+)\]/g;
+    const speakers = new Set();
+    let match;
+    while ((match = speakerPattern.exec(text)) !== null) {
+      speakers.add(match[1]);
+    }
+    const speakerCount = speakers.size;
+    
+    // Sélectionner des phrases variées (début, milieu, fin)
+    const intro = sentences.slice(0, 2).join('. ');
+    const middleSentences = sentences.slice(2, Math.min(6, sentences.length - 1));
+    const conclusion = sentences.length > 3 ? sentences.slice(-1)[0] : '';
+    
+    // Construire un contexte narratif intelligent (sans répéter les mêmes formules)
+    let contextIntro = '';
+    if (topKeywords.length >= 2) {
+      // Utiliser les mots-clés dans une phrase naturelle
+      const keywordPhrase = language === 'fr'
+        ? `Discussion centrée sur ${topKeywords[0]}${topKeywords[1] ? ' et ' + topKeywords[1] : ''}`
+        : `Discussion focused on ${topKeywords[0]}${topKeywords[1] ? ' and ' + topKeywords[1] : ''}`;
+      
+      if (speakerCount > 1) {
+        contextIntro = language === 'fr'
+          ? `Échange entre ${speakerCount} personnes. ${keywordPhrase}`
+          : `Exchange between ${speakerCount} people. ${keywordPhrase}`;
+      } else {
+        contextIntro = keywordPhrase;
+      }
+    } else {
+      // Utiliser le début de la transcription comme contexte
+      contextIntro = intro;
+    }
+    
+    // Sélectionner les points clés en évitant les redites
+    const uniquePoints = [];
+    const usedWords = new Set();
+    
+    for (const sentence of middleSentences) {
+      const words = sentence.toLowerCase().split(/\s+/).filter(w => w.length > 5);
+      const hasNewContent = words.some(w => !usedWords.has(w));
+      
+      if (hasNewContent && uniquePoints.length < 4) {
+        uniquePoints.push(sentence);
+        words.forEach(w => usedWords.add(w));
+      }
+    }
+    
+    if (language === 'fr') {
+      const keywordsSection = topKeywords.length > 0 ? `\n\n**Mots-clés** : ${topKeywords.join(', ')}` : '';
+      const conclusionSection = conclusion ? `\n\n**Conclusion**\n\n${conclusion}` : '';
+      
+      return `**Contexte**\n\n${contextIntro}\n\n**Points Clés**\n\n${uniquePoints.map(s => `- ${s}`).join('\n')}${keywordsSection}${conclusionSection}`;
+    } else {
+      const keywordsSection = topKeywords.length > 0 ? `\n\n**Keywords**: ${topKeywords.join(', ')}` : '';
+      const conclusionSection = conclusion ? `\n\n**Conclusion**\n\n${conclusion}` : '';
+      
+      return `**Context**\n\n${contextIntro}\n\n**Key Points**\n\n${uniquePoints.map(s => `- ${s}`).join('\n')}${keywordsSection}${conclusionSection}`;
+    }
+  }
+
+  /**
+   * Analyse la fréquence des mots pour identifier les mots-clés
+   */
+  analyzeKeywords(text, language = 'fr') {
+    // Mots à ignorer (stop words + mots génériques sans valeur sémantique)
+    const stopWords = language === 'fr'
+      ? ['le', 'la', 'les', 'de', 'des', 'un', 'une', 'du', 'et', 'ou', 'mais', 'donc', 'or', 'ni', 'car', 'que', 'qui', 'quoi', 'dont', 'où', 'ce', 'cet', 'cette', 'ces', 'mon', 'ton', 'son', 'ma', 'ta', 'sa', 'mes', 'tes', 'ses', 'notre', 'votre', 'leur', 'je', 'tu', 'il', 'elle', 'nous', 'vous', 'ils', 'elles', 'on', 'se', 'me', 'te', 'lui', 'y', 'en', 'ne', 'pas', 'plus', 'très', 'bien', 'tout', 'tous', 'toute', 'toutes', 'si', 'oui', 'non', 'euh', 'hmm', 'ah', 'oh', 'alors', 'donc', 'voilà', 'ok', 'bon', 'ben', 'hein', 'quoi', 'là', 'ça', 'pour', 'avec', 'sans', 'dans', 'sur', 'sous', 'vers', 'par', 'entre', 'chez', 'être', 'avoir', 'faire', 'aller', 'vais', 'vas', 'va', 'allons', 'allez', 'vont', 'dire', 'voir', 'donner', 'prendre', 'pouvoir', 'vouloir', 'devoir', 'savoir', 'peut', 'peuvent', 'peux', 'comme', 'ensuite', 'après', 'avant', 'important', 'importante', 'importants', 'importantes', 'chose', 'choses', 'fait', 'faite', 'faits', 'faites', 'permet', 'permettre', 'aider', 'aide', 'aussi', 'même', 'vrai', 'vraiment', 'genre', 'truc', 'trucs', 'machin', 'trés', 'super', 'déjà', 'encore', 'toujours', 'jamais', 'rien', 'quelque', 'quelques', 'autre', 'autres', 'beaucoup', 'peu', 'moins', 'trop', 'assez', 'tant', 'autant', 'plusieurs', 'chaque', 'certain', 'certains', 'certaine', 'certaines', 'bonjour', 'aujourd\'hui', 'aujourdhui', 'bienvenue', 'nouveau', 'nouveaux', 'arrivant', 'arrivants', 'année', 'années', 'réunion', 'présentation', 'présenter', 'présente', 'présentons', 'présentant', 'présentations', 'entreprise', 'équipe', 'directeur', 'direction', 'tour', 'table', 'décision', 'décisions', 'bouton', 'boutons', 'amélioration', 'améliorations', 'problème', 'problèmes', 'question', 'questions', 'point', 'points', 'fois', 'temps', 'moment', 'moments', 'manière', 'façon', 'façons', 'niveau', 'niveaux', 'partie', 'parties', 'sujet', 'sujets', 'all', 'and', 'the', 'for', 'with', 'this', 'that', 'from', 'have', 'been', 'will', 'would', 'could', 'should', 'about', 'which', 'their', 'there', 'where', 'when', 'what', 'because']
+      : ['the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i', 'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at', 'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she', 'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what', 'so', 'up', 'out', 'if', 'about', 'who', 'get', 'which', 'go', 'me', 'when', 'make', 'can', 'like', 'no', 'just', 'him', 'know', 'take', 'into', 'year', 'your', 'good', 'some', 'could', 'them', 'see', 'other', 'than', 'then', 'now', 'look', 'only', 'come', 'its', 'over', 'think', 'also', 'back', 'after', 'use', 'two', 'how', 'our', 'work', 'first', 'well', 'way', 'even', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us', 'uh', 'um', 'ah', 'oh', 'okay', 'yeah', 'thing', 'things', 'stuff', 'something', 'important', 'really', 'very', 'much', 'many', 'more', 'less', 'too', 'button', 'buttons', 'decision', 'decisions', 'improvement', 'improvements', 'problem', 'problems', 'question', 'questions', 'point', 'points', 'time', 'times', 'moment', 'moments', 'presentation', 'presentations', 'meeting', 'company', 'team', 'welcome', 'today'];
+   
+    // Extraire et nettoyer les mots
+    const normalizedText = text.replace(/\b([A-Z]{2,5})\1\b/g, '$1');
+    const words = normalizedText.toLowerCase()
+      .replace(/[^\w\sàâäéèêëïîôùûüÿæœç]/g, ' ')
+      .split(/\s+/)
+      .filter(word => 
+        word.length > 4 &&  // Mots de 5 lettres minimum (plus spécifiques)
+        !stopWords.includes(word) &&
+        !word.match(/^0+$/) &&
+        !word.match(/^\d+$/)
+      );
+    
+    // Compter les fréquences
+    const frequency = {};
+    words.forEach(word => {
+      frequency[word] = (frequency[word] || 0) + 1;
+    });
+
+    const acronyms = normalizedText.match(/\b[A-Z]{2,5}\b/g) || [];
+    const acronymsSet = new Set();
+    acronyms.forEach(acronym => {
+      const lowerAcronym = acronym.toLowerCase();
+      if (!stopWords.includes(lowerAcronym)) {
+        acronymsSet.add(lowerAcronym);
+        frequency[lowerAcronym] = (frequency[lowerAcronym] || 0) + 2;
+      }
+    });
+    
+    // Trier par fréquence décroissante et ne garder que les mots apparaissant au moins 3 fois
+    const keywords = Object.entries(frequency)
+      .map(([word, count]) => ({ word, count }))
+      .filter(item => item.count >= 3 || (acronymsSet.has(item.word) && item.count >= 2))
+      .filter(item => item.word.length > 2 || acronymsSet.has(item.word))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+    
+    // Si pas assez de mots significatifs, chercher des noms propres (majuscules)
+    if (keywords.length < 3) {
+      const properNouns = text.match(/\b[A-ZÀÂÄÉÈÊËÏÎÔÙÛÜŸ][a-zàâäéèêëïîôùûüÿæœç]+\b/g) || [];
+      properNouns.forEach(noun => {
+        const lowerNoun = noun.toLowerCase();
+        if (!stopWords.includes(lowerNoun) && lowerNoun.length > 3 && !keywords.find(k => k.word === lowerNoun)) {
+          keywords.push({ word: lowerNoun, count: 1 });
+        }
+      });
+    }
+    
+    return keywords.slice(0, 5);  // Maximum 5 mots-clés
   }
 
   /**
@@ -423,26 +682,24 @@ CORTEXIA`;
     const mockData = {
       fr: {
         summary: realText.length > 50 
-          ? `Cette réunion de ${Math.floor(duration / 60)} minutes a porté sur ${title}. Les participants ont discuté des points suivants : ${textPreview}`
-          : `Cette réunion de ${Math.floor(duration / 60)} minutes a porté sur ${title}. Les participants ont discuté des objectifs principaux, analysé les options disponibles et défini les prochaines étapes.`,
+          ? this.generateLocalSummary(realText, title, duration)
+          : `Cette réunion de ${Math.floor(duration / 60)} minutes a porté sur ${title}. Contenu de transcription insuffisant pour générer un résumé détaillé.`,
         actions: extractedActions.length > 0 ? extractedActions : [
-          { id: 1, task: 'Faire le suivi avec l\'équipe', responsible: 'Équipe', deadline: 'À définir', priority: 'Moyenne' },
-          { id: 2, task: 'Passer sur la documentation', responsible: 'Équipe', deadline: 'À définir', priority: 'Haute' }
+          { id: 1, task: 'Définir les actions de suivi', responsible: 'Équipe', deadline: 'À définir', priority: 'Moyenne' }
         ],
         decisions: extractedDecisions.length > 0 ? extractedDecisions : [
-          { id: 1, text: 'Décisions prises durant la session', impact: 'Fonctionnel' }
+          { id: 1, text: 'Aucune décision formelle détectée dans la transcription', impact: 'Aucun' }
         ]
       },
       en: {
         summary: realText.length > 50
-          ? `This ${Math.floor(duration / 60)}-minute meeting focused on ${title}. Participants discussed: ${textPreview}`
-          : `This ${Math.floor(duration / 60)}-minute meeting focused on ${title}. Participants discussed main objectives, analyzed available options, and defined next steps.`,
+          ? this.generateLocalSummary(realText, title, duration, 'en')
+          : `This ${Math.floor(duration / 60)}-minute meeting focused on ${title}. Insufficient transcript content to generate detailed summary.`,
         actions: extractedActions.length > 0 ? extractedActions : [
-          { id: 1, task: 'Follow up with the team', responsible: 'Team', deadline: 'TBD', priority: 'Medium' },
-          { id: 2, task: 'Review documentation', responsible: 'Team', deadline: 'TBD', priority: 'High' }
+          { id: 1, task: 'Define follow-up actions', responsible: 'Team', deadline: 'TBD', priority: 'Medium' }
         ],
         decisions: extractedDecisions.length > 0 ? extractedDecisions : [
-          { id: 1, text: 'Decisions made during the session', impact: 'Functional' }
+          { id: 1, text: 'No formal decision detected in transcript', impact: 'None' }
         ]
       }
     };

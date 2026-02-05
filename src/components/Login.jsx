@@ -82,7 +82,7 @@ export default function Login({ onLogin, onBack }) {
             </div>
 
             <div className="form-group">
-              <label htmlFor="password">Mot de passe</label>
+              <label htmlFor="password">MOT DE PASSE</label>
               <div className="input-with-icon">
                 <Lock size={18} className="input-icon" />
                 <input
@@ -96,7 +96,7 @@ export default function Login({ onLogin, onBack }) {
                 />
                 <button
                   type="button"
-                  className="btn btn-ghost btn-sm toggle-password"
+                  className="toggle-password"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -111,7 +111,7 @@ export default function Login({ onLogin, onBack }) {
             )}
 
             <button type="submit" className="btn btn-primary btn-lg">
-              {isRegistering ? 'Créer mon compte' : 'Se connecter'}
+              {isRegistering ? 'CRÉER MON COMPTE' : 'SE CONNECTER'}
             </button>
           </form>
 
@@ -131,7 +131,7 @@ export default function Login({ onLogin, onBack }) {
 
           <button 
             type="button" 
-            className="btn btn-ghost"
+            className="btn btn-ghost btn-links"
             onClick={onBack}
           >
             Retour à l'accueil
@@ -146,54 +146,90 @@ export default function Login({ onLogin, onBack }) {
           align-items: center;
           justify-content: center;
           padding: var(--space-4);
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          /* Global background is handled by body check style below */
+          position: relative;
+        }
+
+        /* Ambient glow background for login */
+        .login-page::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 50% 50%, rgba(79, 140, 255, 0.20) 0%, transparent 60%),
+                radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* Remove the purple gradient override */
+        :global(body) {
+           /* Ensure generic body background if not already set */
         }
 
         .login-container {
           width: 100%;
           max-width: 440px;
+          perspective: 1000px;
+          z-index: 1;
         }
 
         .login-card {
-          background: var(--color-bg-primary);
-          border-radius: var(--radius-xl);
-          padding: var(--space-10);
-          box-shadow: var(--shadow-xl);
+          background: rgba(13, 17, 23, 0.6); 
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 24px;
+          padding: 40px;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+          position: relative;
+          overflow: hidden;
+        }
+        
+        /* Cyber accent top border */
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
         }
 
         .login-header {
           text-align: center;
-          margin-bottom: var(--space-8);
+          margin-bottom: 32px;
         }
 
         .login-header h2 {
-          font-size: var(--font-size-3xl);
-          font-weight: var(--font-weight-bold);
-          margin-bottom: var(--space-2);
-          color: var(--color-text-primary);
+          font-size: 36px;
+          font-family: var(--font-display);
+          font-weight: 700;
+          color: var(--text);
+          margin-bottom: 8px;
+          text-shadow: 0 0 20px rgba(79, 140, 255, 0.3);
+          letter-spacing: 2px;
         }
 
         .login-header p {
-          color: var(--color-text-secondary);
-          font-size: var(--font-size-base);
-        }
-
-        .login-form {
-          display: flex;
-          flex-direction: column;
-          gap: var(--space-5);
+          color: var(--muted);
+          font-size: 15px;
         }
 
         .form-group {
-          display: flex;
-          flex-direction: column;
-          gap: var(--space-2);
+          margin-bottom: 24px;
         }
 
         .form-group label {
-          font-size: var(--font-size-sm);
-          font-weight: var(--font-weight-medium);
-          color: var(--color-text-primary);
+          display: block;
+          font-size: 11px;
+          font-weight: 700;
+          color: var(--faint);
+          margin-bottom: 8px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
         }
 
         .input-with-icon {
@@ -204,62 +240,125 @@ export default function Login({ onLogin, onBack }) {
 
         .input-icon {
           position: absolute;
-          left: var(--space-3);
-          color: var(--color-text-tertiary);
+          left: 14px;
+          color: var(--muted);
+          pointer-events: none;
+          z-index: 2;
         }
 
-        .input-with-icon .input {
-          padding-left: var(--space-10);
-          padding-right: var(--space-10);
+        .input {
+          width: 100%;
+          height: 52px;
+          padding: 0 16px 0 44px;
+          background: rgba(0, 0, 0, 0.3);
+          border: 1px solid var(--border);
+          border-radius: 12px;
+          color: var(--text);
+          font-size: 16px;
+          transition: all 0.3s;
+          font-family: var(--font-body);
+        }
+
+        .input:focus {
+          outline: none;
+          border-color: var(--accent);
+          background: rgba(79, 140, 255, 0.05);
+          box-shadow: 0 0 0 1px var(--accent), 0 0 20px rgba(79, 140, 255, 0.15);
+        }
+        
+        /* Specific fix for inputs without icons if any */
+        input:not(.input-with-icon .input) {
+            padding-left: 16px;
         }
 
         .toggle-password {
           position: absolute;
-          right: var(--space-2);
+          right: 12px;
+          color: var(--muted);
+          padding: 8px;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          border-radius: 50%;
+          transition: 0.2s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .toggle-password:hover {
+          color: var(--text);
+          background: rgba(255,255,255,0.05);
         }
 
         .form-footer {
           display: flex;
           justify-content: flex-end;
-          margin-top: calc(var(--space-2) * -1);
+          margin-bottom: 24px;
         }
 
         .forgot-password {
-          font-size: var(--font-size-sm);
-          color: var(--color-primary);
+          font-size: 13px;
+          color: var(--muted);
           text-decoration: none;
+          font-weight: 500;
+          transition: 0.2s;
         }
 
         .forgot-password:hover {
-          text-decoration: underline;
+          color: var(--accent);
+          text-decoration: none;
+        }
+
+        /* BTN LG OVERRIDE */
+        .btn-lg {
+          width: 100%;
+          height: 52px;
+          font-size: 14px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 1px;
         }
 
         .login-divider {
-          position: relative;
-          text-align: center;
-          margin: var(--space-6) 0;
+          display: flex;
+          align-items: center;
+          margin: 24px 0;
+          color: var(--faint);
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
         }
 
-        .login-divider::before {
+        .login-divider::before,
+        .login-divider::after {
           content: '';
-          position: absolute;
-          top: 50%;
-          left: 0;
-          right: 0;
+          flex: 1;
           height: 1px;
-          background: var(--color-border-light);
+          background: var(--border);
         }
 
         .login-divider span {
-          position: relative;
-          background: var(--color-bg-primary);
-          padding: 0 var(--space-3);
-          color: var(--color-text-tertiary);
-          font-size: var(--font-size-sm);
+          padding: 0 16px;
+        }
+        
+        .btn-links {
+           margin-top: 20px;
+           width: 100%;
+           color: var(--muted);
+           font-size: 13px;
+        }
+        
+        .btn-links:hover {
+           color: var(--text);
+           background: transparent;
+           transform: translateY(-1px);
         }
 
-        .btn-lg {
-          width: 100%;
+        @media (max-width: 480px) {
+          .login-card {
+            padding: 24px;
+          }
         }
       `}</style>
     </div>

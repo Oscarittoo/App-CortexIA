@@ -1,0 +1,599 @@
+/* =========================
+   THEME (dark premium) - Cortexia
+   ========================= */
+:root {
+  /* Surfaces - Adjusted for better visibility */
+  --bg: #131b26; /* Slightly lighter/bluer ink background */
+  --panel: rgba(30, 41, 59, 0.7); /* Much more visible surface color (slate-800 with opacity) */
+  --panel-2: rgba(51, 65, 85, 0.8); /* Lighter surface for hovers/secondary */
+  --border: rgba(255, 255, 255, 0.15); /* Stronger border contrast */
+
+  /* Text - High contrast */
+  --text: #f1f5f9; /* Slate-100 */
+  --muted: #94a3b8; /* Slate-400 */
+  --faint: #64748b; /* Slate-500 */
+
+  /* Accents */
+  --accent: #38bdf8;       /* Sky-400 - Brighter Cyan/Blue */
+  --accent2: #4ade80;      /* Green-400 - Brighter Green */
+  --danger: #ef4444;
+
+  /* Radius + shadow */
+
+  --r-lg: 18px;
+  --r-md: 14px;
+  --shadow-lg: 0 24px 70px rgba(0,0,0,0.55);
+  --shadow-md: 0 14px 40px rgba(0,0,0,0.45);
+
+  /* Blur */
+  --blur: 14px;
+  
+  /* Fonts */
+  --font-display: "Orbitron", sans-serif;
+  --font-body: "Plus Jakarta Sans", "Inter", sans-serif;
+
+  /* --- COMPATIBILITY MAPPING (Mapping old vars to new theme) --- */
+  /* CRITICAL FIX: Base surfaces should use 'panel', not 'bg' */
+  --color-bg-primary: var(--panel); 
+  --color-bg-secondary: var(--panel-2);
+  --color-bg-tertiary: var(--panel-2);
+  --color-bg-active: var(--panel-2);
+  --color-bg-hover: var(--panel-2);
+  
+  /* Page background remains the deep void */
+  --color-bg-page: transparent; /* Let body background show through */
+
+  --color-text-primary: var(--text);
+  --color-text-secondary: var(--muted);
+  --color-text-tertiary: var(--faint);
+  --color-text-disabled: var(--faint);
+
+  --color-border-light: var(--border);
+  --color-border-medium: var(--border);
+  --color-border-strong: rgba(255, 255, 255, 0.15);
+
+  --color-primary: var(--accent);
+  --color-primary-hover: #3b82f6; /* slightly dark blue */
+  --color-primary-light: rgba(79, 140, 255, 0.2);
+  
+  --color-success: var(--accent2);
+  --color-error: var(--danger);
+
+  --radius-lg: var(--r-lg);
+  --radius-md: var(--r-md);
+  
+  /* Override Shadows */
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+
+  /* --- LEGACY VARS SUPPORT (for public-pages.css etc) --- */
+  --surface: var(--panel);
+  --primary: var(--accent);
+  --text-primary: var(--text);
+  --text-secondary: var(--muted);
+  --text-tertiary: var(--faint);
+  --surface-hover: var(--panel-2);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  background:
+    radial-gradient(900px 500px at 20% 10%, rgba(79, 140, 255, 0.25), transparent 60%),
+    radial-gradient(900px 500px at 80% 20%, rgba(34, 197, 94, 0.20), transparent 60%),
+    radial-gradient(700px 500px at 70% 90%, rgba(79, 140, 255, 0.15), transparent 60%),
+    var(--bg);
+  background-attachment: fixed; /* Fix gradient on scroll */
+  font-family: var(--font-body);
+  letter-spacing: 0.2px;
+}
+
+/* =========================
+   TYPOGRAPHY
+   ========================= */
+h1, h2, h3, .brand, .stat-value, .stat-number, .price-amount, .popular-badge {
+    font-family: var(--font-display);
+    letter-spacing: 0.5px;
+}
+
+/* =========================
+   LAYOUT (sidebar + main)
+   ========================= */
+.app-premium {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 18px;
+  padding: 18px;
+}
+
+.sidebar {
+  position: sticky;
+  top: 18px;
+  height: calc(100vh - 36px);
+  border-radius: var(--r-lg);
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+
+.sidebar .brand img {
+  height: 28px;
+  width: auto;
+  border-radius: 6px;
+}
+
+.sidebar .brand span {
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--text);
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  padding: 0 10px;
+  gap: 4px;
+  flex: 1; /* push footer down if needed */
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* increased from 10 */
+  padding: 12px 14px;
+  border-radius: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: 180ms ease;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+}
+
+.nav-item.active {
+  background: linear-gradient(135deg, rgba(79,140,255,0.22), rgba(34,197,94,0.10));
+  border: 1px solid rgba(79,140,255,0.28);
+  color: var(--text);
+  box-shadow: 0 4px 12px rgba(79, 140, 255, 0.1);
+}
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 12px;
+  color: #fff;
+}
+
+/* =========================
+   TOPBAR
+   ========================= */
+.main {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 14px;
+}
+
+.topbar {
+  position: sticky;
+  top: 18px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 12px 20px;
+  border-radius: var(--r-lg);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+}
+
+.search {
+  flex: 1;
+  max-width: 400px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+  transition: .2s;
+}
+
+.search:focus-within {
+  border-color: var(--accent);
+  background: rgba(255,255,255,0.08);
+}
+
+.search input {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.search input::placeholder { color: var(--faint); }
+
+/*Actions in Topbar */
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-icon-premium {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-icon-premium:hover {
+  background: rgba(255,255,255,0.1);
+  transform: translateY(-1px);
+}
+
+/* =========================
+   DASHBOARD GRID
+   ========================= */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 18px;
+  padding-bottom: 20px;
+}
+
+.card {
+  grid-column: span 12;
+  border-radius: var(--r-lg);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  border-color: rgba(255,255,255,0.12);
+}
+
+.card-header {
+  padding: 18px 20px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.03); 
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text); 
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-subtitle {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.card-body {
+  padding: 20px;
+}
+
+/* KPI small cards */
+.kpi {
+  grid-column: span 3; /* Default to 4 cols row */
+  padding: 20px;
+  border-radius: var(--r-lg);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s;
+}
+
+.kpi:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,0.05);
+}
+
+.kpi .label { color: var(--muted); font-size: 13px; font-weight: 500;}
+.kpi .value { font-size: 24px; font-weight: 700; margin-top: 8px; color: var(--text); }
+.kpi .delta { margin-top: auto; padding-top: 10px; font-size: 12px; color: var(--faint); display: flex; align-items: center; gap: 4px; }
+.kpi .delta.positive { color: var(--accent2); }
+.kpi .delta.negative { color: var(--danger); }
+
+/* =========================
+   ADAPTATION FOR EXISTING COMPONENTS
+   ========================= */
+
+/* Adapt Dashboard.jsx ".stat-card" to look like ".kpi" */
+.stat-card {
+  padding: 20px;
+  border-radius: var(--r-lg);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  color: var(--text);
+}
+.stat-card .stat-label { color: var(--muted); font-size: 13px; }
+.stat-card .stat-value { font-size: 24px; font-weight: 700; margin-top: 6px; }
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr); /* Match new grid */
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.chart-card {
+  grid-column: span 6; /* 2 cols */
+  border-radius: var(--r-lg);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  padding: 20px;
+}
+
+.chart-card h3 {
+  color: var(--text);
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.screen h1, .screen h2 {
+  color: var(--text);
+}
+
+.screen p {
+    color: var(--muted);
+}
+
+/* Buttons Remap */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-body);
+  background: transparent;
+  color: var(--text);
+}
+
+.btn-primary {
+  border: 1px solid rgba(255,255,255,0.1);
+  background: linear-gradient(135deg, var(--accent), #06b6d4);
+  box-shadow: 0 5px 20px rgba(6, 182, 212, 0.4);
+  color: #fff;
+  font-family: var(--font-display);
+  letter-spacing: 0.5px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(6, 182, 212, 0.5);
+  filter: brightness(1.1);
+}
+
+.btn-secondary {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+
+.btn-secondary:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.2);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: none;
+}
+
+.btn-ghost:hover {
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+}
+
+/* Make standard buttons look good */
+button {
+    font-family: inherit;
+}
+
+@media (max-width: 1200px) {
+  .kpi { grid-column: span 6; }
+  .chart-card { grid-column: span 12; }
+}
+
+@media (max-width: 768px) {
+  .app-premium { grid-template-columns: 1fr; }
+  .sidebar { display: none; /* Hide sidebar on mobile for now, or handle burger */ } 
+  .kpi { grid-column: span 12; }
+}
+
+/* =========================
+   GLOW ACCENT (subtle)
+   ========================= */
+.glow {
+  position: relative;
+}
+
+.glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: radial-gradient(900px 200px at 20% 0%, rgba(79,140,255,0.30), transparent 55%),
+              radial-gradient(900px 200px at 80% 0%, rgba(34,197,94,0.20), transparent 55%);
+  opacity: 0.55;
+  pointer-events: none;
+  filter: blur(10px);
+}
+
+/* =========================
+   COMPONENT OVERRIDES (Force Glassmorphism)
+   ========================= */
+
+/* Cards & Panels - Force visibility */
+.card, 
+.dashboard-card, 
+.form-section, 
+.stat-card,
+.recent-activity,
+.upcoming-meetings {
+    background: var(--panel) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--r-md) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
+}
+
+.dashboard-card:hover, .form-section:hover, .stat-card:hover {
+    border-color: rgba(56, 189, 248, 0.3) !important; /* Blue glow on hover */
+    background: var(--panel-2) !important;
+}
+
+/* Form Inputs - Make them pop */
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+select, 
+textarea {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text) !important;
+    font-family: var(--font-body) !important;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2) !important;
+}
+
+/* Exception for wrapper-based inputs (like search bars) */
+.search-bar input,
+.input-with-icon input {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+.search-bar input:focus,
+.input-with-icon input:focus {
+    box-shadow: none !important;
+}
+
+/* Headers visibility */
+h1, h2, h3, h4 {
+    color: var(--text) !important;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5); /* Lift text off bg */
+}
+
+/* Fix Dashboard and other screens alignment */
+main .screen:not(.new-session):not(.active-session) {
+    margin: 0 auto;
+    width: 100%;
+    /* Keep existing max-width or remove it if user wants full width everywhere */
+}
+
+/* Ensure icons have space */
+.label-icon, .form-section-icon {
+    margin-right: 8px;
+    color: var(--accent);
+}
+
+.period-selector, .filter-bar {
+    background: var(--panel) !important;
+    border: 1px solid var(--border) !important;
+}
+
+/* Specific fix for New Session Legal Info */
+.legal-info {
+    background: rgba(0,0,0,0.2);
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-top: 10px;
+}
+
+/* Custom Checkbox for visibility */
+input[type="checkbox"] {
+    accent-color: var(--accent);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}

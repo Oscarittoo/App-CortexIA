@@ -102,73 +102,56 @@ export default function Home({ onGetStarted }) {
         </div>
       </section>
       
-      {/* Features Section */}
-      <section className="features-section">
+      {/* Process Section - Replacing duplicated Features */}
+      <section className="process-section">
         <div className="section-header">
-          <h2>Tout ce dont vous avez besoin pour des réunions productives</h2>
-          <p>Des fonctionnalités puissantes conçues pour gagner du temps et améliorer la collaboration</p>
+          <h2>Comment ça marche ?</h2>
+          <p>Une intelligence artificielle qui s'intègre parfaitement à votre flux de travail</p>
         </div>
         
-        <div className="features-grid">
-          <div className="feature-card">
-            <div className="feature-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
+        <div className="process-steps">
+          <div className="process-step">
+            <div className="step-number">01</div>
+            <div className="step-content">
+              <h3>Participez</h3>
+              <p>Connectez votre calendrier. CORTEXIA rejoint automatiquement vos appels Zoom, Teams ou Meet.</p>
             </div>
-            <h3>Transcription en temps réel</h3>
-            <p>Transcription vocale précise dans plusieurs langues avec des taux de précision leader du marché</p>
           </div>
-          
-          <div className="feature-card">
-            <div className="feature-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
-              </svg>
+          <div className="process-connector"></div>
+          <div className="process-step">
+            <div className="step-number">02</div>
+            <div className="step-content">
+              <h3>Oubliez la prise de notes</h3>
+              <p>L'IA transcrit en temps réel et identifie les locuteurs, même dans les discussions techniques.</p>
             </div>
-            <h3>Résumés intelligents</h3>
-            <p>Résumés générés par IA qui mettent en évidence les décisions clés, les actions et les sujets importants</p>
           </div>
-          
-          <div className="feature-card">
-            <div className="feature-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
-              </svg>
+          <div className="process-connector"></div>
+          <div className="process-step">
+            <div className="step-number">03</div>
+            <div className="step-content">
+              <h3>Recevez le plan d'action</h3>
+              <p>Un rapport structuré avec décisions et to-do list est envoyé à votre équipe instantanément.</p>
             </div>
-            <h3>Suivi des actions</h3>
-            <p>Extraction et assignation automatique des tâches avec échéances et responsables</p>
           </div>
-          
-          <div className="feature-card">
-            <div className="feature-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
-              </svg>
-            </div>
-            <h3>Confidentialité d'abord</h3>
-            <p>Toutes les données stockées localement avec chiffrement de bout en bout. Conformité RGPD complète</p>
-          </div>
-          
-          <div className="feature-card">
-            <div className="feature-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
-              </svg>
-            </div>
-            <h3>Recherche intelligente</h3>
-            <p>Trouvez instantanément n'importe quel point de discussion avec la recherche sémantique IA</p>
-          </div>
-          
-          <div className="feature-card">
-            <div className="feature-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-              </svg>
-            </div>
-            <h3>Tableau de bord analytique</h3>
-            <p>Suivez les métriques de réunion, les tendances de productivité et les schémas de collaboration d'équipe</p>
-          </div>
+        </div>
+      </section>
+
+      {/* Benefits / Impact Section */}
+      <section className="benefits-section">
+        <div className="benefit-card glass-panel">
+          <div className="benefit-value">2h</div>
+          <div className="benefit-label">Gagnées par jour</div>
+          <p>Ne rédigez plus jamais de compte-rendu manuellement.</p>
+        </div>
+        <div className="benefit-card glass-panel">
+          <div className="benefit-value">100%</div>
+          <div className="benefit-label">Information capturée</div>
+          <p>Plus aucun détail important perdu ou oublié.</p>
+        </div>
+        <div className="benefit-card glass-panel">
+          <div className="benefit-value">x3</div>
+          <div className="benefit-label">Exécution rapide</div>
+          <p>Les équipes alignées livrent plus vite.</p>
         </div>
       </section>
       
@@ -185,6 +168,174 @@ export default function Home({ onGetStarted }) {
           </button>
         </div>
       </section>
+      <style jsx>{`
+        /* Global Home Overrides */
+        .home-page {
+           padding-bottom: 80px;
+        }
+
+        .section-header {
+           text-align: center;
+           margin-bottom: 60px;
+        }
+        
+        .section-header h2 {
+           font-size: 36px;
+           font-weight: 700;
+           margin-bottom: 16px;
+           color: var(--text);
+        }
+        
+        .section-header p {
+           color: var(--muted);
+           font-size: 18px;
+        }
+
+        .process-section {
+           padding: 100px 24px;
+           max-width: 1200px;
+           margin: 0 auto;
+        }
+
+        .process-steps {
+           display: flex;
+           justify-content: space-between;
+           align-items: flex-start;
+           position: relative;
+           margin-top: 60px;
+        }
+        
+        @media (max-width: 768px) {
+           .process-steps {
+              flex-direction: column;
+              gap: 40px;
+           }
+           .process-connector {
+              display: none;
+           }
+        }
+
+        .process-step {
+           flex: 1;
+           display: flex;
+           flex-direction: column;
+           gap: 20px;
+           position: relative;
+           z-index: 2;
+           padding-right: 20px;
+        }
+        
+        .process-connector {
+           flex: 0.5;
+           height: 2px;
+           background: linear-gradient(to right, var(--accent), transparent);
+           margin-top: 24px;
+           opacity: 0.3;
+        }
+        
+        .step-number {
+           font-family: 'Orbitron', sans-serif;
+           font-size: 48px;
+           font-weight: 700;
+           color: rgba(56, 189, 248, 0.2);
+           margin-bottom: -20px;
+        }
+        
+        .step-content h3 {
+           font-size: 24px;
+           font-weight: 600;
+           margin-bottom: 12px;
+           color: var(--text);
+        }
+        
+        .step-content p {
+           color: var(--muted);
+           line-height: 1.6;
+           font-size: 16px;
+        }
+
+        .benefits-section {
+           display: grid;
+           grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+           gap: 32px;
+           max-width: 1200px;
+           margin: 0 auto 100px;
+           padding: 0 24px;
+        }
+        
+        .benefit-card {
+           padding: 40px;
+           text-align: center;
+           border-radius: 24px;
+           background: var(--panel); 
+           border: 1px solid var(--border);
+           transition: transform 0.3s ease;
+           backdrop-filter: blur(10px);
+        }
+        
+        .benefit-card:hover {
+           transform: translateY(-5px);
+           border-color: var(--accent);
+           box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .benefit-value {
+           font-family: 'Orbitron', sans-serif;
+           font-size: 48px;
+           font-weight: 700;
+           color: var(--accent);
+           margin-bottom: 8px;
+           line-height: 1;
+        }
+        
+        .benefit-label {
+           font-size: 14px;
+           text-transform: uppercase;
+           letter-spacing: 2px;
+           color: var(--text);
+           margin-bottom: 16px;
+           font-weight: 600;
+        }
+        
+        .benefit-card p {
+           color: var(--muted);
+           font-size: 16px;
+        }
+        
+        /* CTA overrides */
+        .cta-section {
+           padding: 80px 24px;
+           text-align: center;
+           background: radial-gradient(circle at center, rgba(56, 189, 248, 0.1), transparent 70%);
+        }
+        
+        .cta-content h2 {
+           font-size: 42px;
+           margin-bottom: 16px;
+        }
+        
+        .btn-cta {
+           display: inline-flex;
+           align-items: center;
+           gap: 12px;
+           padding: 16px 32px;
+           background: var(--primary);
+           color: white;
+           border: none;
+           border-radius: 100px;
+           font-size: 18px;
+           font-weight: 600;
+           cursor: pointer;
+           margin-top: 32px;
+           transition: all 0.2s;
+           box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+        }
+        
+        .btn-cta:hover {
+           transform: scale(1.05);
+           box-shadow: 0 0 40px rgba(56, 189, 248, 0.5);
+        }
+      `}</style>
     </div>
   );
 }

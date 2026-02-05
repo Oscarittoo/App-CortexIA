@@ -229,6 +229,8 @@ export default function AdvancedSearch({ onSearch, availableTags = [] }) {
         .search-input {
           padding-left: var(--space-10);
           padding-right: var(--space-10);
+          font-size: 16px;
+          height: 48px;
         }
 
         .clear-search {

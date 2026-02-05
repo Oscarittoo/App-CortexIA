@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
-import { ClipboardList, Video, Mic, Monitor, MessageSquare, Gamepad2, Calendar } from 'lucide-react';
+import { ClipboardList, Video, Mic, Monitor, MessageSquare, Gamepad2, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import storageService from '../utils/storage';
 
-export default function SessionsHistory({ onViewSession }) {
+export default function SessionsHistory({ onViewSession, onNewSession }) {
   const [sessions, setSessions] = useState([]);
   const [filteredSessions, setFilteredSessions] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('grid'); // grid | list
   const [sortBy, setSortBy] = useState('date-desc'); // date-desc, date-asc, duration-desc, title
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(12);
   const [filters, setFilters] = useState({
     dateFrom: null,
     dateTo: null,
@@ -25,6 +27,10 @@ export default function SessionsHistory({ onViewSession }) {
   useEffect(() => {
     applyFilters();
   }, [sessions, searchQuery, sortBy, filters]);
+
+  useEffect(() => {
+    setCurrentPage(1); // Reset to page 1 when filters change
+  }, [searchQuery, sortBy, filters]);
 
   const loadSessions = () => {
     const allSessions = storageService.getAllSessions();
@@ -77,6 +83,47 @@ export default function SessionsHistory({ onViewSession }) {
     });
 
     setFilteredSessions(result);
+  };
+
+  // Group sessions by time period
+  const groupSessionsByPeriod = (sessionsList) => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const groups = {
+      today: [],
+      thisWeek: [],
+      thisMonth: [],
+      older: []
+    };
+
+    sessionsList.forEach(session => {
+      const sessionDate = new Date(session.createdAt);
+      if (sessionDate >= today) {
+        groups.today.push(session);
+      } else if (sessionDate >= weekAgo) {
+        groups.thisWeek.push(session);
+      } else if (sessionDate >= monthAgo) {
+        groups.thisMonth.push(session);
+      } else {
+        groups.older.push(session);
+      }
+    });
+
+    return groups;
+  };
+
+  // Pagination
+  const totalPages = Math.ceil(filteredSessions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentSessions = filteredSessions.slice(startIndex, endIndex);
+  const groupedSessions = groupSessionsByPeriod(currentSessions);
+
+  const goToPage = (page) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
   };
 
   const handleDelete = (id) => {
@@ -171,11 +218,12 @@ export default function SessionsHistory({ onViewSession }) {
               <ClipboardList size={64} strokeWidth={1.5} />
             </div>
             <h2 style={{
-              fontSize: '28px',
-              fontWeight: '600',
+              fontSize: '36px',
+              fontWeight: '700',
               color: 'var(--color-text-primary)',
               marginBottom: '12px',
-              letterSpacing: '-0.01em'
+              letterSpacing: '-0.8px',
+              fontFamily: 'Orbitron, sans-serif'
             }}>Aucune session enregistrée</h2>
             <p style={{
               fontSize: '16px',
@@ -187,7 +235,7 @@ export default function SessionsHistory({ onViewSession }) {
               Commencez par créer votre première réunion pour construire votre historique et accéder à des statistiques détaillées.
             </p>
             <button 
-              onClick={() => window.location.hash = '#new'}
+              onClick={onNewSession}
               className="btn-primary"
               style={{
                 padding: '12px 32px',
@@ -320,6 +368,12 @@ export default function SessionsHistory({ onViewSession }) {
           </span>
           <span className="stat-label">Temps total</span>
         </div>
+        {filteredSessions.length > itemsPerPage && (
+          <div className="stat">
+            <span className="stat-number">{startIndex + 1}-{Math.min(endIndex, filteredSessions.length)}</span>
+            <span className="stat-label">Affichées</span>
+          </div>
+        )}
       </div>
 
       {filteredSessions.length === 0 ? (
@@ -364,7 +418,7 @@ export default function SessionsHistory({ onViewSession }) {
           </p>
           {sessions.length === 0 ? (
             <button 
-              onClick={() => window.location.hash = '#new'}
+              onClick={onNewSession}
               className="btn-primary"
             >
               Créer une session
@@ -379,58 +433,300 @@ export default function SessionsHistory({ onViewSession }) {
           )}
         </div>
       ) : (
-        <div className={`sessions-${viewMode}`}>
-          {filteredSessions.map(session => (
-            <div key={session.id} className="session-card">
-              <div className="session-card-header">
-                <div className="session-platform">
-                  {getPlatformIcon(session.platform)}
+        <>
+          <div className={`sessions-${viewMode}`}>
+            {/* Today */}
+            {groupedSessions.today.length > 0 && (
+              <>
+                <div className="period-header">
+                  <h3>Aujourd'hui</h3>
+                  <span className="period-count">{groupedSessions.today.length} session(s)</span>
                 </div>
-                <h3>{session.title || 'Session sans titre'}</h3>
-              </div>
+                {groupedSessions.today.map(session => (
+                  <div key={session.id} className="session-card">
+                    <div className="session-card-header">
+                      <div className="session-platform">
+                        {getPlatformIcon(session.platform)}
+                      </div>
+                      <h3>{session.title || 'Session sans titre'}</h3>
+                    </div>
 
-              <div className="session-card-meta">
-                <span className="meta-item">
-                  {formatDate(session.createdAt)}
-                </span>
-                <span className="meta-item">
-                  {formatDuration(session.duration || 0)}
-                </span>
-                <span className="meta-item">
-                  {session.transcript?.length || 0} segments
-                </span>
-              </div>
-
-              {session.tags && session.tags.length > 0 && (
-                <div className="session-tags">
-                  {session.tags.map(tagId => {
-                    const tag = tags.find(t => t.id === tagId);
-                    return tag ? (
-                      <span key={tagId} className="tag-small">
-                        {tag.name}
+                    <div className="session-card-meta">
+                      <span className="meta-item">
+                        {formatDate(session.createdAt)}
                       </span>
-                    ) : null;
-                  })}
-                </div>
-              )}
+                      <span className="meta-item">
+                        {formatDuration(session.duration || 0)}
+                      </span>
+                      <span className="meta-item">
+                        {session.transcript?.length || 0} segments
+                      </span>
+                    </div>
 
-              <div className="session-card-actions">
-                <button
-                  className="btn-secondary btn-sm"
-                  onClick={() => onViewSession(session)}
-                >
-                  Voir
-                </button>
-                <button
-                  className="btn-secondary btn-sm"
-                  onClick={() => handleDelete(session.id)}
-                >
-                  Supprimer
-                </button>
+                    {session.tags && session.tags.length > 0 && (
+                      <div className="session-tags">
+                        {session.tags.map(tagId => {
+                          const tag = tags.find(t => t.id === tagId);
+                          return tag ? (
+                            <span key={tagId} className="tag-small">
+                              {tag.name}
+                            </span>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+
+                    <div className="session-card-actions">
+                      <button
+                        className="btn-secondary btn-sm"
+                        onClick={() => onViewSession(session)}
+                      >
+                        Voir
+                      </button>
+                      <button
+                        className="btn-secondary btn-sm"
+                        onClick={() => handleDelete(session.id)}
+                      >
+                        Supprimer
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {/* This Week */}
+            {groupedSessions.thisWeek.length > 0 && (
+              <>
+                <div className="period-header">
+                  <h3>Cette semaine</h3>
+                  <span className="period-count">{groupedSessions.thisWeek.length} session(s)</span>
+                </div>
+                {groupedSessions.thisWeek.map(session => (
+                  <div key={session.id} className="session-card">
+                    <div className="session-card-header">
+                      <div className="session-platform">
+                        {getPlatformIcon(session.platform)}
+                      </div>
+                      <h3>{session.title || 'Session sans titre'}</h3>
+                    </div>
+
+                    <div className="session-card-meta">
+                      <span className="meta-item">
+                        {formatDate(session.createdAt)}
+                      </span>
+                      <span className="meta-item">
+                        {formatDuration(session.duration || 0)}
+                      </span>
+                      <span className="meta-item">
+                        {session.transcript?.length || 0} segments
+                      </span>
+                    </div>
+
+                    {session.tags && session.tags.length > 0 && (
+                      <div className="session-tags">
+                        {session.tags.map(tagId => {
+                          const tag = tags.find(t => t.id === tagId);
+                          return tag ? (
+                            <span key={tagId} className="tag-small">
+                              {tag.name}
+                            </span>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+
+                    <div className="session-card-actions">
+                      <button
+                        className="btn-secondary btn-sm"
+                        onClick={() => onViewSession(session)}
+                      >
+                        Voir
+                      </button>
+                      <button
+                        className="btn-secondary btn-sm"
+                        onClick={() => handleDelete(session.id)}
+                      >
+                        Supprimer
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {/* This Month */}
+            {groupedSessions.thisMonth.length > 0 && (
+              <>
+                <div className="period-header">
+                  <h3>Ce mois-ci</h3>
+                  <span className="period-count">{groupedSessions.thisMonth.length} session(s)</span>
+                </div>
+                {groupedSessions.thisMonth.map(session => (
+                  <div key={session.id} className="session-card">
+                    <div className="session-card-header">
+                      <div className="session-platform">
+                        {getPlatformIcon(session.platform)}
+                      </div>
+                      <h3>{session.title || 'Session sans titre'}</h3>
+                    </div>
+
+                    <div className="session-card-meta">
+                      <span className="meta-item">
+                        {formatDate(session.createdAt)}
+                      </span>
+                      <span className="meta-item">
+                        {formatDuration(session.duration || 0)}
+                      </span>
+                      <span className="meta-item">
+                        {session.transcript?.length || 0} segments
+                      </span>
+                    </div>
+
+                    {session.tags && session.tags.length > 0 && (
+                      <div className="session-tags">
+                        {session.tags.map(tagId => {
+                          const tag = tags.find(t => t.id === tagId);
+                          return tag ? (
+                            <span key={tagId} className="tag-small">
+                              {tag.name}
+                            </span>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+
+                    <div className="session-card-actions">
+                      <button
+                        className="btn-secondary btn-sm"
+                        onClick={() => onViewSession(session)}
+                      >
+                        Voir
+                      </button>
+                      <button
+                        className="btn-secondary btn-sm"
+                        onClick={() => handleDelete(session.id)}
+                      >
+                        Supprimer
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {/* Older */}
+            {groupedSessions.older.length > 0 && (
+              <>
+                <div className="period-header">
+                  <h3>Plus ancien</h3>
+                  <span className="period-count">{groupedSessions.older.length} session(s)</span>
+                </div>
+                {groupedSessions.older.map(session => (
+                  <div key={session.id} className="session-card">
+                    <div className="session-card-header">
+                      <div className="session-platform">
+                        {getPlatformIcon(session.platform)}
+                      </div>
+                      <h3>{session.title || 'Session sans titre'}</h3>
+                    </div>
+
+                    <div className="session-card-meta">
+                      <span className="meta-item">
+                        {formatDate(session.createdAt)}
+                      </span>
+                      <span className="meta-item">
+                        {formatDuration(session.duration || 0)}
+                      </span>
+                      <span className="meta-item">
+                        {session.transcript?.length || 0} segments
+                      </span>
+                    </div>
+
+                    {session.tags && session.tags.length > 0 && (
+                      <div className="session-tags">
+                        {session.tags.map(tagId => {
+                          const tag = tags.find(t => t.id === tagId);
+                          return tag ? (
+                            <span key={tagId} className="tag-small">
+                              {tag.name}
+                            </span>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+
+                    <div className="session-card-actions">
+                      <button
+                        className="btn-secondary btn-sm"
+                        onClick={() => onViewSession(session)}
+                      >
+                        Voir
+                      </button>
+                      <button
+                        className="btn-secondary btn-sm"
+                        onClick={() => handleDelete(session.id)}
+                      >
+                        Supprimer
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button
+                className="pagination-btn"
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft size={18} />
+                Précédent
+              </button>
+              
+              <div className="pagination-pages">
+                {[...Array(totalPages)].map((_, index) => {
+                  const page = index + 1;
+                  // Show first, last, current, and adjacent pages
+                  if (
+                    page === 1 ||
+                    page === totalPages ||
+                    (page >= currentPage - 1 && page <= currentPage + 1)
+                  ) {
+                    return (
+                      <button
+                        key={page}
+                        className={`pagination-page ${page === currentPage ? 'active' : ''}`}
+                        onClick={() => goToPage(page)}
+                      >
+                        {page}
+                      </button>
+                    );
+                  } else if (
+                    page === currentPage - 2 ||
+                    page === currentPage + 2
+                  ) {
+                    return <span key={page} className="pagination-ellipsis">...</span>;
+                  }
+                  return null;
+                })}
               </div>
+
+              <button
+                className="pagination-btn"
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Suivant
+                <ChevronRight size={18} />
+              </button>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
         </>
       )}

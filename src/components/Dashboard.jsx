@@ -215,10 +215,11 @@ export default function Dashboard() {
             <BarChart3 size={56} strokeWidth={1.5} />
           </div>
           <h3 style={{
-            fontSize: '24px',
-            fontWeight: '600',
+            fontSize: '36px',
+            fontWeight: '700',
             color: 'var(--color-text-primary)',
-            marginBottom: '12px'
+            marginBottom: '12px',
+            fontFamily: 'Orbitron, sans-serif'
           }}>Commencez votre première session</h3>
           <p style={{
             fontSize: '15px',
@@ -316,15 +317,17 @@ export default function Dashboard() {
                   beginAtZero: true,
                   ticks: {
                     precision: 0,
-                    font: { size: 11 }
+                    font: { size: 11 },
+                    color: '#94a3b8'
                   },
                   grid: {
-                    color: 'rgba(0, 0, 0, 0.05)'
+                    color: 'rgba(255, 255, 255, 0.1)'
                   }
                 },
                 x: {
                   ticks: {
-                    font: { size: 11 }
+                    font: { size: 11 },
+                    color: '#94a3b8'
                   },
                   grid: {
                     display: false
@@ -350,7 +353,8 @@ export default function Dashboard() {
                       padding: 12,
                       font: { size: 11 },
                       boxWidth: 12,
-                      boxHeight: 12
+                      boxHeight: 12,
+                      color: '#94a3b8'
                     }
                   }
                 }
@@ -377,15 +381,17 @@ export default function Dashboard() {
                 y: {
                   beginAtZero: true,
                   ticks: {
-                    font: { size: 11 }
+                    font: { size: 11 },
+                    color: '#94a3b8'
                   },
                   grid: {
-                    color: 'rgba(0, 0, 0, 0.05)'
+                    color: 'rgba(255, 255, 255, 0.1)'
                   }
                 },
                 x: {
                   ticks: {
-                    font: { size: 11 }
+                    font: { size: 11 },
+                    color: '#94a3b8'
                   },
                   grid: {
                     display: false

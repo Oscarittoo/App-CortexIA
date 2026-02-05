@@ -26,10 +26,10 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="admin-dashboard">
+    <div className="screen admin-dashboard">
       <div className="admin-header">
         <h1>Administration - Base de données clients</h1>
-        <p className="text-secondary">Vue d'ensemble des clients et abonnements</p>
+        <p>Vue d'ensemble des clients et abonnements</p>
       </div>
 
       {stats && (
@@ -59,17 +59,21 @@ export default function AdminDashboard() {
       )}
 
       <div className="search-section">
-        <input
-          type="text"
-          className="input"
-          placeholder="Rechercher par email ou entreprise..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div className="search-bar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd"/>
+          </svg>
+          <input
+            type="text"
+            placeholder="Rechercher par email ou entreprise..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       </div>
 
-      <div className="clients-table">
-        <table>
+      <div className="clients-table-container">
+        <table className="clients-table">
           <thead>
             <tr>
               <th>Email</th>
@@ -128,120 +132,183 @@ export default function AdminDashboard() {
 
       <style jsx>{`
         .admin-dashboard {
-          max-width: 1600px;
+          padding-bottom: 80px;
           margin: 0 auto;
-          padding: var(--space-8);
+          max-width: 1600px;
         }
 
         .admin-header {
-          margin-bottom: var(--space-8);
+          margin-bottom: 32px;
+          border-bottom: 1px solid var(--border);
+          padding-bottom: 16px;
         }
 
         .admin-header h1 {
-          font-size: var(--font-size-3xl);
-          font-weight: var(--font-weight-bold);
-          margin-bottom: var(--space-2);
-          color: var(--color-text-primary);
+          font-size: 36px;
+          margin-bottom: 8px;
+          color: var(--text);
+          font-weight: 700;
+          font-family: 'Orbitron', sans-serif;
+        }
+        
+        .admin-header p {
+          color: var(--muted);
+          font-size: 16px;
         }
 
         .stats-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: var(--space-4);
-          margin-bottom: var(--space-8);
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 24px;
+          margin-bottom: 32px;
         }
 
         .stat-card {
           display: flex;
           align-items: center;
-          gap: var(--space-4);
-          padding: var(--space-6);
-          background: var(--color-bg-primary);
-          border: 1px solid var(--color-border-light);
-          border-radius: var(--radius-lg);
+          gap: 20px;
+          padding: 24px;
+          background: var(--panel);
+          border: 1px solid var(--border);
+          border-radius: 16px;
+          backdrop-filter: blur(12px);
+          transition: all 0.2s;
+        }
+        
+        .stat-card:hover {
+          border-color: var(--accent);
+          transform: translateY(-2px);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .stat-icon {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 48px;
-          height: 48px;
-          background: var(--color-primary-light);
-          color: var(--color-primary);
-          border-radius: var(--radius-md);
+          width: 56px;
+          height: 56px;
+          background: rgba(56, 189, 248, 0.1);
+          color: var(--accent);
+          border-radius: 12px;
+          flex-shrink: 0;
         }
 
         .stat-label {
-          font-size: var(--font-size-sm);
-          color: var(--color-text-secondary);
-          margin-bottom: var(--space-1);
+          font-size: 13px;
+          color: var(--muted);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 4px;
+          font-weight: 600;
         }
 
         .stat-value {
-          font-size: var(--font-size-2xl);
-          font-weight: var(--font-weight-bold);
-          color: var(--color-text-primary);
+          font-size: 28px;
+          font-weight: 700;
+          color: var(--text);
+          line-height: 1;
         }
 
         .search-section {
-          margin-bottom: var(--space-6);
+          margin-bottom: 24px;
+        }
+        
+        .search-bar {
+          background: var(--panel);
+          border: 1px solid var(--border);
+          border-radius: 12px;
+          padding: 16px 20px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        
+        .search-bar svg {
+           color: var(--muted);
+        }
+        
+        .search-bar input {
+           background: transparent !important;
+           border: none !important;
+           box-shadow: none !important;
+           color: var(--text) !important;
+           width: 100%;
+           font-size: 18px;
+           padding: 0;
+           height: auto;
+        }
+        
+        .search-bar input:focus {
+           box-shadow: none !important;
         }
 
-        .clients-table {
-          background: var(--color-bg-primary);
-          border: 1px solid var(--color-border-light);
-          border-radius: var(--radius-lg);
+        .clients-table-container {
+          background: var(--panel);
+          border: 1px solid var(--border);
+          border-radius: 16px;
           overflow: hidden;
         }
 
-        table {
+        .clients-table {
           width: 100%;
           border-collapse: collapse;
         }
 
         thead {
-          background: var(--color-bg-secondary);
+          background: rgba(0, 0, 0, 0.2);
         }
 
         th {
-          padding: var(--space-4);
+          padding: 16px 24px;
           text-align: left;
-          font-size: var(--font-size-sm);
-          font-weight: var(--font-weight-semibold);
-          color: var(--color-text-primary);
-          border-bottom: 1px solid var(--color-border-light);
+          font-size: 13px;
+          font-weight: 700;
+          color: var(--muted);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          border-bottom: 1px solid var(--border);
         }
 
         td {
-          padding: var(--space-4);
-          font-size: var(--font-size-sm);
-          color: var(--color-text-secondary);
-          border-bottom: 1px solid var(--color-border-light);
+          padding: 16px 24px;
+          font-size: 14px;
+          color: var(--text);
+          border-bottom: 1px solid var(--border);
+        }
+        
+        tr:last-child td {
+           border-bottom: none;
         }
 
         tbody tr:hover {
-          background: var(--color-bg-hover);
+          background: rgba(255, 255, 255, 0.03);
         }
 
         .cell-with-icon {
           display: flex;
           align-items: center;
-          gap: var(--space-2);
+          gap: 12px;
+        }
+        
+        .cell-with-icon svg {
+           color: var(--muted);
         }
 
         .stripe-id {
-          font-family: var(--font-mono);
-          font-size: var(--font-size-xs);
-          background: var(--color-bg-tertiary);
-          padding: 2px 6px;
-          border-radius: var(--radius-sm);
+          font-family: monospace;
+          font-size: 12px;
+          background: rgba(0, 0, 0, 0.3);
+          padding: 4px 8px;
+          border-radius: 4px;
+          color: var(--muted);
+          border: 1px solid var(--border);
         }
 
         .empty-state {
           text-align: center;
-          padding: var(--space-16);
-          color: var(--color-text-tertiary);
+          padding: 60px;
+          color: var(--muted);
+          font-style: italic;
         }
       `}</style>
     </div>

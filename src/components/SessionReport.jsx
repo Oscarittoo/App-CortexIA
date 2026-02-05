@@ -32,6 +32,52 @@ export default function SessionReport({ data, onNewSession, onEdit }) {
       const aiReport = await llmService.generateReport(data.transcript || [], sessionInfo);
       
       console.log('✅ Rapport IA généré avec succès');
+      console.log('Actions détectées en temps réel:', data.detectedActions);
+      console.log('Décisions détectées en temps réel:', data.detectedDecisions);
+      
+      // Fusionner les actions détectées en temps réel avec celles de l'IA
+      const realtimeActions = (data.detectedActions || []).map((action, index) => ({
+        id: index + 1,
+        task: action.text,
+        responsible: 'À définir',
+        deadline: 'À définir',
+        priority: action.priority || 'Moyenne'
+      }));
+      
+      const aiActions = aiReport.actions || [];
+      
+      // Fusionner et dédoublonné les actions
+      const allActions = [...realtimeActions, ...aiActions];
+      const uniqueActions = allActions.reduce((acc, action) => {
+        const duplicate = acc.find(a => 
+          a.task.toLowerCase().trim() === action.task.toLowerCase().trim()
+        );
+        if (!duplicate) {
+          acc.push(action);
+        }
+        return acc;
+      }, []).map((action, index) => ({ ...action, id: index + 1 }));
+      
+      // Fusionner les décisions détectées en temps réel avec celles de l'IA
+      const realtimeDecisions = (data.detectedDecisions || []).map((decision, index) => ({
+        id: index + 1,
+        text: decision.text,
+        impact: decision.impact || 'Fonctionnel'
+      }));
+      
+      const aiDecisions = aiReport.decisions || [];
+      
+      // Fusionner et dédoublonné les décisions
+      const allDecisions = [...realtimeDecisions, ...aiDecisions];
+      const uniqueDecisions = allDecisions.reduce((acc, decision) => {
+        const duplicate = acc.find(d => 
+          d.text.toLowerCase().trim() === decision.text.toLowerCase().trim()
+        );
+        if (!duplicate) {
+          acc.push(decision);
+        }
+        return acc;
+      }, []).map((decision, index) => ({ ...decision, id: index + 1 }));
       
       // Mettre à jour l'UI avec les résultats de l'IA
       const fullTranscript = data.transcript
@@ -39,18 +85,33 @@ export default function SessionReport({ data, onNewSession, onEdit }) {
         .filter(text => text && text.trim())
         .join(' ') || '';
       
-      setSummary(`📋 Compte-rendu de la réunion "${data.title || 'Sans titre'}"\n\n📅 **Date :** ${new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}\n⏱️ **Durée :** ${formatDuration(data.duration)}\n🌍 **Langue :** ${data.language === 'fr' ? 'Français' : 'English'}\n\n---\n\n## 📝 Résumé par IA\n\n${aiReport.summary}\n\n---\n\n💡 *Ce rapport a été généré automatiquement par GPT-4o*`);
+      setSummary(`COMPTE-RENDU DE RÉUNION
 
-      setActions(aiReport.actions || []);
-      setDecisions(aiReport.decisions || []);
+Titre: ${data.title || 'Sans titre'}
+Date: ${new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+Durée: ${formatDuration(data.duration)}
+Langue: ${data.language === 'fr' ? 'Français' : 'English'}
+
+---
+
+## SYNTHÈSE
+
+${aiReport.summary}
+
+---
+
+*Ce rapport a été généré automatiquement par IA*`);
+
+      setActions(uniqueActions.length > 0 ? uniqueActions : []);
+      setDecisions(uniqueDecisions.length > 0 ? uniqueDecisions : []);
       setFollowUpEmail(aiReport.email || '');
       
-      // Sauvegarder la session avec le rapport IA
+      // Sauvegarder la session avec le rapport IA et les données fusionnées
       const sessionToSave = {
         ...data,
         summary: aiReport.summary,
-        actions: aiReport.actions,
-        decisions: aiReport.decisions,
+        actions: uniqueActions,
+        decisions: uniqueDecisions,
         email: aiReport.email,
         generatedAt: Date.now(),
         aiGenerated: true
@@ -73,7 +134,28 @@ export default function SessionReport({ data, onNewSession, onEdit }) {
       const extractedActions = extractActions(fullTranscript);
       const extractedDecisions = extractDecisions(fullTranscript);
       
-      setSummary(`📋 Compte-rendu de la réunion "${data.title || 'Sans titre'}"\n\n📅 **Date :** ${new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}\n⏱️ **Durée :** ${formatDuration(data.duration)}\n🌍 **Langue :** ${data.language === 'fr' ? 'Français' : 'English'}\n\n---\n\n## 📝 Transcription complète\n\n${fullTranscript || 'Aucune transcription disponible'}\n\n---\n\n## 🔑 Points clés de la discussion\n\n${extractKeyPoints(fullTranscript)}\n\n---\n\n⚠️ *L'IA n'a pas pu générer le résumé (${error.message}). Analyse locale utilisée.*`);
+      setSummary(`COMPTE-RENDU DE RÉUNION
+
+Titre: ${data.title || 'Sans titre'}
+Date: ${new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+Durée: ${formatDuration(data.duration)}
+Langue: ${data.language === 'fr' ? 'Français' : 'English'}
+
+---
+
+## TRANSCRIPTION COMPLÈTE
+
+${fullTranscript || 'Aucune transcription disponible'}
+
+---
+
+## POINTS CLÉS DE LA DISCUSSION
+
+${extractKeyPoints(fullTranscript)}
+
+---
+
+*Note: L'IA n'a pas pu générer le résumé (${error.message}). Analyse locale utilisée.*`);
 
       setActions(extractedActions);
       setDecisions(extractedDecisions);
@@ -97,7 +179,7 @@ export default function SessionReport({ data, onNewSession, onEdit }) {
   };
 
   const extractKeyPoints = (text) => {
-    if (!text || text.length < 10) return '• Aucune transcription disponible';
+    if (!text || text.length < 10) return '- Aucune transcription disponible';
     
     // Diviser en phrases et filtrer les phrases significatives
     const sentences = text.split(/[.!?\n]+/)
@@ -105,12 +187,12 @@ export default function SessionReport({ data, onNewSession, onEdit }) {
       .filter(s => s.length > 20 && s.length < 200)
       .filter(s => !s.toLowerCase().includes('euh') && !s.toLowerCase().includes('hmm'));
     
-    if (sentences.length === 0) return '• Transcription trop courte pour extraire des points clés';
+    if (sentences.length === 0) return '- Transcription trop courte pour extraire des points clés';
     
     // Prendre les premières phrases significatives
-    const keyPoints = sentences.slice(0, 7).map(s => `• ${s}`);
+    const keyPoints = sentences.slice(0, 7).map(s => `- ${s}`);
     
-    return keyPoints.join('\n') || '• Aucun point clé détecté';
+    return keyPoints.join('\n') || '- Aucun point clé détecté';
   };
 
   const extractActions = (text) => {

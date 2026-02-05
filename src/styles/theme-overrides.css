@@ -1,0 +1,66 @@
+
+/* =========================
+   COMPONENT OVERRIDES (Force Glassmorphism)
+   ========================= */
+
+/* Cards & Panels - Force visibility */
+.card, 
+.dashboard-card, 
+.form-section, 
+.stat-card,
+.recent-activity,
+.upcoming-meetings {
+    background: var(--panel) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--r-md) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
+}
+
+.dashboard-card:hover, .form-section:hover, .stat-card:hover {
+    border-color: rgba(56, 189, 248, 0.3) !important; /* Blue glow on hover */
+    background: var(--panel-2) !important;
+}
+
+/* Form Inputs - Make them pop */
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+select, 
+textarea {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text) !important;
+    font-family: var(--font-body);
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2) !important;
+}
+
+/* Headers visibility */
+h1, h2, h3, h4 {
+    color: var(--text) !important;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5); /* Lift text off bg */
+}
+
+/* Ensure icons have space */
+.label-icon, .form-section-icon {
+    margin-right: 8px;
+    color: var(--accent);
+}
+
+.period-selector, .filter-bar {
+    background: var(--panel) !important;
+    border: 1px solid var(--border) !important;
+}
+
+/* Specific fix for New Session Legal Info */
+.legal-info {
+    background: rgba(0,0,0,0.2);
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-top: 10px;
+}

@@ -25,7 +25,7 @@ class StorageService {
     } else {
       sessions.push({
         ...session,
-        createdAt: Date.now(),
+        createdAt: session.startTime || session.createdAt || Date.now(),
         updatedAt: Date.now()
       });
     }
@@ -39,6 +39,7 @@ class StorageService {
     const data = localStorage.getItem(STORAGE_KEYS.SESSIONS);
     if (!data) return [];
     let sessions = JSON.parse(data);
+    
     // Nettoyage global du transcript dans chaque session
     sessions.forEach(session => {
       if (Array.isArray(session.transcript)) {

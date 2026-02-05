@@ -292,12 +292,11 @@ footer {
 }
 
 .screen h2 {
-  font-size: 36px;
-  font-weight: 700;
-  margin-bottom: 12px;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 6px;
   color: var(--color-text-primary);
-  letter-spacing: -0.8px;
-  font-family: 'Orbitron', sans-serif;
+  letter-spacing: -0.4px;
 }
 
 .screen-description {
@@ -404,10 +403,10 @@ footer {
 .form-group select,
 .form-group input {
   width: 100%;
-  padding: 14px 16px;
+  padding: 11px 14px;
   border: 1.5px solid var(--color-border-medium);
   border-radius: var(--radius-md);
-  font-size: 16px;
+  font-size: 14px;
   font-family: inherit;
   transition: all 0.2s;
   background: var(--color-bg-primary);
@@ -592,12 +591,11 @@ footer {
 }
 
 .session-info h2 {
-  font-size: 36px;
+  font-size: 24px;
   color: var(--color-text-primary);
-  font-weight: 700;
+  font-weight: 600;
   margin-bottom: 14px;
-  letter-spacing: -0.8px;
-  font-family: 'Orbitron', sans-serif;
+  letter-spacing: -0.3px;
 }
 
 .recording-indicator {
@@ -712,12 +710,11 @@ footer {
 }
 
 .report-header h2 {
-  font-size: 36px;
-  font-weight: 700;
+  font-size: 21px;
+  font-weight: 600;
   color: var(--color-text-primary);
   margin-bottom: 12px;
-  letter-spacing: -0.8px;
-  font-family: 'Orbitron', sans-serif;
+  letter-spacing: -0.3px;
 }
 
 .report-meta {
