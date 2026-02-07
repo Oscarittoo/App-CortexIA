@@ -1,4 +1,4 @@
-import { 
+﻿import { 
   Video, 
   Calendar, 
   MessageSquare, 
@@ -145,7 +145,7 @@ export default function Integrations({ onGetStarted, onViewDocs }) {
         }
 
         .page-header h1 {
-          font-family: 'Orbitron', sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
           font-size: 42px;
           font-weight: 800;
           line-height: 1.2;
@@ -199,7 +199,7 @@ export default function Integrations({ onGetStarted, onViewDocs }) {
         .feature-icon-lg.pink { background: rgba(225, 29, 72, 0.1); border: 1px solid rgba(225, 29, 72, 0.3); color: #e11d48; }
 
         .feature-content h2 {
-          font-family: 'Orbitron', sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
           font-size: 36px;
           color: #ffffff;
           margin-bottom: 20px;
@@ -293,7 +293,7 @@ export default function Integrations({ onGetStarted, onViewDocs }) {
         /* Simpler pulse animation for central node */
         .brain-pulse { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.7); animation: pulse 2s infinite; }
 
-        .status-label { margin-top: 20px; font-family: 'Orbitron'; font-size: 14px; color: #0ea5e9; letter-spacing: 2px; }
+        .status-label { margin-top: 20px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display'; font-size: 14px; color: #0ea5e9; letter-spacing: 2px; }
 
         /* PIPELINE ANIMATION */
         .pipeline-anim { width: 100%; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
@@ -328,7 +328,7 @@ export default function Integrations({ onGetStarted, onViewDocs }) {
         }
         
         .cta-card h2 {
-           font-family: 'Orbitron', sans-serif;
+           font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
            font-size: 36px;
            color: #fff;
            margin-bottom: 20px;

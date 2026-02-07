@@ -28,9 +28,9 @@
   /* Blur */
   --blur: 14px;
   
-  /* Fonts */
-  --font-display: "Orbitron", sans-serif;
-  --font-body: "Plus Jakarta Sans", "Inter", sans-serif;
+  /* Fonts - SF Pro System Stack */
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 
   /* --- COMPATIBILITY MAPPING (Mapping old vars to new theme) --- */
   /* CRITICAL FIX: Base surfaces should use 'panel', not 'bg' */

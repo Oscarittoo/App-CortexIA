@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Book, Shield, Server, FileText, Activity, ArrowLeft, Cpu, Globe, Lock, Code } from 'lucide-react';
 
 export default function ApiDocs({ onBack }) {
@@ -296,7 +296,7 @@ export default function ApiDocs({ onBack }) {
 
         .nav-header {
            padding: 24px;
-           font-family: 'Orbitron';
+           font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display';
            font-size: 14px;
            letter-spacing: 2px;
            color: #fff;
@@ -368,7 +368,7 @@ export default function ApiDocs({ onBack }) {
         }
 
         h1.doc-title { 
-           font-family: 'Orbitron'; 
+           font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display'; 
            font-size: 32px; 
            margin-bottom: 16px; 
            color: #fff;

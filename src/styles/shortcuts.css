@@ -1,4 +1,4 @@
-/* Shortcuts Modal Styles */
+﻿/* Shortcuts Modal Styles */
 
 .shortcuts-overlay {
   position: fixed;
@@ -40,7 +40,7 @@
   font-size: 36px;
   font-weight: 700;
   color: var(--color-text-primary);
-  font-family: 'Orbitron', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
   letter-spacing: -0.8px;
 }
 

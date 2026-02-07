@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Users, Mail, Building, Calendar, TrendingUp } from 'lucide-react';
 import authService from '../services/authService';
 import { format } from 'date-fns';
@@ -148,7 +148,7 @@ export default function AdminDashboard() {
           margin-bottom: 8px;
           color: var(--text);
           font-weight: 700;
-          font-family: 'Orbitron', sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
         }
         
         .admin-header p {

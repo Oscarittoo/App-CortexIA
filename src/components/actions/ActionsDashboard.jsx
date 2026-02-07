@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { CheckSquare, Calendar, ArrowRight, Filter, Search } from 'lucide-react';
 import storageService from '../../utils/storage';
 
@@ -160,7 +160,7 @@ export default function ActionsDashboard() {
         }
 
         .header-content h2 {
-          font-family: 'Orbitron', sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
           font-size: 36px;
           font-weight: 700;
           margin-bottom: 8px;

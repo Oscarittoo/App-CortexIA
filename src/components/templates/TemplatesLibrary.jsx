@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Plus, Layout, X, Save, Trash2, Edit } from 'lucide-react';
 import toast from '../Toast';
 
@@ -312,7 +312,7 @@ export default function TemplatesLibrary() {
         }
 
         .header-content h2 {
-          font-family: 'Orbitron', sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
           font-size: 36px;
           margin-bottom: 8px;
           color: var(--text-primary);
@@ -473,7 +473,7 @@ export default function TemplatesLibrary() {
         .modal-header h3 {
           font-size: 20px;
           font-weight: 700;
-          font-family: 'Orbitron', sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
           color: var(--color-text-primary);
           margin: 0;
         }

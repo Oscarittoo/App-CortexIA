@@ -1,4 +1,4 @@
-export default function Demo({ onGetStarted }) {
+﻿export default function Demo({ onGetStarted }) {
   return (
     <div className="screen demo-page">
       {/* HERO SECTION */}
@@ -161,7 +161,7 @@ export default function Demo({ onGetStarted }) {
         }
 
         .page-header h1 {
-          font-family: 'Orbitron', sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
           font-size: 42px;
           font-weight: 800;
           line-height: 1.2;
@@ -238,7 +238,7 @@ export default function Demo({ onGetStarted }) {
         .mock-avatar-group { display: flex; }
         .mock-av { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; border: 2px solid #0b1120; margin-left: -10px; color: white; }
         .mock-av:first-child { margin-left: 0; }
-        .mock-title { font-family: 'Orbitron'; font-size: 14px; color: #fff; }
+        .mock-title { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display'; font-size: 14px; color: #fff; }
         
         .mock-transcript { margin-bottom: 30px; }
         .mock-bubble { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 10px; max-width: 80%; }
@@ -308,7 +308,7 @@ export default function Demo({ onGetStarted }) {
         }
         
         .step-number {
-           font-family: 'Orbitron';
+           font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display';
            font-size: 24px;
            font-weight: bold;
            color: var(--muted);
@@ -333,7 +333,7 @@ export default function Demo({ onGetStarted }) {
         }
         
         .stat-box { text-align: center; flex: 1; }
-        .stat-val { font-family: 'Orbitron'; font-size: 48px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+        .stat-val { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display'; font-size: 48px; font-weight: 700; color: #fff; margin-bottom: 8px; }
         .stat-lbl { color: #94a3b8; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
         
         .stat-divider { width: 1px; background: rgba(255,255,255,0.1); height: 80px; }
@@ -349,7 +349,7 @@ export default function Demo({ onGetStarted }) {
         }
         
         .cta-card h2 {
-           font-family: 'Orbitron', sans-serif;
+           font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
            font-size: 36px;
            color: #fff;
            margin-bottom: 20px;

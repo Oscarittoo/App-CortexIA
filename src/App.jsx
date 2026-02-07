@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { 
   History, 
   LayoutDashboard, 
@@ -165,6 +165,40 @@ export default function App() {
                <a className={`nav-item ${currentView === 'pricing' ? 'active' : ''}`} onClick={() => setCurrentView('pricing')}>Prix</a>
                <a className={`nav-item ${currentView === 'demo' ? 'active' : ''}`} onClick={() => setCurrentView('demo')}>Démo</a>
                
+               <button 
+                 className="btn-plugin" 
+                 onClick={() => window.open('https://chrome.google.com/webstore', '_blank')}
+                 style={{
+                   display: 'flex',
+                   alignItems: 'center',
+                   gap: '8px',
+                   padding: '10px 20px',
+                   background: 'rgba(56, 189, 248, 0.1)',
+                   border: '1px solid rgba(56, 189, 248, 0.3)',
+                   borderRadius: '8px',
+                   color: '#38bdf8',
+                   fontSize: '14px',
+                   fontWeight: '600',
+                   cursor: 'pointer',
+                   transition: 'all 0.2s'
+                 }}
+                 onMouseEnter={(e) => {
+                   e.target.style.background = 'rgba(56, 189, 248, 0.2)';
+                   e.target.style.borderColor = '#38bdf8';
+                 }}
+                 onMouseLeave={(e) => {
+                   e.target.style.background = 'rgba(56, 189, 248, 0.1)';
+                   e.target.style.borderColor = 'rgba(56, 189, 248, 0.3)';
+                 }}
+               >
+                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                   <polyline points="7 10 12 15 17 10"/>
+                   <line x1="12" y1="15" x2="12" y2="3"/>
+                 </svg>
+                 Installer le plug-in
+               </button>
+               
                <button className="btn btn-primary" onClick={() => setCurrentView('login')}>
                  Connexion
                </button>
@@ -172,7 +206,7 @@ export default function App() {
           </nav>
 
           <main style={{ minHeight: 'calc(100vh - 200px)' }}> 
-            {currentView === 'home' && <Home onGetStarted={handleGetStarted} />}
+            {currentView === 'home' && <Home onGetStarted={handleGetStarted} onViewDemo={() => setCurrentView('demo')} />}
             {currentView === 'features' && <Features onGetStarted={handleGetStarted} />}
             {currentView === 'integrations' && <Integrations onGetStarted={handleGetStarted} onViewDocs={() => setCurrentView('api-docs')} />}
             {currentView === 'security' && <Security onGetStarted={handleGetStarted} />}

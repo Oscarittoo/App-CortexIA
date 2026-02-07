@@ -1,4 +1,4 @@
-import { 
+﻿import { 
   Mic, 
   BrainCircuit, 
   ListTodo, 
@@ -177,7 +177,7 @@ export default function Features({ onGetStarted }) {
         }
 
         .page-header h1 {
-          font-family: 'Orbitron', sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
           font-size: 42px;
           font-weight: 800;
           line-height: 1.2;
@@ -231,7 +231,7 @@ export default function Features({ onGetStarted }) {
         .feature-icon-lg.pink { background: rgba(225, 29, 72, 0.1); border: 1px solid rgba(225, 29, 72, 0.3); color: #e11d48; }
 
         .feature-content h2 {
-          font-family: 'Orbitron', sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
           font-size: 36px;
           color: #ffffff;
           margin-bottom: 20px;
@@ -363,7 +363,7 @@ export default function Features({ onGetStarted }) {
         /* MINI GRID */
         .section-title {
            text-align: center;
-           font-family: 'Orbitron', sans-serif;
+           font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
            font-size: 32px;
            margin-bottom: 60px;
            color: #fff;
@@ -409,7 +409,7 @@ export default function Features({ onGetStarted }) {
         }
         
         .cta-card h2 {
-           font-family: 'Orbitron', sans-serif;
+           font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
            font-size: 36px;
            color: #fff;
            margin-bottom: 32px;

@@ -1,4 +1,4 @@
-import { Check, Star, Shield, Zap, Globe, Lock } from 'lucide-react';
+﻿import { Check, Star, Shield, Zap, Globe, Lock } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Pricing({ onSelectPlan }) {
@@ -7,32 +7,35 @@ export default function Pricing({ onSelectPlan }) {
   const plans = [
     {
       id: 'free',
-      name: 'Starter',
+      name: 'Free',
       price: '0',
       description: 'Pour découvrir la puissance de l\'IA',
       features: [
-        '3 réunions / mois',
-        'Transcription temps réel',
-        'Résumé simple',
-        'Export PDF',
-        'Stockage 7 jours'
+        '1 Essai de réunions interactive IA',
+        '5 Réunions standard',
+        'Résumer de réunions',
+        'Génération de mail professionnelle',
+        'Analyse alimentés par l\'IA',
+        'Téléchargement et Export',
+        'Espace de travail (jusqu\'à 5)'
       ],
       highlight: false,
       icon: <Star size={20} />
     },
     {
       id: 'pro',
-      name: 'Professionnel',
-      price: billingCycle === 'monthly' ? '29' : '24',
+      name: 'Pro',
+      price: billingCycle === 'monthly' ? '29,99' : '24',
       period: '/ mois',
       description: 'Pour les freelances et managers',
       features: [
-        'Réunions illimitées',
-        'IA Avancée (GPT-4o)',
-        'Détection des actions',
-        'Intégration Notion & Slack',
-        'Recherche sémantique',
-        'Support prioritaire'
+        'Free inclut',
+        '10 Réunions interactive IA',
+        'Résumer de réunions standard illimités',
+        'Génération de mail professionnelle',
+        'Analyse alimentés par l\'IA',
+        'Téléchargement et Export',
+        'Espace de travail (jusqu\'à 10)'
       ],
       highlight: true,
       badge: 'POPULAIRE',
@@ -41,33 +44,58 @@ export default function Pricing({ onSelectPlan }) {
     {
       id: 'business',
       name: 'Business',
-      price: billingCycle === 'monthly' ? '49' : '39',
+      price: billingCycle === 'monthly' ? '49,99' : '39',
       period: '/ membre',
       description: 'Pour les équipes qui collaborent',
       features: [
-        'Tout du plan Pro',
-        'Espaces d\'équipe partagés',
-        'Analytiques d\'équipe',
-        'Intégration CRM (Salesforce)',
-        'Gestion des rôles',
-        'Onboarding dédié'
+        'Pro inclut',
+        'Réunions interactive IA illimités',
+        'Réunions illimité',
+        'Résumer de réunions',
+        'Génération de mail professionnelle',
+        'Analyse alimentés par l\'IA professionnelle',
+        'Téléchargement et Export',
+        'Espace de travail (jusqu\'à 25)'
       ],
       highlight: false,
       icon: <Shield size={20} />
     },
     {
+      id: 'expert',
+      name: 'Expert',
+      price: billingCycle === 'monthly' ? '129,99' : '103,99',
+      period: '/ membre',
+      description: 'Pour les organisations avancées',
+      features: [
+        'Business inclut',
+        'Réunions interactive IA illimités',
+        'Réunions illimité',
+        'Résumer de réunions',
+        'Génération de mail professionnelle',
+        'Analyse alimentés par une IA professionnelle',
+        'Téléchargement et Export',
+        'Espace de travail (jusqu\'à 50)',
+        'Crédit réunion interactive IA (5€)',
+        'Seat en plus disponible'
+      ],
+      highlight: false,
+      icon: <Lock size={20} />
+    },
+    {
       id: 'enterprise',
-      name: 'Enterprise',
-      price: 'Sur demande',
+      name: 'Entreprise',
+      price: 'Sur devis',
       period: '',
       description: 'Pour les grandes organisations',
       features: [
-        'Tout illimité',
+        'Expert inclut',
         'Déploiement sur site (On-premise)',
         'SSO & SAML',
         'API dédiée',
         'Audit logs',
-        'Gestionnaire de compte dédié'
+        'Gestionnaire de compte dédié',
+        'Support 24/7',
+        'Formation équipe personnalisée'
       ],
       highlight: false,
       icon: <Globe size={20} />
@@ -162,7 +190,7 @@ export default function Pricing({ onSelectPlan }) {
         }
 
         .page-header h1 {
-          font-family: 'Orbitron', sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
           font-size: 48px;
           font-weight: 800;
           line-height: 1.2;
@@ -301,9 +329,9 @@ export default function Pricing({ onSelectPlan }) {
         }
         .highlight .plan-icon-box { background: rgba(14, 165, 233, 0.1); color: #0ea5e9; }
         
-        .plan-name { font-family: 'Orbitron'; font-size: 18px; color: #fff; margin-bottom: 10px; }
+        .plan-name { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display'; font-size: 18px; color: #fff; margin-bottom: 10px; }
         
-        .plan-price .amount { font-family: 'Orbitron'; font-size: 32px; font-weight: 700; color: #fff; }
+        .plan-price .amount { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display'; font-size: 32px; font-weight: 700; color: #fff; }
         .highlight .plan-price .amount { color: #0ea5e9; }
         .plan-price .period { color: var(--muted); font-size: 13px; }
         

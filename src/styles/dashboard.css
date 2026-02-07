@@ -1,4 +1,4 @@
-/* Dashboard Styles */
+﻿/* Dashboard Styles */
 
 .dashboard {
   padding: 28px 40px;
@@ -22,7 +22,7 @@
   font-weight: 700;
   color: var(--color-text-primary);
   letter-spacing: -0.8px;
-  font-family: 'Orbitron', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
 }
 
 .period-selector {

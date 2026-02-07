@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { BarChart3 } from 'lucide-react';
 import storageService from '../utils/storage';
 import {

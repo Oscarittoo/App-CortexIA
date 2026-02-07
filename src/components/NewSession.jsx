@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { FileText, Video, Mic, Globe, Shield, Play, Layout, X } from 'lucide-react';
 import toast from './Toast';
 
@@ -245,7 +245,7 @@ export default function NewSession({ onStart }) {
            width: 100%;
            font-size: 36px;
            font-weight: 700;
-           font-family: 'Orbitron', sans-serif;
+           font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
            letter-spacing: -0.8px;
         }
 
@@ -459,7 +459,7 @@ export default function NewSession({ onStart }) {
         .template-info strong {
           font-size: 15px;
           color: var(--text-primary);
-          font-family: 'Orbitron', sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
         }
 
         .template-info span {

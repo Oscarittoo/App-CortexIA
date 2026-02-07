@@ -1,4 +1,4 @@
-/* Reset et base */
+﻿/* Reset et base */
 * {
   margin: 0;
   padding: 0;
@@ -297,7 +297,7 @@ footer {
   margin-bottom: 12px;
   color: var(--color-text-primary);
   letter-spacing: -0.8px;
-  font-family: 'Orbitron', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
 }
 
 .screen-description {
@@ -597,7 +597,7 @@ footer {
   font-weight: 700;
   margin-bottom: 14px;
   letter-spacing: -0.8px;
-  font-family: 'Orbitron', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
 }
 
 .recording-indicator {
@@ -717,7 +717,7 @@ footer {
   color: var(--color-text-primary);
   margin-bottom: 12px;
   letter-spacing: -0.8px;
-  font-family: 'Orbitron', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
 }
 
 .report-meta {

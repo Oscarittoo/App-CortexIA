@@ -1,4 +1,4 @@
-/* Settings Page Styles */
+﻿/* Settings Page Styles */
 
 .settings-page {
   padding: 0;
@@ -34,7 +34,7 @@
   margin: 0;
   font-size: 28px;
   font-weight: 700;
-  font-family: 'Orbitron', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
   background: linear-gradient(135deg, var(--color-text-primary), var(--color-primary-branding));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -141,7 +141,7 @@
   margin: 0 0 8px 0;
   font-size: 20px;
   font-weight: 700;
-  font-family: 'Orbitron', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
   color: var(--color-text-primary);
   letter-spacing: -0.01em;
 }
@@ -397,7 +397,7 @@
   margin: 0;
   font-size: 22px;
   font-weight: 700;
-  font-family: 'Orbitron', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
   color: var(--color-text-primary);
   letter-spacing: -0.01em;
 }
@@ -415,7 +415,7 @@
   border-radius: 20px;
   font-size: 13px;
   font-weight: 700;
-  font-family: 'Orbitron', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);

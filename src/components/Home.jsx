@@ -1,6 +1,6 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 
-export default function Home({ onGetStarted }) {
+export default function Home({ onGetStarted, onViewDemo }) {
   return (
     <div className="home-page">
       {/* Hero Section */}
@@ -30,7 +30,7 @@ export default function Home({ onGetStarted }) {
               </svg>
               Démarrer gratuitement
             </button>
-            <button className="btn-hero-secondary">
+            <button className="btn-hero-secondary" onClick={onViewDemo}>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd"/>
               </svg>
@@ -234,7 +234,7 @@ export default function Home({ onGetStarted }) {
         }
         
         .step-number {
-           font-family: 'Orbitron', sans-serif;
+           font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
            font-size: 48px;
            font-weight: 700;
            color: rgba(56, 189, 248, 0.2);
@@ -280,7 +280,7 @@ export default function Home({ onGetStarted }) {
         }
         
         .benefit-value {
-           font-family: 'Orbitron', sans-serif;
+           font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
            font-size: 48px;
            font-weight: 700;
            color: var(--accent);
