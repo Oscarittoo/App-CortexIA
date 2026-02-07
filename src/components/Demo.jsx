@@ -5,66 +5,59 @@
       <div className="page-header">
         <div className="badge-new">DÉMONSTRATION INTERACTIVE</div>
         <h1>Voyez l'IA en Action <br/> <span className="text-gradient">Avant de l'Adopter</span></h1>
-        <p>Découvrez comment CORTEXIA transforme une heure de réunion en 2 minutes de lecture.</p>
+        <p>Découvrez comment MEETIZY transforme une heure de réunion en 2 minutes de lecture.</p>
       </div>
 
       <div className="demo-layout">
-        {/* VIDEO / MOCKUP AREA */}
+        {/* VIDEO AREA */}
         <div className="demo-showcase">
-           <div className="mac-window">
-              <div className="mac-header">
-                <div className="dots">
-                  <span className="dot red"></span>
-                  <span className="dot yellow"></span>
-                  <span className="dot green"></span>
-                </div>
-                <div className="address-bar">cortexia.ai/dashboard/meeting-report/1239</div>
+           <div className="video-container">
+              {/* Option 1: Vidéo YouTube - Remplacez VIDEO_ID par votre ID YouTube */}
+              <div className="video-wrapper">
+                <iframe 
+                  width="100%" 
+                  height="100%" 
+                  src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=1&modestbranding=1&rel=0"
+                  title="Meetizy Demo"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  style={{
+                    borderRadius: '12px',
+                    boxShadow: '0 50px 100px -20px rgba(0,0,0,0.7)',
+                    border: '1px solid rgba(56, 189, 248, 0.2)'
+                  }}
+                ></iframe>
               </div>
-              <div className="mockup-content">
-                 <div className="mock-grid">
-                    <div className="mock-sidebar">
-                       <div className="mock-item active"></div>
-                       <div className="mock-item"></div>
-                       <div className="mock-item"></div>
-                    </div>
-                    <div className="mock-main">
-                       <div className="mock-hero">
-                          <div className="mock-avatar-group">
-                             <div className="mock-av" style={{background: '#e11d48'}}>A</div>
-                             <div className="mock-av" style={{background: '#0ea5e9'}}>B</div>
-                             <div className="mock-av" style={{background: '#8b5cf6'}}>C</div>
-                          </div>
-                          <div className="mock-title">Strategy Q4 - Review</div>
-                       </div>
-                       <div className="mock-transcript">
-                          <div className="mock-bubble left">
-                             <div className="mock-line" style={{width: '90%'}}></div>
-                             <div className="mock-line" style={{width: '60%'}}></div>
-                          </div>
-                          <div className="mock-bubble right">
-                             <div className="mock-line" style={{width: '80%'}}></div>
-                             <div className="mock-highlight">Action: Update the budget for Marketing</div>
-                          </div>
-                       </div>
-                       <div className="mock-summary-card">
-                          <div className="mock-card-title">Résumé Exécutif</div>
-                          <div className="mock-line" style={{width: '100%', marginBottom: 8}}></div>
-                          <div className="mock-line" style={{width: '95%', marginBottom: 8}}></div>
-                          <div className="mock-line" style={{width: '80%'}}></div>
-                       </div>
-                    </div>
-                 </div>
-                 
-                 {/* Play Overlay */}
-                 <div className="play-overlay">
-                    <button className="play-btn-pulse">
-                      <svg width="30" height="30" viewBox="0 0 24 24" fill="white" stroke="none">
-                        <path d="M5 3l14 9-14 9V3z"/>
-                      </svg>
-                    </button>
-                    <span>Lancer la visite guidée (2 min)</span>
-                 </div>
+              
+              {/* Alternative: Vidéo Locale (décommentez pour utiliser) */}
+              {/* 
+              <video 
+                controls 
+                poster="/path/to/thumbnail.jpg"
+                style={{
+                  width: '100%',
+                  borderRadius: '12px',
+                  boxShadow: '0 50px 100px -20px rgba(0,0,0,0.7)',
+                  border: '1px solid rgba(56, 189, 248, 0.2)'
+                }}
+              >
+                <source src="/path/to/demo-video.mp4" type="video/mp4" />
+                Votre navigateur ne supporte pas la vidéo HTML5.
+              </video>
+              */}
+           </div>
+           
+           {/* Video Info */}
+           <div className="video-info">
+              <div className="info-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>2 min de démo</span>
               </div>
+              <p>Découvrez comment Meetizy transforme vos réunions en rapports exploitables</p>
            </div>
         </div>
         
@@ -73,7 +66,7 @@
            <div className="step-card active">
               <div className="step-number">01</div>
               <div className="step-content">
-                <h3>CORTEXIA rejoint l'appel</h3>
+                <h3>MEETIZY rejoint l'appel</h3>
                 <p>Pas de logiciel à installer. Notre bot rejoint vos Zooms comme un participant silencieux.</p>
               </div>
               <div className="step-status">
@@ -192,98 +185,62 @@
            align-items: center;
         }
 
-        /* MAC WINDOW MOCKUP */
-        .mac-window {
-           background: #0f172a;
-           border: 1px solid rgba(255,255,255,0.1);
-           border-radius: 12px;
-           box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5);
-           overflow: hidden;
+        /* VIDEO CONTAINER */
+        .video-container {
            position: relative;
         }
         
-        .mac-header {
-           background: rgba(255,255,255,0.05);
-           padding: 12px 16px;
-           display: flex;
-           align-items: center;
-           border-bottom: 1px solid rgba(255,255,255,0.05);
+        .video-wrapper {
+           position: relative;
+           padding-bottom: 56.25%; /* 16:9 aspect ratio */
+           height: 0;
+           overflow: hidden;
+           border-radius: 12px;
+           background: #0f172a;
         }
         
-        .dots { display: flex; gap: 8px; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; }
-        .red { background: #ff5f56; }
-        .yellow { background: #ffbd2e; }
-        .green { background: #27c93f; }
-        
-        .address-bar {
-           flex: 1;
-           margin: 0 20px;
-           background: rgba(0,0,0,0.3);
-           padding: 4px 12px;
-           border-radius: 6px;
-           font-size: 12px;
-           color: #94a3b8;
-           text-align: center;
-        }
-
-        .mock-grid { display: flex; height: 400px; }
-        .mock-sidebar { width: 60px; border-right: 1px solid rgba(255,255,255,0.05); padding: 20px 0; display: flex; flex-direction: column; align-items: center; gap: 15px; }
-        .mock-item { width: 32px; height: 32px; background: rgba(255,255,255,0.1); border-radius: 8px; }
-        .mock-item.active { background: #0ea5e9; }
-        
-        .mock-main { flex: 1; padding: 20px; background: #0b1120; }
-        
-        .mock-hero { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .mock-avatar-group { display: flex; }
-        .mock-av { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; border: 2px solid #0b1120; margin-left: -10px; color: white; }
-        .mock-av:first-child { margin-left: 0; }
-        .mock-title { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display'; font-size: 14px; color: #fff; }
-        
-        .mock-transcript { margin-bottom: 30px; }
-        .mock-bubble { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 10px; max-width: 80%; }
-        .mock-bubble.right { background: rgba(14, 165, 233, 0.1); margin-left: auto; }
-        .mock-line { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 8px; }
-        .mock-highlight { font-size: 12px; color: #0ea5e9; font-weight: bold; background: rgba(14, 165, 233, 0.1); padding: 4px 8px; border-radius: 4px; display: inline-block; }
-        
-        .mock-summary-card { background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.2); padding: 20px; border-radius: 12px; }
-        .mock-card-title { font-size: 12px; color: #8b5cf6; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
-
-        .play-overlay {
+        .video-wrapper iframe {
            position: absolute;
-           top: 0; left: 0; width: 100%; height: 100%;
-           background: rgba(15, 23, 42, 0.6);
-           backdrop-filter: blur(4px);
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+        }
+        
+        .video-wrapper video {
+           width: 100%;
+           height: auto;
+        }
+        
+        .video-info {
+           margin-top: 24px;
            display: flex;
            flex-direction: column;
-           align-items: center;
-           justify-content: center;
-           gap: 20px;
-           transition: all 0.3s;
-           cursor: pointer;
+           gap: 12px;
         }
-        .play-overlay:hover { background: rgba(15, 23, 42, 0.4); }
-        .play-overlay:hover .play-btn-pulse { transform: scale(1.1); }
         
-        .play-btn-pulse {
-           width: 80px; height: 80px;
-           border-radius: 50%;
-           background: linear-gradient(135deg, #0ea5e9, #e11d48);
-           border: none;
-           display: flex;
+        .info-badge {
+           display: inline-flex;
            align-items: center;
-           justify-content: center;
-           box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7);
-           animation: pulse-red 2s infinite;
-           cursor: pointer;
-           transition: transform 0.3s;
+           gap: 8px;
+           padding: 8px 16px;
+           background: rgba(56, 189, 248, 0.1);
+           border: 1px solid rgba(56, 189, 248, 0.3);
+           border-radius: 20px;
+           color: #38bdf8;
+           font-size: 14px;
+           font-weight: 600;
+           width: fit-content;
         }
-        .play-icon { margin-left: 5px; }
-
-        @keyframes pulse-red {
-          0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7); }
-          70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(225, 29, 72, 0); }
-          100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+        
+        .info-badge svg {
+           flex-shrink: 0;
+        }
+        
+        .video-info p {
+           color: var(--muted);
+           line-height: 1.6;
+           font-size: 15px;
         }
 
         /* STEPS */
