@@ -331,6 +331,13 @@ export default function Pricing({ onSelectPlan }) {
         
         .plan-name { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display'; font-size: 18px; color: #fff; margin-bottom: 10px; }
         
+        .plan-price { 
+          display: flex; 
+          align-items: baseline; 
+          gap: 6px; 
+          flex-wrap: nowrap;
+          white-space: nowrap;
+        }
         .plan-price .amount { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display'; font-size: 32px; font-weight: 700; color: #fff; }
         .highlight .plan-price .amount { color: #0ea5e9; }
         .plan-price .period { color: var(--muted); font-size: 13px; }
