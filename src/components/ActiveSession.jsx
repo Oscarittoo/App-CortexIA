@@ -488,6 +488,100 @@ export default function ActiveSession({ config, onEnd }) {
         .badge-priority-haute, .badge-impact-fort { color: #f87171; background: rgba(248, 113, 113, 0.1); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
         .badge-priority-moyenne, .badge-impact-moyen { color: #fbbf24; background: rgba(251, 191, 36, 0.1); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
         .badge-priority-basse, .badge-impact-faible { color: #34d399; background: rgba(52, 211, 153, 0.1); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        
+        /* New Soulful Styles */
+        @keyframes pulse-ring {
+          0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
+          70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(56, 189, 248, 0); }
+          100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+        }
+        
+        .ai-pulse-indicator {
+          width: 8px;
+          height: 8px;
+          background: var(--accent);
+          border-radius: 50%;
+          border: 2px solid rgba(56, 189, 248, 0.3);
+          box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7);
+          animation: pulse-ring 2s infinite;
+        }
+
+        .ai-header-gradient {
+          background: linear-gradient(90deg, rgba(56, 189, 248, 0.1) 0%, transparent 100%);
+          padding: 12px 16px;
+          border-left: 3px solid var(--accent);
+          margin-bottom: 12px;
+          border-radius: 0 8px 8px 0;
+        }
+
+        .ai-empty-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+          padding: 40px 20px;
+          text-align: center;
+          color: var(--muted);
+          opacity: 0.6;
+          border: 2px dashed rgba(255,255,255,0.05);
+          border-radius: 12px;
+          margin: 10px;
+        }
+
+        .control-bar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 16px 24px;
+          background: rgba(15, 23, 42, 0.6);
+          backdrop-filter: blur(12px);
+          border-top: 1px solid rgba(255,255,255,0.08);
+          margin-top: auto;
+        }
+
+        .btn-terminate {
+          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 99px;
+          font-weight: 600;
+          font-size: 14px;
+          box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          transition: all 0.2s;
+        }
+        .btn-terminate:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+          filter: brightness(1.1);
+        }
+
+        .btn-tool {
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1);
+          color: var(--text);
+          padding: 8px 16px;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 500;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          transition: all 0.2s ease;
+        }
+        .btn-tool:hover {
+          background: rgba(255,255,255,0.1);
+          border-color: rgba(255,255,255,0.2);
+        }
+        .btn-tool.active-pulse {
+          background: rgba(251, 191, 36, 0.15);
+          color: #fbbf24;
+          border-color: rgba(251, 191, 36, 0.3);
+        }
       `}</style>
 
       <div className="session-layout" style={{ 
@@ -651,29 +745,28 @@ export default function ActiveSession({ config, onEnd }) {
         <div ref={transcriptEndRef} />
       </div>
 
-      <div className="session-controls">
-        <button 
-          onClick={handlePauseResume} 
-          className={`btn-secondary ${isPaused ? 'btn-resume' : ''}`}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}
-        >
-          {isPaused ? <><Play size={18} /> Reprendre</> : <><Pause size={18} /> Pause</>}
-        </button>
-        
-        <button 
-          onClick={handleMarkMoment} 
-          className="btn-secondary"
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}
-        >
-          <Bookmark size={18} /> Marquer ce moment
-        </button>
+      <div className="control-bar">
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button 
+            onClick={handlePauseResume} 
+            className={`btn-tool ${isPaused ? 'active-pulse' : ''}`}
+          >
+            {isPaused ? <><Play size={16} /> Reprendre</> : <><Pause size={16} /> Pause</>}
+          </button>
+          
+          <button 
+            onClick={handleMarkMoment} 
+            className="btn-tool"
+          >
+            <Bookmark size={16} /> Marquer
+          </button>
+        </div>
         
         <button 
           onClick={handleStop} 
-          className="btn-danger"
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}
+          className="btn-terminate"
         >
-          <Square size={18} /> Terminer la session
+          <Square size={16} fill="currentColor" /> Terminer la session
         </button>
       </div>
     </div>
@@ -684,29 +777,44 @@ export default function ActiveSession({ config, onEnd }) {
           flexDirection: 'column', 
           height: '100%', 
           overflow: 'hidden',
-          background: 'var(--panel)',
+          background: 'linear-gradient(180deg, var(--panel) 0%, rgba(15, 23, 42, 0.8) 100%)',
           borderRadius: 'var(--r-md)',
           border: '1px solid var(--border)',
-          boxShadow: 'var(--shadow-md)'
+          boxShadow: '0 20px 50px rgba(0,0,0,0.3)'
         }}>
           <div className="ai-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <h3 className="ai-panel-title" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <BrainCircuit size={18} />
-              Analyse IA en temps réel
+            <h3 className="ai-panel-title" style={{ 
+                flexShrink: 0, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between',
+                padding: '16px 20px',
+                borderBottom: '1px solid rgba(255,255,255,0.05)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <BrainCircuit size={20} className="text-accent" />
+                <span>Analyse IA</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: 'var(--accent)', fontWeight: 500 }}>
+                <div className="ai-pulse-indicator"></div>
+                LIVE
+              </div>
             </h3>
             
             {/* Actions détectées */}
             <div className="ai-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', borderBottom: '1px solid var(--border)' }}>
-              <div className="ai-section-header" style={{ flexShrink: 0 }}>
-                <CheckCircle size={18} />
-                <h4>Actions à suivre</h4>
-                <span className="ai-badge">{detectedActions.length}</span>
+              <div className="ai-header-gradient" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <CheckCircle size={16} />
+                <h4 style={{ margin: 0, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Actions détectées</h4>
+                <span className="ai-badge" style={{ marginLeft: 'auto' }}>{detectedActions.length}</span>
               </div>
               
-              <div className="ai-items" style={{ flex: 1, overflowY: 'auto' }}>
+              <div className="ai-items" style={{ flex: 1, overflowY: 'auto', padding: '0 16px 16px 16px' }}>
                 {detectedActions.length === 0 ? (
-                  <div className="ai-empty">
-                    Aucune action détectée pour le moment
+                  <div className="ai-empty-state">
+                    <CheckCircle size={32} style={{ marginBottom: '12px', opacity: 0.3 }} />
+                    <div>En attente d'actions...</div>
+                    <div style={{ fontSize: '11px', marginTop: '4px' }}>L'IA détecte les tâches automatiquement</div>
                   </div>
                 ) : (
                   detectedActions.map(action => (
@@ -726,20 +834,22 @@ export default function ActiveSession({ config, onEnd }) {
 
             {/* Décisions détectées */}
             <div className="ai-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-              <div className="ai-section-header" style={{ flexShrink: 0 }}>
-                <AlertTriangle size={18} />
-                <h4>Décisions prises</h4>
-                <span className="ai-badge">{detectedDecisions.length}</span>
+              <div className="ai-header-gradient" style={{ display: 'flex', alignItems: 'center', gap: '10px', borderLeftColor: '#fbbf24' }}>
+                <AlertTriangle size={16} color="#fbbf24" />
+                <h4 style={{ margin: 0, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#fbbf24' }}>Décisions validées</h4>
+                <span className="ai-badge" style={{ marginLeft: 'auto', background: 'rgba(251, 191, 36, 0.1)', color: '#fbbf24' }}>{detectedDecisions.length}</span>
               </div>
               
-              <div className="ai-items" style={{ flex: 1, overflowY: 'auto' }}>
+              <div className="ai-items" style={{ flex: 1, overflowY: 'auto', padding: '0 16px 16px 16px' }}>
                 {detectedDecisions.length === 0 ? (
-                  <div className="ai-empty">
-                    Aucune décision détectée pour le moment
+                  <div className="ai-empty-state">
+                    <AlertTriangle size={32} style={{ marginBottom: '12px', opacity: 0.3 }} />
+                    <div>Aucune décision</div>
+                    <div style={{ fontSize: '11px', marginTop: '4px' }}>Les accords sont capturés ici</div>
                   </div>
                 ) : (
                   detectedDecisions.map(decision => (
-                    <div key={decision.id} className="ai-card" style={{ borderLeft: '3px solid var(--accent)' }}>
+                    <div key={decision.id} className="ai-card" style={{ borderLeft: '3px solid #fbbf24' }}>
                       <div className="bubble-header">
                         <span className="time-stamp">{decision.timestamp}</span>
                         <span className={`badge-impact-${decision.impact.toLowerCase()}`}>
