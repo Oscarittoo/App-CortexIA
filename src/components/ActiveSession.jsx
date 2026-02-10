@@ -432,7 +432,7 @@ export default function ActiveSession({ config, onEnd }) {
         }}>
           <div className="session-header">
             <div className="session-info">
-              <h2>{config.title}</h2>
+              <h2>{config.title} <span style={{fontSize:'12px', color:'#0f0', border:'1px solid #0f0', padding:'2px 6px', borderRadius:'4px'}}>LAYOUT V3 ACTIF</span></h2>
               <div className="recording-indicator">
                 {!isPaused && <span className="red-dot"></span>}
                 {isPaused ? '⏸️ En pause' : '🔴 Enregistrement en cours'} • {formatDuration(duration)}
