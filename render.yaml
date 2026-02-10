@@ -1,0 +1,23 @@
+# Configuration Render pour déploiement automatique (optionnel)
+# https://render.com/docs/yaml-spec
+
+services:
+  - type: web
+    name: meetizy-backend
+    env: node
+    region: frankfurt
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: OPENAI_API_KEY
+        sync: false  # Défini manuellement via le dashboard
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: https://votre-projet.vercel.app
