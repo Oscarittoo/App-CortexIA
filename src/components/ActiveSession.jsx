@@ -412,6 +412,66 @@ export default function ActiveSession({ config, onEnd }) {
 
   return (
     <div className="screen active-session">
+      {/* FORCE LAYOUT STYLES */}
+      <style>{`
+        .session-layout {
+          display: grid !important;
+          grid-template-columns: 1fr 400px !important;
+          gap: 24px !important;
+          height: calc(100vh - 140px) !important;
+          width: 100% !important;
+          align-items: start !important;
+        }
+        .session-main {
+          height: 100% !important;
+          display: flex !important;
+          flex-direction: column !important;
+          overflow: hidden !important;
+          background: var(--panel, #1e293b) !important;
+          border: 1px solid var(--border, #334155) !important;
+          border-radius: 12px !important;
+          padding: 24px !important;
+        }
+        .session-sidebar {
+          height: 100% !important;
+          display: flex !important;
+          flex-direction: column !important;
+          overflow: hidden !important;
+          background: var(--panel, #1e293b) !important;
+          border: 1px solid var(--border, #334155) !important;
+          border-radius: 12px !important;
+        }
+        .transcript-container {
+          flex: 1 !important;
+          overflow-y: auto !important;
+          min-height: 0 !important;
+        }
+        .ai-panel {
+          height: 100% !important;
+          display: flex !important;
+          flex-direction: column !important;
+        }
+        .ai-section {
+          flex: 1 !important;
+          overflow: hidden !important;
+          display: flex !important;
+          flex-direction: column !important;
+        }
+        .ai-items {
+          flex: 1 !important;
+          overflow-y: auto !important;
+        }
+        @media (max-width: 1024px) {
+          .session-layout {
+            grid-template-columns: 1fr !important;
+            height: auto !important;
+          }
+          .session-sidebar {
+             height: 500px !important;
+          }
+        }
+      `}</style>
+
       <div className="session-layout">
         {/* Panneau principal - Transcription */}
         <div className="session-main">
