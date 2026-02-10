@@ -108,7 +108,7 @@
          </div>
          <div className="stat-divider"></div>
          <div className="stat-box">
-            <div className="stat-val">GDPR</div>
+            <div className="stat-val">RGPD</div>
             <div className="stat-lbl">Conforme & Sécurisé</div>
          </div>
       </div>

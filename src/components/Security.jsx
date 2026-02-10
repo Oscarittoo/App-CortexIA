@@ -62,7 +62,7 @@ export default function Security({ onGetStarted }) {
       <div className="cta-section">
          <div className="trust-badges">
             <div className="badge">ISO 27001</div>
-            <div className="badge">GDPR Ready</div>
+            <div className="badge">RGPD Ready</div>
             <div className="badge">SOC 2</div>
          </div>
          <p className="dpo-contact">Une question pour notre DPO ? <a href="#">privacy@cortexia.ai</a></p>

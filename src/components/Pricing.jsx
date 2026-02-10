@@ -1,9 +1,6 @@
 ﻿import { Check, Star, Shield, Zap, Globe, Lock } from 'lucide-react';
-import { useState } from 'react';
 
 export default function Pricing({ onSelectPlan }) {
-  const [billingCycle, setBillingCycle] = useState('monthly');
-
   const plans = [
     {
       id: 'free',
@@ -25,7 +22,7 @@ export default function Pricing({ onSelectPlan }) {
     {
       id: 'pro',
       name: 'Pro',
-      price: billingCycle === 'monthly' ? '29,99' : '24',
+      price: '29,99',
       period: '/ mois',
       description: 'Pour les freelances et managers',
       features: [
@@ -37,19 +34,18 @@ export default function Pricing({ onSelectPlan }) {
         'Téléchargement et Export',
         'Espace de travail (jusqu\'à 10)'
       ],
-      highlight: true,
-      badge: 'POPULAIRE',
+      highlight: false,
       icon: <Zap size={20} />
     },
     {
       id: 'business',
       name: 'Business',
-      price: billingCycle === 'monthly' ? '49,99' : '39',
+      price: '49,99',
       period: '/ membre',
       description: 'Pour les équipes qui collaborent',
       features: [
         'Pro inclut',
-        'Réunions interactive IA illimités',
+        '20 Réunions interactive IA',
         'Réunions illimité',
         'Résumer de réunions',
         'Génération de mail professionnelle',
@@ -57,13 +53,14 @@ export default function Pricing({ onSelectPlan }) {
         'Téléchargement et Export',
         'Espace de travail (jusqu\'à 25)'
       ],
-      highlight: false,
+      highlight: true,
+      badge: 'POPULAIRE',
       icon: <Shield size={20} />
     },
     {
       id: 'expert',
       name: 'Expert',
-      price: billingCycle === 'monthly' ? '129,99' : '103,99',
+      price: '129,99',
       period: '/ membre',
       description: 'Pour les organisations avancées',
       features: [
@@ -108,17 +105,6 @@ export default function Pricing({ onSelectPlan }) {
          <div className="badge-new">OFFRE DE LANCEMENT</div>
         <h1>Un Investissement <br/> <span className="text-gradient">Rentable dès la 1ère heure</span></h1>
         <p>Ne payez pas pour des réunions improductives. Investissez dans leur résultat.</p>
-        
-        {/* Toggle Switch */}
-        <div className="billing-toggle">
-           <span className={billingCycle === 'monthly' ? 'active' : ''} onClick={() => setBillingCycle('monthly')}>Mensuel</span>
-           <div className="toggle-pill" onClick={() => setBillingCycle(c => c === 'monthly' ? 'yearly' : 'monthly')}>
-              <div className={`pill-circle ${billingCycle}`}></div>
-           </div>
-           <span className={billingCycle === 'yearly' ? 'active' : ''} onClick={() => setBillingCycle('yearly')}>
-              Annuel <span className="discount">-20%</span>
-           </span>
-        </div>
       </div>
 
       <div className="pricing-grid">
@@ -260,10 +246,28 @@ export default function Pricing({ onSelectPlan }) {
         /* GRID */
         .pricing-grid {
            display: grid;
-           grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-           gap: 24px;
+           grid-template-columns: repeat(5, 1fr);
+           gap: 20px;
            margin-bottom: 60px;
            align-items: stretch;
+        }
+        
+        @media (max-width: 1400px) {
+           .pricing-grid {
+              grid-template-columns: repeat(3, 1fr);
+           }
+        }
+        
+        @media (max-width: 900px) {
+           .pricing-grid {
+              grid-template-columns: repeat(2, 1fr);
+           }
+        }
+        
+        @media (max-width: 600px) {
+           .pricing-grid {
+              grid-template-columns: 1fr;
+           }
         }
         
         .pricing-card {

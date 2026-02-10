@@ -269,7 +269,7 @@ IMPACT CATEGORIES:
 - Functional: Features, product, UX
 - Strategic: Vision, long-term goals
 - Financial: Budget, costs, investments
-- Legal: Contracts, GDPR, juridical
+- Legal: Contracts, RGPD, juridical
 
 Return JSON (if no decisions, return empty array []):
 {
