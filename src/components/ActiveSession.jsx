@@ -1,5 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Pause, Play, Square, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-react';
+import { 
+  Mic, 
+  MicOff, 
+  Pause, 
+  Play, 
+  Square, 
+  AlertCircle, 
+  CheckCircle, 
+  AlertTriangle,
+  BrainCircuit,
+  Bookmark,
+  Activity,
+  Info
+} from 'lucide-react';
 
 export default function ActiveSession({ config, onEnd }) {
   const [transcript, setTranscript] = useState([]);
@@ -414,13 +427,13 @@ export default function ActiveSession({ config, onEnd }) {
     <div className="screen active-session" style={{ width: '100%', height: 'calc(100vh - 120px)', boxSizing: 'border-box' }}>
       <div className="session-layout" style={{ 
         display: 'grid', 
-        gridTemplateColumns: '1fr 420px', 
+        gridTemplateColumns: '1fr 1fr', 
         gap: '24px', 
         height: '100%', 
         overflow: 'hidden' 
       }}>
         {/* Panneau principal - Transcription */}
-        <div className="session-main" style={{ 
+        <div className="session-main" style={{  
           display: 'flex', 
           flexDirection: 'column', 
           height: '100%', 
@@ -432,10 +445,10 @@ export default function ActiveSession({ config, onEnd }) {
         }}>
           <div className="session-header">
             <div className="session-info">
-              <h2>{config.title} <span style={{fontSize:'12px', color:'#0f0', border:'1px solid #0f0', padding:'2px 6px', borderRadius:'4px'}}>LAYOUT V3 ACTIF</span></h2>
+              <h2>{config.title}</h2>
               <div className="recording-indicator">
                 {!isPaused && <span className="red-dot"></span>}
-                {isPaused ? '⏸️ En pause' : '🔴 Enregistrement en cours'} • {formatDuration(duration)}
+                {isPaused ? 'En pause' : 'Enregistrement en cours'} • {formatDuration(duration)}
               </div>
               
               <div className="mic-status" style={{ fontSize: '14px', marginTop: '8px', opacity: 0.8 }}>
@@ -452,7 +465,7 @@ export default function ActiveSession({ config, onEnd }) {
               fontWeight: audioDetected ? '600' : '400'
             }}>
               <Mic size={14} />
-              Audio: {audioDetected ? '✓ Actif' : '○ Inactif'}
+              Audio: {audioDetected ? 'Actif' : 'Inactif'}
             </div>
             <div style={{ 
               display: 'flex', 
@@ -461,13 +474,14 @@ export default function ActiveSession({ config, onEnd }) {
               color: speechDetected ? '#10b981' : '#94a3b8',
               fontWeight: speechDetected ? '600' : '400'
             }}>
-              <AlertCircle size={14} />
-              Parole: {speechDetected ? '✓ Détectée' : '○ Aucune'}
+              <Activity size={14} />
+              Parole: {speechDetected ? 'Détectée' : 'Aucune'}
             </div>
           </div>
 
-          <div style={{ fontSize: '11px', marginTop: '6px', color: '#64748b', fontStyle: 'italic' }}>
-            💡 Ouvrez la console (F12) pour voir les logs détaillés
+          <div style={{ fontSize: '11px', marginTop: '6px', color: '#64748b', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <Info size={12} />
+            Ouvrez la console (F12) pour voir les logs détaillés
           </div>
         </div>
       </div>
@@ -584,7 +598,7 @@ export default function ActiveSession({ config, onEnd }) {
           className="btn-secondary"
           style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}
         >
-          📌 Marquer ce moment
+          <Bookmark size={18} /> Marquer ce moment
         </button>
         
         <button 
@@ -609,7 +623,10 @@ export default function ActiveSession({ config, onEnd }) {
           boxShadow: 'var(--shadow-md)'
         }}>
           <div className="ai-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <h3 className="ai-panel-title" style={{ flexShrink: 0 }}>🤖 Analyse IA en temps réel</h3>
+            <h3 className="ai-panel-title" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <BrainCircuit size={18} />
+              Analyse IA en temps réel
+            </h3>
             
             {/* Actions détectées */}
             <div className="ai-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', borderBottom: '1px solid var(--border)' }}>
