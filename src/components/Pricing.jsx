@@ -176,7 +176,6 @@ export default function Pricing({ onSelectPlan }) {
         }
 
         .page-header h1 {
-          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
           font-size: 48px;
           font-weight: 800;
           line-height: 1.2;
@@ -333,7 +332,7 @@ export default function Pricing({ onSelectPlan }) {
         }
         .highlight .plan-icon-box { background: rgba(14, 165, 233, 0.1); color: #0ea5e9; }
         
-        .plan-name { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display'; font-size: 18px; color: #fff; margin-bottom: 10px; }
+        .plan-name { font-size: 18px; color: #fff; margin-bottom: 10px; }
         
         .plan-price { 
           display: flex; 
@@ -342,7 +341,7 @@ export default function Pricing({ onSelectPlan }) {
           flex-wrap: nowrap;
           white-space: nowrap;
         }
-        .plan-price .amount { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display'; font-size: 32px; font-weight: 700; color: #fff; }
+        .plan-price .amount { font-size: 32px; font-weight: 700; color: #fff; }
         .highlight .plan-price .amount { color: #0ea5e9; }
         .plan-price .period { color: var(--muted); font-size: 13px; }
         

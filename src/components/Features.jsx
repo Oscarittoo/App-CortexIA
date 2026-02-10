@@ -7,8 +7,7 @@
   Shield, 
   Zap, 
   BarChart3,
-  CheckCircle2,
-  Cpu
+  CheckCircle2
 } from 'lucide-react';
 
 export default function Features({ onGetStarted }) {
@@ -141,6 +140,8 @@ export default function Features({ onGetStarted }) {
            <p>Mesurez le temps de parole et l'efficacité de vos réunions.</p>
         </div>
       </div>
+      
+
       
       <div className="cta-section">
         <div className="cta-card">
@@ -367,6 +368,118 @@ export default function Features({ onGetStarted }) {
            font-size: 32px;
            margin-bottom: 60px;
            color: #fff;
+        }
+
+        /* PLANS COMPARISON GRID */
+        .plans-comparison {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 24px;
+          margin-bottom: 120px;
+        }
+
+        .plan-column {
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.05);
+          border-radius: 20px;
+          overflow: hidden;
+          position: relative;
+          transition: all 0.3s;
+        }
+
+        .plan-column:hover {
+          transform: translateY(-8px);
+          border-color: rgba(56, 189, 248, 0.3);
+          box-shadow: 0 20px 60px rgba(56, 189, 248, 0.1);
+        }
+
+        .plan-column.popular {
+          border: 2px solid #38bdf8;
+          box-shadow: 0 0 40px rgba(56, 189, 248, 0.2);
+        }
+
+        .popular-badge {
+          background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+          color: #000;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 1px;
+          padding: 6px 0;
+          text-align: center;
+        }
+
+        .plan-header {
+          padding: 24px 20px;
+          text-align: center;
+          border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .plan-header.free { background: rgba(100, 116, 139, 0.1); }
+        .plan-header.pro { background: rgba(14, 165, 233, 0.1); }
+        .plan-header.business { background: rgba(56, 189, 248, 0.15); }
+        .plan-header.expert { background: rgba(139, 92, 246, 0.1); }
+        .plan-header.enterprise { background: rgba(225, 29, 72, 0.1); }
+
+        .plan-header h3 {
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+          font-size: 20px;
+          color: #fff;
+          margin-bottom: 8px;
+        }
+
+        .plan-price {
+          font-size: 28px;
+          font-weight: 700;
+          color: #38bdf8;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+        }
+
+        .plan-features {
+          list-style: none;
+          padding: 24px 20px;
+          margin: 0;
+        }
+
+        .plan-features li {
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          margin-bottom: 12px;
+          font-size: 13px;
+          color: var(--color-text-primary);
+          line-height: 1.4;
+        }
+
+        .plan-features li svg {
+          flex-shrink: 0;
+          margin-top: 2px;
+          color: #38bdf8;
+        }
+
+        .plan-features li.disabled {
+          opacity: 0.4;
+        }
+
+        .plan-features li.disabled svg {
+          color: #64748b;
+        }
+
+        @media (max-width: 1400px) {
+          .plans-comparison {
+            grid-template-columns: repeat(3, 1fr);
+          }
+        }
+
+        @media (max-width: 900px) {
+          .plans-comparison {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (max-width: 600px) {
+          .plans-comparison {
+            grid-template-columns: 1fr;
+          }
         }
 
         .features-grid-mini {

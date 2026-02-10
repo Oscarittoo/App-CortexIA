@@ -1,0 +1,212 @@
+[
+  {
+    "id": "b01eb27e-22a9-4987-86c7-8cec5fd322e2",
+    "email": "test1770714498358@meetizy.com",
+    "password": "$2a$10$CbHcvQ7bqFmXjr2X9c.IbunMW81DThYvqGAwqKBrkWW.zw/gJHtD2",
+    "name": "Test User",
+    "plan": "free",
+    "role": "user",
+    "createdAt": "2026-02-10T09:08:18.495Z",
+    "quotas": {
+      "aiMeetingsUsed": 0,
+      "transcriptionMinutesUsed": 0,
+      "lastReset": "2026-02-10T09:08:18.495Z"
+    }
+  },
+  {
+    "id": "64ef0dbe-baa3-4c9a-b427-0afcd85f5d2d",
+    "email": "test1770714528551@meetizy.com",
+    "password": "$2a$10$59j6DE8.OPeKl/1ZooFxMecyc5rDTKlSFGJjZry9EBe2VFWJIHapa",
+    "name": "Test User",
+    "plan": "free",
+    "role": "user",
+    "createdAt": "2026-02-10T09:08:48.695Z",
+    "quotas": {
+      "aiMeetingsUsed": 0,
+      "transcriptionMinutesUsed": 0,
+      "lastReset": "2026-02-10T09:08:48.695Z"
+    }
+  },
+  {
+    "id": "6a494d1d-f3e3-4426-b6e4-e7e440e5226b",
+    "email": "test1770714543987@meetizy.com",
+    "password": "$2a$10$/XRE5S9datWtaNvwrLvLr.1wFICcEk0K82j5lwfNrO3aXkuD0emC.",
+    "name": "Test User",
+    "plan": "free",
+    "role": "user",
+    "createdAt": "2026-02-10T09:09:04.146Z",
+    "quotas": {
+      "aiMeetingsUsed": 0,
+      "transcriptionMinutesUsed": 0,
+      "lastReset": "2026-02-10T09:09:04.146Z"
+    }
+  },
+  {
+    "id": "336f2d7c-507e-4138-a5c2-3f62ff399199",
+    "email": "test1770714555523@meetizy.com",
+    "password": "$2a$10$HRoRImdGcO25w6gvmiFG2eKC8rwn1GZX0a5Dipx/7PhhY2xC73iFO",
+    "name": "Test User",
+    "plan": "free",
+    "role": "user",
+    "createdAt": "2026-02-10T09:09:15.660Z",
+    "quotas": {
+      "aiMeetingsUsed": 0,
+      "transcriptionMinutesUsed": 0,
+      "lastReset": "2026-02-10T09:09:15.660Z"
+    }
+  },
+  {
+    "id": "06340380-8407-4228-8643-416721701132",
+    "email": "test1770714575354@meetizy.com",
+    "password": "$2a$10$DXRid9VWMcOCVzb47g99.epiepC/q7ptfCN.VO9NKt2/kmWcQubeG",
+    "name": "Test User",
+    "plan": "free",
+    "role": "user",
+    "createdAt": "2026-02-10T09:09:35.481Z",
+    "quotas": {
+      "aiMeetingsUsed": 0,
+      "transcriptionMinutesUsed": 0,
+      "lastReset": "2026-02-10T09:09:35.481Z"
+    }
+  },
+  {
+    "id": "8703260c-8b1b-459f-8f02-5be5ddffe4a7",
+    "email": "test1770714618561@meetizy.com",
+    "password": "$2a$10$yvR0EbJyBSQR6EW96uoq8uQDg1DSVNP8I6PDx3y2UsdNgG/y7bvNi",
+    "name": "Test User",
+    "plan": "free",
+    "role": "user",
+    "createdAt": "2026-02-10T09:10:18.681Z",
+    "quotas": {
+      "aiMeetingsUsed": 0,
+      "transcriptionMinutesUsed": 0,
+      "lastReset": "2026-02-10T09:10:18.681Z"
+    }
+  },
+  {
+    "id": "5955824c-1e70-4539-9de9-71b483947dfb",
+    "email": "test1770714720225@meetizy.com",
+    "password": "$2a$10$FtQRzUmOa4/W9qJ6WZ2l1OFOJVEC.w0FNr6SBR5NRzTgAgQ.rd1jq",
+    "name": "Test User",
+    "plan": "free",
+    "role": "user",
+    "createdAt": "2026-02-10T09:12:00.360Z",
+    "quotas": {
+      "aiMeetingsUsed": 0,
+      "transcriptionMinutesUsed": 0,
+      "lastReset": "2026-02-10T09:12:00.360Z"
+    }
+  },
+  {
+    "id": "e4db3d95-42cd-4b19-bcfd-9fad25d51d02",
+    "email": "test1770715134710@meetizy.com",
+    "password": "$2a$10$0YPgNzTDW9yI5WStpFUqeujLcv2IopWX7/OmlDc6JbugLa3XgIi3W",
+    "name": "Test User",
+    "plan": "free",
+    "role": "user",
+    "createdAt": "2026-02-10T09:18:54.852Z",
+    "quotas": {
+      "aiMeetingsUsed": 0,
+      "transcriptionMinutesUsed": 0,
+      "lastReset": "2026-02-10T09:18:54.852Z"
+    }
+  },
+  {
+    "id": "eb9446e6-6436-4d0b-9f38-8e4a593f7531",
+    "email": "test1770715208417@meetizy.com",
+    "password": "$2a$10$OjJQFXZSgCqDcOVp2wYU7unq8Ke3NhebOoJprRtawG/t2y8akdsWu",
+    "name": "Test User",
+    "plan": "free",
+    "role": "user",
+    "createdAt": "2026-02-10T09:20:08.541Z",
+    "quotas": {
+      "aiMeetingsUsed": 0,
+      "transcriptionMinutesUsed": 0,
+      "lastReset": "2026-02-10T09:20:08.541Z"
+    }
+  },
+  {
+    "id": "19c5747d-126f-42f8-bb37-9a4183d66105",
+    "email": "test1770715517777@meetizy.com",
+    "password": "$2a$10$Uep5ghO6SbpXca4fHLU/au9gsekf/tWXR2Dh1DpJuQR0sKWTQPUim",
+    "name": "Test User",
+    "plan": "free",
+    "role": "user",
+    "createdAt": "2026-02-10T09:25:17.906Z",
+    "quotas": {
+      "aiMeetingsUsed": 0,
+      "transcriptionMinutesUsed": 0,
+      "lastReset": "2026-02-10T09:25:17.906Z"
+    }
+  },
+  {
+    "id": "4829be91-5262-40f3-8c6b-bae6784f72a0",
+    "email": "test1770715666638@meetizy.com",
+    "password": "$2a$10$w0yCyOlhK2wuVu2Ym5tikuNr0xDa8oNkTm6JeX9Z4rYqdNOpEJxli",
+    "name": "Test User",
+    "plan": "free",
+    "role": "user",
+    "createdAt": "2026-02-10T09:27:46.775Z",
+    "quotas": {
+      "aiMeetingsUsed": 0,
+      "transcriptionMinutesUsed": 0,
+      "lastReset": "2026-02-10T09:27:46.775Z"
+    }
+  },
+  {
+    "id": "25776a76-bc07-4913-9cf5-34ffa751a402",
+    "email": "test1770715789849@meetizy.com",
+    "password": "$2a$10$2ERbNc4rhd9osk5Q7798ZuQgBOn825Xv/tBpIOZ.LDZX4dfAzGKMy",
+    "name": "Test User",
+    "plan": "free",
+    "role": "user",
+    "createdAt": "2026-02-10T09:29:49.971Z",
+    "quotas": {
+      "aiMeetingsUsed": 1,
+      "transcriptionMinutesUsed": 0,
+      "lastReset": "2026-02-10T09:29:49.971Z"
+    }
+  },
+  {
+    "id": "a9aa7765-0d39-44b2-9e9c-5b94a8341924",
+    "email": "test1770716131979@meetizy.com",
+    "password": "$2a$10$YHZhzg1yKIzE.AvgQxVNiedFNxdE0fl02HJ/blf5LAd3JwiE8Bhxq",
+    "name": "Test User",
+    "plan": "free",
+    "role": "user",
+    "createdAt": "2026-02-10T09:35:32.089Z",
+    "quotas": {
+      "aiMeetingsUsed": 1,
+      "transcriptionMinutesUsed": 0,
+      "lastReset": "2026-02-10T09:35:32.089Z"
+    }
+  },
+  {
+    "id": "99a6f5b1-7dd0-4a37-81f9-a977bf75d51f",
+    "email": "test1770716186943@meetizy.com",
+    "password": "$2a$10$tTzqEWa4u8Wqo6EAFlTvFeuR/VQ/leEDxdV8kOBBX4manS8cFA7ty",
+    "name": "Test User",
+    "plan": "free",
+    "role": "user",
+    "createdAt": "2026-02-10T09:36:27.063Z",
+    "quotas": {
+      "aiMeetingsUsed": 1,
+      "transcriptionMinutesUsed": 0,
+      "lastReset": "2026-02-10T09:36:27.063Z"
+    }
+  },
+  {
+    "id": "11f2116b-a2a9-49b9-be0d-c99f485c1ce3",
+    "email": "test1770716279468@meetizy.com",
+    "password": "$2a$10$DyLulv08UTYavUWCslj/S.WsPZU7g8H5L3F2CkZHWZvi5GIgHdaba",
+    "name": "Test User",
+    "plan": "free",
+    "role": "user",
+    "createdAt": "2026-02-10T09:37:59.599Z",
+    "quotas": {
+      "aiMeetingsUsed": 1,
+      "transcriptionMinutesUsed": 0,
+      "lastReset": "2026-02-10T09:37:59.599Z"
+    }
+  }
+]

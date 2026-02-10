@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meetizy Agent IA - Paramètres</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #fff;
+      padding: 40px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .logo {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: #94a3b8;
+    }
+
+    .settings-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+
+    .settings-card h2 {
+      font-size: 20px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .settings-card p {
+      color: #94a3b8;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #e2e8f0;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    select:focus {
+      outline: none;
+      border-color: #38bdf8;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .input-hint {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 6px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(56, 189, 248, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 24px;
+      display: none;
+      font-size: 14px;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #10b981;
+    }
+
+    .alert-error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .link {
+      color: #38bdf8;
+      text-decoration: none;
+    }
+
+    .link:hover {
+      text-decoration: underline;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(56, 189, 248, 0.2);
+      color: #38bdf8;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">🎯</div>
+      <h1>Paramètres Meetizy Agent IA</h1>
+      <p class="subtitle">Configurez votre assistant intelligent</p>
+    </div>
+
+    <div id="alertSuccess" class="alert alert-success">
+      ✓ Paramètres sauvegardés avec succès !
+    </div>
+
+    <div id="alertError" class="alert alert-error">
+      ✗ <span id="errorMessage">Une erreur est survenue</span>
+    </div>
+
+    <!-- API Configuration -->
+    <div class="settings-card">
+      <h2>
+        🤖 Configuration OpenAI
+        <span class="badge" id="apiStatus">Non configuré</span>
+      </h2>
+      <p>
+        Connectez votre clé API OpenAI pour activer les fonctionnalités d'intelligence artificielle avancées.
+        <a href="https://platform.openai.com/api-keys" target="_blank" class="link">Obtenir une clé API</a>
+      </p>
+
+      <div class="form-group">
+        <label for="apiKey">Clé API OpenAI</label>
+        <input 
+          type="password" 
+          id="apiKey" 
+          placeholder="sk-..."
+          autocomplete="off"
+        >
+        <div class="input-hint">
+          Votre clé API est stockée localement et n'est jamais partagée.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="modelSelect">Modèle IA</label>
+        <select id="modelSelect">
+          <option value="gpt-4-turbo-preview">GPT-4 Turbo (Recommandé)</option>
+          <option value="gpt-4">GPT-4</option>
+          <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+        </select>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="saveBtn">💾 Sauvegarder</button>
+        <button class="btn btn-secondary" id="testBtn">🧪 Tester la connexion</button>
+      </div>
+    </div>
+
+    <!-- Transcription Settings -->
+    <div class="settings-card">
+      <h2>🎙️ Paramètres de Transcription</h2>
+      <p>Personnalisez le comportement de la transcription en temps réel.</p>
+
+      <div class="form-group">
+        <label for="languageSelect">Langue de transcription</label>
+        <select id="languageSelect">
+          <option value="fr-FR">Français (France)</option>
+          <option value="en-US">English (US)</option>
+          <option value="en-GB">English (UK)</option>
+          <option value="es-ES">Español</option>
+          <option value="de-DE">Deutsch</option>
+          <option value="it-IT">Italiano</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="autoStartCheck"> 
+          Démarrer automatiquement la transcription
+        </label>
+        <div class="input-hint">
+          La transcription démarre automatiquement quand vous rejoignez une réunion.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="autoSyncCheck" checked> 
+          Synchroniser automatiquement avec Meetizy
+        </label>
+      </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="settings-card">
+      <h2>📊 Statistiques d'utilisation</h2>
+      <p>Aperçu de votre utilisation de l'assistant IA.</p>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="totalRequests">0</div>
+          <div class="stat-label">Requêtes totales</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalTokens">0</div>
+          <div class="stat-label">Tokens utilisés</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalSessions">0</div>
+          <div class="stat-label">Sessions enregistrées</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- About -->
+    <div class="settings-card">
+      <h2>ℹ️ À propos</h2>
+      <p>
+        <strong>Meetizy Agent IA</strong> v1.0.0<br>
+        Extension Chrome pour assistant de réunions intelligent<br>
+        © 2026 Meetizy · <a href="https://meetizy.com" target="_blank" class="link">meetizy.com</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

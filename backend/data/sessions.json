@@ -1,0 +1,29 @@
+[
+  {
+    "id": "95a13bbb-ba02-41bb-85a1-8779723990da",
+    "userId": "a9aa7765-0d39-44b2-9e9c-5b94a8341924",
+    "title": "Session de test",
+    "startTime": "2026-02-10T09:35:33.647Z",
+    "transcript": "Contenu de la transcription test",
+    "participants": [],
+    "status": "in_progress"
+  },
+  {
+    "id": "faf7e139-4ac8-4091-bd1b-7a01ec50cc15",
+    "userId": "99a6f5b1-7dd0-4a37-81f9-a977bf75d51f",
+    "title": "Session de test",
+    "startTime": "2026-02-10T09:36:28.639Z",
+    "transcript": "Contenu de la transcription test",
+    "participants": [],
+    "status": "in_progress"
+  },
+  {
+    "id": "b9cc88f6-dab8-4141-92d9-4e68e4d6e941",
+    "userId": "11f2116b-a2a9-49b9-be0d-c99f485c1ce3",
+    "title": "Session de test",
+    "startTime": "2026-02-10T09:38:02.579Z",
+    "transcript": "Contenu de la transcription test",
+    "participants": [],
+    "status": "in_progress"
+  }
+]

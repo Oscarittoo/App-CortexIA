@@ -16,8 +16,8 @@ export default function Integrations({ onGetStarted, onViewDocs }) {
       {/* HERO SECTION */}
       <div className="page-header">
         <div className="badge-new">ECOSYSTÈME UNIFIÉ</div>
-        <h1>Connectez CORTEXIA <br/> <span className="text-gradient">À Votre Flux de Travail</span></h1>
-        <p>Ne changez pas vos outils. CORTEXIA s'y greffe intelligemment pour enrichir vos données existantes.</p>
+        <h1>Connectez MEETIZY <br/> <span className="text-gradient">À Votre Flux de Travail</span></h1>
+        <p>Ne changez pas vos outils. MEETIZY s'y greffe intelligemment pour enrichir vos données existantes.</p>
       </div>
 
       {/* CATEGORY 1: VIDEO CONFERENCING */}
@@ -27,7 +27,7 @@ export default function Integrations({ onGetStarted, onViewDocs }) {
             <Video size={32} />
           </div>
           <h2>Visio-Conférence Universelle</h2>
-          <p>Que vous soyez sur Zoom, Teams ou Google Meet, CORTEXIA est là. Notre bot rejoint vos réunions en un clic.</p>
+          <p>Que vous soyez sur Zoom, Teams ou Google Meet, MEETIZY est là. Notre bot rejoint vos réunions en un clic.</p>
           <ul className="feature-list">
              <li><div className="logo-pill zoom">Zoom</div> Intégration native</li>
              <li><div className="logo-pill teams">Teams</div> Bot certifié Microsoft</li>
@@ -85,7 +85,7 @@ export default function Integrations({ onGetStarted, onViewDocs }) {
             <Calendar size={32} />
           </div>
           <h2>Calendrier & CRM Intelligent</h2>
-          <p>Préparez vos réunions client avec le contexte complet. CORTEXIA remonte l'historique avant même que vous ne disiez bonjour.</p>
+          <p>Préparez vos réunions client avec le contexte complet. MEETIZY remonte l'historique avant même que vous ne disiez bonjour.</p>
            <ul className="feature-list">
              <li><div className="logo-pill hubspot">HubSpot</div> Notes dans les fiches contacts</li>
              <li><div className="logo-pill salesforce">Salesforce</div> Mise à jour des opportunités</li>

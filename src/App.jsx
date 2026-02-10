@@ -24,6 +24,7 @@ import SessionsHistory from './components/SessionsHistory';
 import SessionEditor from './components/SessionEditor';
 import Pricing from './components/Pricing';
 import Login from './components/Login';
+import PluginInstall from './components/PluginInstall';
 import AdminDashboard from './components/AdminDashboard';
 import ActionsDashboard from './components/actions/ActionsDashboard';
 import TemplatesLibrary from './components/templates/TemplatesLibrary';
@@ -167,7 +168,7 @@ export default function App() {
                
                <button 
                  className="btn-plugin" 
-                 onClick={() => window.open('https://chrome.google.com/webstore', '_blank')}
+                 onClick={() => setCurrentView('plugin-install')}
                  style={{
                    display: 'flex',
                    alignItems: 'center',
@@ -212,6 +213,7 @@ export default function App() {
             {currentView === 'security' && <Security onGetStarted={handleGetStarted} />}
             {currentView === 'demo' && <Demo onGetStarted={handleGetStarted} />}
             {currentView === 'pricing' && <Pricing onSelectPlan={handleSelectPlan} />}
+            {currentView === 'plugin-install' && <PluginInstall onBack={() => setCurrentView('home')} />}
             {currentView === 'api-docs' && <ApiDocs onBack={() => setCurrentView('integrations')} />}
             {currentView === 'login' && <Login onLogin={handleLogin} onBack={() => setCurrentView('home')} />}
           </main>
