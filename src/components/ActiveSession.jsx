@@ -411,70 +411,25 @@ export default function ActiveSession({ config, onEnd }) {
   };
 
   return (
-    <div className="screen active-session">
-      {/* FORCE LAYOUT STYLES */}
-      <style>{`
-        .session-layout {
-          display: grid !important;
-          grid-template-columns: 1fr 400px !important;
-          gap: 24px !important;
-          height: calc(100vh - 140px) !important;
-          width: 100% !important;
-          align-items: start !important;
-        }
-        .session-main {
-          height: 100% !important;
-          display: flex !important;
-          flex-direction: column !important;
-          overflow: hidden !important;
-          background: var(--panel, #1e293b) !important;
-          border: 1px solid var(--border, #334155) !important;
-          border-radius: 12px !important;
-          padding: 24px !important;
-        }
-        .session-sidebar {
-          height: 100% !important;
-          display: flex !important;
-          flex-direction: column !important;
-          overflow: hidden !important;
-          background: var(--panel, #1e293b) !important;
-          border: 1px solid var(--border, #334155) !important;
-          border-radius: 12px !important;
-        }
-        .transcript-container {
-          flex: 1 !important;
-          overflow-y: auto !important;
-          min-height: 0 !important;
-        }
-        .ai-panel {
-          height: 100% !important;
-          display: flex !important;
-          flex-direction: column !important;
-        }
-        .ai-section {
-          flex: 1 !important;
-          overflow: hidden !important;
-          display: flex !important;
-          flex-direction: column !important;
-        }
-        .ai-items {
-          flex: 1 !important;
-          overflow-y: auto !important;
-        }
-        @media (max-width: 1024px) {
-          .session-layout {
-            grid-template-columns: 1fr !important;
-            height: auto !important;
-          }
-          .session-sidebar {
-             height: 500px !important;
-          }
-        }
-      `}</style>
-
-      <div className="session-layout">
+    <div className="screen active-session" style={{ width: '100%', height: 'calc(100vh - 120px)', boxSizing: 'border-box' }}>
+      <div className="session-layout" style={{ 
+        display: 'grid', 
+        gridTemplateColumns: '1fr 420px', 
+        gap: '24px', 
+        height: '100%', 
+        overflow: 'hidden' 
+      }}>
         {/* Panneau principal - Transcription */}
-        <div className="session-main">
+        <div className="session-main" style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          height: '100%', 
+          overflow: 'hidden',
+          background: 'var(--panel)',
+          borderRadius: 'var(--r-md)',
+          border: '1px solid var(--border)',
+          padding: '24px'
+        }}>
           <div className="session-header">
             <div className="session-info">
               <h2>{config.title}</h2>
@@ -643,19 +598,28 @@ export default function ActiveSession({ config, onEnd }) {
     </div>
 
     {/* Panneau latéral - Analyse IA en temps réel */}
-    <div className="session-sidebar">
-          <div className="ai-panel">
-            <h3 className="ai-panel-title">🤖 Analyse IA en temps réel</h3>
+    <div className="session-sidebar" style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          height: '100%', 
+          overflow: 'hidden',
+          background: 'var(--panel)',
+          borderRadius: 'var(--r-md)',
+          border: '1px solid var(--border)',
+          boxShadow: 'var(--shadow-md)'
+        }}>
+          <div className="ai-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <h3 className="ai-panel-title" style={{ flexShrink: 0 }}>🤖 Analyse IA en temps réel</h3>
             
             {/* Actions détectées */}
-            <div className="ai-section">
-              <div className="ai-section-header">
+            <div className="ai-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', borderBottom: '1px solid var(--border)' }}>
+              <div className="ai-section-header" style={{ flexShrink: 0 }}>
                 <CheckCircle size={18} />
                 <h4>Actions à suivre</h4>
                 <span className="ai-badge">{detectedActions.length}</span>
               </div>
               
-              <div className="ai-items">
+              <div className="ai-items" style={{ flex: 1, overflowY: 'auto' }}>
                 {detectedActions.length === 0 ? (
                   <div className="ai-empty">
                     Aucune action détectée pour le moment
@@ -677,14 +641,14 @@ export default function ActiveSession({ config, onEnd }) {
             </div>
 
             {/* Décisions détectées */}
-            <div className="ai-section">
-              <div className="ai-section-header">
+            <div className="ai-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <div className="ai-section-header" style={{ flexShrink: 0 }}>
                 <AlertTriangle size={18} />
                 <h4>Décisions prises</h4>
                 <span className="ai-badge">{detectedDecisions.length}</span>
               </div>
               
-              <div className="ai-items">
+              <div className="ai-items" style={{ flex: 1, overflowY: 'auto' }}>
                 {detectedDecisions.length === 0 ? (
                   <div className="ai-empty">
                     Aucune décision détectée pour le moment

@@ -42,7 +42,7 @@ import './styles/home.css';
 import './styles/dashboard.css';
 import './styles/sessions-history.css';
 import './styles/public-pages.css';
-import './styles/active-session-fix.css'; // Add Force Fix
+// import './styles/active-session-fix.css'; // Removed in favor of inline styles for reliability
 
 export default function App() {
   const [currentView, setCurrentView] = useState('home');
