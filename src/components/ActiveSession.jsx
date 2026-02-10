@@ -580,10 +580,10 @@ export default function ActiveSession({ config, onEnd }) {
           <Square size={18} /> Terminer la session
         </button>
       </div>
-        </div>
+    </div>
 
-        {/* Panneau latéral - Analyse IA en temps réel */}
-        <div className="session-sidebar">
+    {/* Panneau latéral - Analyse IA en temps réel */}
+    <div className="session-sidebar">
           <div className="ai-panel">
             <h3 className="ai-panel-title">🤖 Analyse IA en temps réel</h3>
             
