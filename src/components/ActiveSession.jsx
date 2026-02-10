@@ -425,6 +425,71 @@ export default function ActiveSession({ config, onEnd }) {
 
   return (
     <div className="screen active-session" style={{ width: '100%', height: 'calc(100vh - 120px)', boxSizing: 'border-box' }}>
+      <style>{`
+        .transcript-bubble {
+          display: flex;
+          flex-direction: column;
+          margin-bottom: 12px;
+          padding: 12px 16px;
+          background: rgba(255, 255, 255, 0.03);
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          transition: background 0.2s;
+        }
+        .transcript-bubble:hover {
+          background: rgba(255, 255, 255, 0.05);
+        }
+        .transcript-bubble.system {
+          background: transparent;
+          border: none;
+          align-items: center;
+          padding: 4px;
+        }
+        .transcript-bubble.system .text {
+          font-style: italic;
+          color: var(--muted);
+          font-size: 13px;
+          background: rgba(255, 255, 255, 0.05);
+          padding: 4px 12px;
+          border-radius: 99px;
+        }
+        .bubble-header {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 6px;
+          font-size: 12px;
+        }
+        .speaker-name {
+          font-weight: 600;
+          color: var(--accent);
+        }
+        .time-stamp {
+          color: var(--muted);
+          font-variant-numeric: tabular-nums;
+        }
+        .bubble-content {
+          color: var(--text);
+          line-height: 1.5;
+          font-size: 14px;
+        }
+        /* AI Panel Enhancements */
+        .ai-card {
+          background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 8px;
+          padding: 12px;
+          margin-bottom: 10px;
+          transition: transform 0.2s;
+        }
+        .ai-card:hover {
+          transform: translateX(4px);
+          border-color: var(--accent);
+        }
+        .badge-priority-haute, .badge-impact-fort { color: #f87171; background: rgba(248, 113, 113, 0.1); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .badge-priority-moyenne, .badge-impact-moyen { color: #fbbf24; background: rgba(251, 191, 36, 0.1); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .badge-priority-basse, .badge-impact-faible { color: #34d399; background: rgba(52, 211, 153, 0.1); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+      `}</style>
+
       <div className="session-layout" style={{ 
         display: 'grid', 
         gridTemplateColumns: '1fr 1fr', 
@@ -550,34 +615,36 @@ export default function ActiveSession({ config, onEnd }) {
         {transcript.map((item) => (
           <div 
             key={item.id} 
-            className={`transcript-line ${item.marked ? 'marked' : ''} ${item.isSystem ? 'system' : ''}`}
+            className={`transcript-bubble ${item.isSystem ? 'system' : ''}`}
           >
-            <span className="timestamp">
-              {new Date(item.timestamp).toLocaleTimeString('fr-FR', { 
-                hour: '2-digit', 
-                minute: '2-digit',
-                second: '2-digit'
-              })}
-            </span>
-            <span className="speaker">{item.speaker}:</span>
-            <span className="text">
-              {typeof item.text === 'string' 
-                ? item.text.trim()
-                    .replace(/\.0+\s*$/g, '')
-                    .replace(/\s+0+\s*$/g, '')
-                    .replace(/\.0+(\s+|$)/g, '$1')
-                    .trim()
-                : item.text
-              }
-            </span>
-            {item.confidence && (
-              <span style={{ 
-                fontSize: '11px', 
-                color: '#94a3b8', 
-                marginLeft: '8px' 
-              }}>
-                ({(item.confidence * 100).toFixed(0)}%)
-              </span>
+            {item.isSystem ? (
+               <span className="text">{item.text}</span>
+            ) : (
+              <>
+                 <div className="bubble-header">
+                    <span className="speaker-name">{item.speaker}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                       {item.marked && <span style={{ color: '#fbbf24', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px' }}><Bookmark size={10} /> Important</span>}
+                       <span className="time-stamp">
+                         {new Date(item.timestamp).toLocaleTimeString('fr-FR', { 
+                           hour: '2-digit', 
+                           minute: '2-digit', 
+                           second: '2-digit' 
+                         })}
+                       </span>
+                    </div>
+                 </div>
+                 <div className="bubble-content">
+                    {typeof item.text === 'string' 
+                      ? item.text.trim()
+                          .replace(/\.0+\s*$/g, '')
+                          .replace(/\s+0+\s*$/g, '')
+                          .replace(/\.0+(\s+|$)/g, '$1')
+                          .trim()
+                      : item.text
+                    }
+                 </div>
+              </>
             )}
           </div>
         ))}
@@ -643,14 +710,14 @@ export default function ActiveSession({ config, onEnd }) {
                   </div>
                 ) : (
                   detectedActions.map(action => (
-                    <div key={action.id} className="ai-item action-item">
-                      <div className="ai-item-meta">
-                        <span className="ai-time">{action.timestamp}</span>
-                        <span className={`priority-badge priority-${action.priority.toLowerCase()}`}>
+                    <div key={action.id} className="ai-card">
+                      <div className="bubble-header">
+                        <span className="time-stamp">{action.timestamp}</span>
+                        <span className={`badge-priority-${action.priority.toLowerCase()}`}>
                           {action.priority}
                         </span>
                       </div>
-                      <div className="ai-item-text">{action.text}</div>
+                      <div className="bubble-content" style={{ fontSize: '13px' }}>{action.text}</div>
                     </div>
                   ))
                 )}
@@ -672,14 +739,14 @@ export default function ActiveSession({ config, onEnd }) {
                   </div>
                 ) : (
                   detectedDecisions.map(decision => (
-                    <div key={decision.id} className="ai-item decision-item">
-                      <div className="ai-item-meta">
-                        <span className="ai-time">{decision.timestamp}</span>
-                        <span className={`impact-badge impact-${decision.impact.toLowerCase()}`}>
+                    <div key={decision.id} className="ai-card" style={{ borderLeft: '3px solid var(--accent)' }}>
+                      <div className="bubble-header">
+                        <span className="time-stamp">{decision.timestamp}</span>
+                        <span className={`badge-impact-${decision.impact.toLowerCase()}`}>
                           Impact {decision.impact}
                         </span>
                       </div>
-                      <div className="ai-item-text">{decision.text}</div>
+                      <div className="bubble-content" style={{ fontSize: '13px' }}>{decision.text}</div>
                     </div>
                   ))
                 )}
