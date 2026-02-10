@@ -42,6 +42,7 @@ import './styles/home.css';
 import './styles/dashboard.css';
 import './styles/sessions-history.css';
 import './styles/public-pages.css';
+import './styles/active-session-fix.css'; // Add Force Fix
 
 export default function App() {
   const [currentView, setCurrentView] = useState('home');
