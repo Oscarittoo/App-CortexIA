@@ -16,10 +16,20 @@ class LLMService {
   async generateReport(transcript, sessionInfo) {
     const { language, title, duration } = sessionInfo;
 
-    // Préparer le texte de la transcription
+    // Préparer le texte de la transcription avec nettoyage avancé
     const transcriptText = transcript
       .filter(line => line.text && line.text.trim() && !line.isSystem)
-      .map(line => `[${line.speaker || 'Locuteur'}] ${line.text}`)
+      .map(line => {
+        // Nettoyer chaque ligne de transcription
+        const cleanText = line.text
+          .replace(/\b(euh+|heu+|hmm+|hum+|ben|bah|bon|voilà|quoi|hein|genre|truc)\b/gi, '')
+          .replace(/^(donc|alors|du coup|en fait|bon|bah|ben|ensuite)\s+/gi, '')
+          .replace(/\b(\w+)\s+\1\b/gi, '$1')  // Supprimer mots répétés
+          .replace(/\s{2,}/g, ' ')  // Espaces multiples
+          .trim();
+        return `[${line.speaker || 'Locuteur'}] ${cleanText}`;
+      })
+      .filter(line => line.length > 15)  // Ignorer lignes trop courtes (probablement parasites)
       .join('\n');
 
     // Vérifier si une API est configurée
@@ -66,7 +76,9 @@ Créer un résumé qui reflète fidèlement le contenu de la réunion, en identi
 📋 ÉTAPE 1 - ANALYSE DU CONTENU:
 1. Identifie QUI parle (combien de personnes, rôles si mentionnés)
 2. Repère les SUJETS RÉELS abordés (projets, problèmes, objectifs)
-3. Extrais les mots-clés TECHNIQUES et SPÉCIFIQUES (évite: réunion, présentation, entreprise, équipe, etc.)
+3. Extrais 4-6 MOTS-CLÉS TECHNIQUES UNIQUES : noms propres, technologies, termes métier, concepts spécifiques
+   ⚠️ JAMAIS : "réunion", "présentation", "entreprise", "équipe", "discussion", "projet", "application"
+   ✅ EXEMPLES : "API", "PostgreSQL", "Dashboard", "Authentification", "Vercel", "Supabase"
 4. Note les décisions, actions, dates, chiffres importants
 
 ✍️ ÉTAPE 2 - RÉDACTION DU RÉSUMÉ:
@@ -106,7 +118,9 @@ Create a summary that faithfully reflects the meeting content, identifying real 
 📋 STEP 1 - CONTENT ANALYSIS:
 1. Identify WHO speaks (how many people, roles if mentioned)
 2. Identify REAL topics discussed (projects, problems, objectives)
-3. Extract TECHNICAL and SPECIFIC keywords (avoid: meeting, presentation, company, team, etc.)
+3. Extract 4-6 UNIQUE TECHNICAL KEYWORDS: proper nouns, technologies, business terms, specific concepts
+   ⚠️ NEVER: "meeting", "presentation", "company", "team", "discussion", "project", "application"
+   ✅ EXAMPLES: "API", "PostgreSQL", "Dashboard", "Authentication", "Vercel", "Supabase"
 4. Note decisions, actions, dates, important numbers
 
 ✍️ STEP 2 - WRITING THE SUMMARY:
@@ -555,12 +569,12 @@ CORTEXIA`;
     }
     
     if (language === 'fr') {
-      const keywordsSection = topKeywords.length > 0 ? `\n\n**Mots-clés** : ${topKeywords.join(', ')}` : '';
+      const keywordsSection = topKeywords.length > 0 ? `\n\n**Mots-clés techniques** : ${topKeywords.join(' • ')}` : '';
       const conclusionSection = conclusion ? `\n\n**Conclusion**\n\n${conclusion}` : '';
       
       return `**Contexte**\n\n${contextIntro}\n\n**Points Clés**\n\n${uniquePoints.map(s => `- ${s}`).join('\n')}${keywordsSection}${conclusionSection}`;
     } else {
-      const keywordsSection = topKeywords.length > 0 ? `\n\n**Keywords**: ${topKeywords.join(', ')}` : '';
+      const keywordsSection = topKeywords.length > 0 ? `\n\n**Technical Keywords**: ${topKeywords.join(' • ')}` : '';
       const conclusionSection = conclusion ? `\n\n**Conclusion**\n\n${conclusion}` : '';
       
       return `**Context**\n\n${contextIntro}\n\n**Key Points**\n\n${uniquePoints.map(s => `- ${s}`).join('\n')}${keywordsSection}${conclusionSection}`;
@@ -571,10 +585,10 @@ CORTEXIA`;
    * Analyse la fréquence des mots pour identifier les mots-clés
    */
   analyzeKeywords(text, language = 'fr') {
-    // Mots à ignorer (stop words + mots génériques sans valeur sémantique)
+    // Mots à ignorer (stop words + mots génériques sans valeur sémantique) - ÉTENDU
     const stopWords = language === 'fr'
-      ? ['le', 'la', 'les', 'de', 'des', 'un', 'une', 'du', 'et', 'ou', 'mais', 'donc', 'or', 'ni', 'car', 'que', 'qui', 'quoi', 'dont', 'où', 'ce', 'cet', 'cette', 'ces', 'mon', 'ton', 'son', 'ma', 'ta', 'sa', 'mes', 'tes', 'ses', 'notre', 'votre', 'leur', 'je', 'tu', 'il', 'elle', 'nous', 'vous', 'ils', 'elles', 'on', 'se', 'me', 'te', 'lui', 'y', 'en', 'ne', 'pas', 'plus', 'très', 'bien', 'tout', 'tous', 'toute', 'toutes', 'si', 'oui', 'non', 'euh', 'hmm', 'ah', 'oh', 'alors', 'donc', 'voilà', 'ok', 'bon', 'ben', 'hein', 'quoi', 'là', 'ça', 'pour', 'avec', 'sans', 'dans', 'sur', 'sous', 'vers', 'par', 'entre', 'chez', 'être', 'avoir', 'faire', 'aller', 'vais', 'vas', 'va', 'allons', 'allez', 'vont', 'dire', 'voir', 'donner', 'prendre', 'pouvoir', 'vouloir', 'devoir', 'savoir', 'peut', 'peuvent', 'peux', 'comme', 'ensuite', 'après', 'avant', 'important', 'importante', 'importants', 'importantes', 'chose', 'choses', 'fait', 'faite', 'faits', 'faites', 'permet', 'permettre', 'aider', 'aide', 'aussi', 'même', 'vrai', 'vraiment', 'genre', 'truc', 'trucs', 'machin', 'trés', 'super', 'déjà', 'encore', 'toujours', 'jamais', 'rien', 'quelque', 'quelques', 'autre', 'autres', 'beaucoup', 'peu', 'moins', 'trop', 'assez', 'tant', 'autant', 'plusieurs', 'chaque', 'certain', 'certains', 'certaine', 'certaines', 'bonjour', 'aujourd\'hui', 'aujourdhui', 'bienvenue', 'nouveau', 'nouveaux', 'arrivant', 'arrivants', 'année', 'années', 'réunion', 'présentation', 'présenter', 'présente', 'présentons', 'présentant', 'présentations', 'entreprise', 'équipe', 'directeur', 'direction', 'tour', 'table', 'décision', 'décisions', 'bouton', 'boutons', 'amélioration', 'améliorations', 'problème', 'problèmes', 'question', 'questions', 'point', 'points', 'fois', 'temps', 'moment', 'moments', 'manière', 'façon', 'façons', 'niveau', 'niveaux', 'partie', 'parties', 'sujet', 'sujets', 'all', 'and', 'the', 'for', 'with', 'this', 'that', 'from', 'have', 'been', 'will', 'would', 'could', 'should', 'about', 'which', 'their', 'there', 'where', 'when', 'what', 'because']
-      : ['the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i', 'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at', 'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she', 'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what', 'so', 'up', 'out', 'if', 'about', 'who', 'get', 'which', 'go', 'me', 'when', 'make', 'can', 'like', 'no', 'just', 'him', 'know', 'take', 'into', 'year', 'your', 'good', 'some', 'could', 'them', 'see', 'other', 'than', 'then', 'now', 'look', 'only', 'come', 'its', 'over', 'think', 'also', 'back', 'after', 'use', 'two', 'how', 'our', 'work', 'first', 'well', 'way', 'even', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us', 'uh', 'um', 'ah', 'oh', 'okay', 'yeah', 'thing', 'things', 'stuff', 'something', 'important', 'really', 'very', 'much', 'many', 'more', 'less', 'too', 'button', 'buttons', 'decision', 'decisions', 'improvement', 'improvements', 'problem', 'problems', 'question', 'questions', 'point', 'points', 'time', 'times', 'moment', 'moments', 'presentation', 'presentations', 'meeting', 'company', 'team', 'welcome', 'today'];
+      ? ['le', 'la', 'les', 'de', 'des', 'un', 'une', 'du', 'et', 'ou', 'mais', 'donc', 'or', 'ni', 'car', 'que', 'qui', 'quoi', 'dont', 'où', 'ce', 'cet', 'cette', 'ces', 'mon', 'ton', 'son', 'ma', 'ta', 'sa', 'mes', 'tes', 'ses', 'notre', 'votre', 'leur', 'je', 'tu', 'il', 'elle', 'nous', 'vous', 'ils', 'elles', 'on', 'se', 'me', 'te', 'lui', 'y', 'en', 'ne', 'pas', 'plus', 'très', 'bien', 'tout', 'tous', 'toute', 'toutes', 'si', 'oui', 'non', 'euh', 'hmm', 'ah', 'oh', 'alors', 'donc', 'voilà', 'ok', 'bon', 'ben', 'hein', 'quoi', 'là', 'ça', 'pour', 'avec', 'sans', 'dans', 'sur', 'sous', 'vers', 'par', 'entre', 'chez', 'être', 'avoir', 'faire', 'aller', 'vais', 'vas', 'va', 'allons', 'allez', 'vont', 'dire', 'voir', 'donner', 'prendre', 'pouvoir', 'vouloir', 'devoir', 'savoir', 'peut', 'peuvent', 'peux', 'comme', 'ensuite', 'après', 'avant', 'important', 'importante', 'importants', 'importantes', 'chose', 'choses', 'fait', 'faite', 'faits', 'faites', 'permet', 'permettre', 'aider', 'aide', 'aussi', 'même', 'vrai', 'vraiment', 'genre', 'truc', 'trucs', 'machin', 'trés', 'super', 'déjà', 'encore', 'toujours', 'jamais', 'rien', 'quelque', 'quelques', 'autre', 'autres', 'beaucoup', 'peu', 'moins', 'trop', 'assez', 'tant', 'autant', 'plusieurs', 'chaque', 'certain', 'certains', 'certaine', 'certaines', 'bonjour', 'aujourd\'hui', 'aujourdhui', 'bienvenue', 'nouveau', 'nouveaux', 'arrivant', 'arrivants', 'année', 'années', 'réunion', 'présentation', 'présenter', 'présente', 'présentons', 'présentant', 'présentations', 'entreprise', 'équipe', 'directeur', 'direction', 'tour', 'table', 'décision', 'décisions', 'bouton', 'boutons', 'amélioration', 'améliorations', 'problème', 'problèmes', 'question', 'questions', 'point', 'points', 'fois', 'temps', 'moment', 'moments', 'manière', 'façon', 'façons', 'niveau', 'niveaux', 'partie', 'parties', 'sujet', 'sujets', 'compte', 'rendu', 'comptes', 'rendus', 'discuter', 'discussion', 'discussions', 'parler', 'parle', 'parlé', 'parlons', 'aborder', 'abordé', 'abordons', 'traiter', 'traité', 'traitons', 'concernant', 'concerné', 'concerne', 'rapport', 'rapports', 'all', 'and', 'the', 'for', 'with', 'this', 'that', 'from', 'have', 'been', 'will', 'would', 'could', 'should', 'about', 'which', 'their', 'there', 'where', 'when', 'what', 'because']
+      : ['the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i', 'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at', 'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she', 'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what', 'so', 'up', 'out', 'if', 'about', 'who', 'get', 'which', 'go', 'me', 'when', 'make', 'can', 'like', 'no', 'just', 'him', 'know', 'take', 'into', 'year', 'your', 'good', 'some', 'could', 'them', 'see', 'other', 'than', 'then', 'now', 'look', 'only', 'come', 'its', 'over', 'think', 'also', 'back', 'after', 'use', 'two', 'how', 'our', 'work', 'first', 'well', 'way', 'even', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us', 'uh', 'um', 'ah', 'oh', 'okay', 'yeah', 'thing', 'things', 'stuff', 'something', 'important', 'really', 'very', 'much', 'many', 'more', 'less', 'too', 'button', 'buttons', 'decision', 'decisions', 'improvement', 'improvements', 'problem', 'problems', 'question', 'questions', 'point', 'points', 'time', 'times', 'moment', 'moments', 'presentation', 'presentations', 'meeting', 'company', 'team', 'welcome', 'today', 'discuss', 'discussed', 'talking', 'talked', 'said', 'says', 'report', 'reports'];
    
     // Extraire et nettoyer les mots
     const normalizedText = text.replace(/\b([A-Z]{2,5})\1\b/g, '$1');
@@ -582,10 +596,11 @@ CORTEXIA`;
       .replace(/[^\w\sàâäéèêëïîôùûüÿæœç]/g, ' ')
       .split(/\s+/)
       .filter(word => 
-        word.length > 4 &&  // Mots de 5 lettres minimum (plus spécifiques)
+        word.length >= 4 &&  // Mots de 4 lettres minimum (équilibre entre spécificité et rappel)
         !stopWords.includes(word) &&
         !word.match(/^0+$/) &&
-        !word.match(/^\d+$/)
+        !word.match(/^\d+$/) &&
+        !word.match(/^(euh+|heu+|hmm+|hum+|ben|bah)$/i)  // Double vérification des mots parasites
       );
     
     // Compter les fréquences
@@ -604,13 +619,17 @@ CORTEXIA`;
       }
     });
     
-    // Trier par fréquence décroissante et ne garder que les mots apparaissant au moins 3 fois
+    // Trier par fréquence décroissante et seuil adaptatif selon longueur texte
+    const textLength = words.length;
+    const minOccurrences = textLength > 100 ? 3 : textLength > 50 ? 2 : 1;  // Seuil adaptatif
+    
     const keywords = Object.entries(frequency)
       .map(([word, count]) => ({ word, count }))
-      .filter(item => item.count >= 3 || (acronymsSet.has(item.word) && item.count >= 2))
-      .filter(item => item.word.length > 2 || acronymsSet.has(item.word))
+      .filter(item => item.count >= minOccurrences || (acronymsSet.has(item.word) && item.count >= 1))
+      .filter(item => item.word.length >= 4 || acronymsSet.has(item.word))  // Vraie longueur minimale
+      .filter(item => !item.word.match(/^(vraiment|finalement|notamment|simplement|exactement|justement|totalement|absolument)$/i))  // Adverbes sans valeur
       .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
+      .slice(0, 8);  // Plus de mots potentiels avant filtrage final
     
     // Si pas assez de mots significatifs, chercher des noms propres (majuscules)
     if (keywords.length < 3) {
@@ -623,7 +642,15 @@ CORTEXIA`;
       });
     }
     
-    return keywords.slice(0, 5);  // Maximum 5 mots-clés
+    // Capitaliser les mots-clés pour meilleure lisibilité
+    const finalKeywords = keywords
+      .slice(0, 6)  // Maximum 6 vrais mots-clés techniques
+      .map(item => ({
+        word: acronymsSet.has(item.word) ? item.word.toUpperCase() : item.word.charAt(0).toUpperCase() + item.word.slice(1),
+        count: item.count
+      }));
+    
+    return finalKeywords;
   }
 
   /**

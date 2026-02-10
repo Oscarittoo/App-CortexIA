@@ -109,6 +109,14 @@ export default function ActiveSession({ config, onEnd }) {
           .replace(/\.0+\s*$/g, '')      // .0 ou .00 etc en fin
           .replace(/\s+0+\s*$/g, '')      // espace suivi de 0 en fin
           .replace(/\.0+(\s+|$)/g, '$1') // .0 suivi d'espace ou fin
+          // Filtrer les mots parasites (hésitations)
+          .replace(/\b(euh+|heu+|hmm+|hum+|ben|bah|bon|voilà|quoi|hein|genre|truc)\b/gi, '')
+          // Nettoyer début de phrase avec connecteurs faibles
+          .replace(/^(donc|alors|du coup|en fait|bon|bah|ben|ensuite)\s+/gi, '')
+          // Supprimer répétitions de mots consécutifs (ex: "peut peut" → "peut")
+          .replace(/\b(\w+)\s+\1\b/gi, '$1')
+          // Nettoyer espaces multiples
+          .replace(/\s+/g, ' ')
           .trim();
 
         console.log('Transcription:', {
@@ -127,6 +135,10 @@ export default function ActiveSession({ config, onEnd }) {
             .replace(/\.0+\s*$/g, '')
             .replace(/\s+0+\s*$/g, '')
             .replace(/\.0+(\s+|$)/g, '$1')
+            // Nettoyer encore les mots parasites qui auraient pu passer
+            .replace(/\b(euh+|heu+|hmm+|hum+)\b/gi, '')
+            // Nettoyer espaces multiples créés par les suppressions
+            .replace(/\s{2,}/g, ' ')
             .trim();
           
           const newEntry = {
