@@ -32,9 +32,10 @@ class TranscriptionService {
           autoGainControl: true
         }
       });
+      this.stream = stream;
 
       // Utiliser Web Speech API par défaut (gratuit et fiable)
-      console.log('🎤 Utilisation de Web Speech API (mode gratuit)');
+      console.log('Utilisation de Web Speech API (mode gratuit)');
       return this.startWebSpeechAPI(stream, language, onTranscript);
       
       // Code Whisper désactivé pour privilégier Web Speech API
@@ -42,12 +43,12 @@ class TranscriptionService {
       /*
       if (this.hasWhisperFailed || !this.apiKey || this.apiKey === '' || this.apiKey === 'your_openai_api_key_here') {
         const reason = this.hasWhisperFailed ? 'quota dépassé' : 'non configurée';
-        console.warn(`⚠️ API OpenAI ${reason}, utilisation de Web Speech API en fallback`);
+        console.warn(`API OpenAI ${reason}, utilisation de Web Speech API en fallback`);
         console.log('Clé API actuelle:', this.apiKey ? '(présente)' : '(non définie)');
         return this.startWebSpeechAPI(stream, language, onTranscript);
       }
       
-      console.log('✅ API OpenAI configurée, utilisation de Whisper');
+      console.log('API OpenAI configurée, utilisation de Whisper');
       console.log('Clé API (début):', this.apiKey ? this.apiKey.substring(0, 20) + '...' : 'non trouvée');
       */
 
@@ -70,7 +71,7 @@ class TranscriptionService {
       return stream;
 
     } catch (error) {
-      console.error('❌ Erreur lors du démarrage de la transcription:', error);
+      console.error('Erreur lors du démarrage de la transcription:', error);
       throw error;
     }
   }
@@ -84,11 +85,11 @@ class TranscriptionService {
       
       // Vérifier que l'audio a une taille suffisante (au moins 1KB)
       if (audioBlob.size < 1000) {
-        console.log('⏭️ Audio trop court, ignoré');
+        console.log('Audio trop court, ignoré');
         return;
       }
       
-      console.log('📤 Envoi à Whisper:', audioBlob.size, 'bytes');
+      console.log('Envoi à Whisper:', audioBlob.size, 'bytes');
       
       // Créer FormData pour l'API
       const formData = new FormData();
@@ -108,10 +109,10 @@ class TranscriptionService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Erreur API Whisper:', response.status, errorText);
+        console.error('Erreur API Whisper:', response.status, errorText);
         
         if (response.status === 429) {
-          console.warn('⚠️ Rate limit atteint, attente avant prochain envoi...');
+          console.warn('Rate limit atteint, attente avant prochain envoi...');
           // Attendre 2 secondes avant de permettre le prochain envoi
           await new Promise(resolve => setTimeout(resolve, 2000));
         }
@@ -119,7 +120,7 @@ class TranscriptionService {
       }
 
       const result = await response.json();
-      console.log('✅ Transcription reçue:', result.text);
+      console.log('Transcription reçue:', result.text);
       
       // Callback avec le texte transcrit
       if (result.text && this.onTranscriptCallback) {
@@ -131,11 +132,11 @@ class TranscriptionService {
       }
 
     } catch (error) {
-      console.error('❌ Erreur Whisper API:', error);
+      console.error('Erreur Whisper API:', error);
       
       // Si erreur de quota, marquer pour basculer
       if (error.message && (error.message.includes('429') || error.message.includes('quota'))) {
-        console.warn('⚠️ Quota Whisper dépassé, marquage pour basculement...');
+        console.warn('Quota Whisper dépassé, marquage pour basculement...');
         this.hasWhisperFailed = true;
       }
     }
@@ -168,6 +169,9 @@ class TranscriptionService {
         throw error;
       }
     }
+
+    // Toujours conserver la référence si un stream est déjà fourni
+    this.stream = existingStream;
 
     const recognition = new SpeechRecognition();
     recognition.continuous = true;

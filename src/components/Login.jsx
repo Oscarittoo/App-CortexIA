@@ -3,12 +3,20 @@ import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import toast from './Toast';
 import authService from '../services/authService';
 
-export default function Login({ onLogin, onBack }) {
+export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
   const [companyName, setCompanyName] = useState('');
+  const [plan, setPlan] = useState(selectedPlan);
+
+  const plans = [
+    { id: 'free', name: 'Free', price: '0€' },
+    { id: 'pro', name: 'Pro', price: '29,99€/mois' },
+    { id: 'business', name: 'Business', price: '49,99€/membre' },
+    { id: 'expert', name: 'Expert', price: '129,99€/membre' }
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,7 +33,7 @@ export default function Login({ onLogin, onBack }) {
 
     try {
       const userData = isRegistering
-        ? await authService.register(email, password, companyName, 'free')
+        ? await authService.register(email, password, companyName, plan)
         : await authService.login(email, password);
 
       toast.success(isRegistering ? 'Compte créé avec succès !' : 'Connexion réussie !');
@@ -49,20 +57,42 @@ export default function Login({ onLogin, onBack }) {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="login-form">
+          <form onSubmit={handleSubmit} className="login-form" autoComplete={isRegistering ? 'off' : 'on'}>
             {isRegistering && (
-              <div className="form-group">
-                <label htmlFor="company">Nom de l'entreprise</label>
-                <input
-                  id="company"
-                  type="text"
-                  className="input"
-                  placeholder="Acme Inc."
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  autoComplete="organization"
-                />
-              </div>
+              <>
+                <div className="form-group">
+                  <label htmlFor="company">Nom de l'entreprise</label>
+                  <input
+                    id="company"
+                    type="text"
+                    className="input"
+                    placeholder="Acme Inc."
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    autoComplete="off"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="plan">Choisissez votre plan</label>
+                  <select
+                    id="plan"
+                    className="input"
+                    value={plan}
+                    onChange={(e) => setPlan(e.target.value)}
+                    style={{ paddingLeft: '16px' }}
+                  >
+                    {plans.map(p => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} - {p.price}
+                      </option>
+                    ))}
+                  </select>
+                  <p style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '8px' }}>
+                    Vous pourrez modifier votre plan plus tard depuis les paramètres
+                  </p>
+                </div>
+              </>
             )}
 
             <div className="form-group">
@@ -76,7 +106,7 @@ export default function Login({ onLogin, onBack }) {
                   placeholder="vous@entreprise.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  autoComplete="email"
+                  autoComplete={isRegistering ? 'off' : 'email'}
                 />
               </div>
             </div>
@@ -92,7 +122,7 @@ export default function Login({ onLogin, onBack }) {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  autoComplete={isRegistering ? 'new-password' : 'current-password'}
+                  autoComplete="off"
                 />
                 <button
                   type="button"
@@ -106,7 +136,13 @@ export default function Login({ onLogin, onBack }) {
 
             {!isRegistering && (
               <div className="form-footer">
-                <a href="#" className="forgot-password">Mot de passe oublié ?</a>
+                <button
+                  type="button"
+                  className="forgot-password"
+                  onClick={() => toast.info('Pour réinitialiser votre mot de passe, contactez support@meetizy.com')}
+                >
+                  Mot de passe oublié ?
+                </button>
               </div>
             )}
 
@@ -303,6 +339,10 @@ export default function Login({ onLogin, onBack }) {
           text-decoration: none;
           font-weight: 500;
           transition: 0.2s;
+          background: transparent;
+          border: none;
+          padding: 0;
+          cursor: pointer;
         }
 
         .forgot-password:hover {

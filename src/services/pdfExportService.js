@@ -62,7 +62,9 @@ class PDFExportService {
 
     this.addFooter(doc, pageWidth, pageHeight);
 
-    const fileName = `${session.title.replace(/[^a-z0-9]/gi, '_')}_${format(new Date(session.createdAt), 'yyyy-MM-dd')}.pdf`;
+    const safeTitle = (session.title || 'session').replace(/[^a-z0-9]/gi, '_');
+    const createdAt = session.createdAt ? new Date(session.createdAt) : new Date();
+    const fileName = `${safeTitle}_${format(createdAt, 'yyyy-MM-dd')}.pdf`;
     doc.save(fileName);
 
     return fileName;

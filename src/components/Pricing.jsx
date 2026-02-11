@@ -147,7 +147,7 @@ export default function Pricing({ onSelectPlan }) {
       </div>
       
       <div className="enterprise-contact">
-         <p>Vous avez des besoins spécifiques ? <a href="#">Parlez à un expert</a></p>
+         <p>Vous avez des besoins spécifiques ? <a href="mailto:support@meetizy.com?subject=Demande%20Enterprise">Parlez à un expert</a></p>
       </div>
 
       <style jsx>{`

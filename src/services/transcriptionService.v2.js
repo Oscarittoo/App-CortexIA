@@ -46,24 +46,24 @@ class TranscriptionService {
       let lastTranscriptTime = Date.now();
 
       recognition.onstart = () => {
-        console.log('✓ Recognition started');
+        console.log('Recognition started');
       };
 
       recognition.onaudiostart = () => {
-        console.log('✓ Audio capture active');
+        console.log('Audio capture active');
       };
 
       recognition.onsoundstart = () => {
-        console.log('✓ Sound detected');
+        console.log('Sound detected');
       };
 
       recognition.onspeechstart = () => {
-        console.log('✓ Speech detected');
+        console.log('Speech detected');
         lastTranscriptTime = Date.now();
       };
 
       recognition.onresult = (event) => {
-        console.log(`✓ Result received (${event.results.length} results)`);
+        console.log(`Result received (${event.results.length} results)`);
         lastTranscriptTime = Date.now();
         
         for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -97,7 +97,7 @@ class TranscriptionService {
       };
 
       recognition.onerror = (event) => {
-        console.error(`✗ Error: ${event.error}`, event.message || '');
+        console.error(`Error: ${event.error}`, event.message || '');
         
         if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
           console.error('Microphone permission denied');
@@ -119,7 +119,7 @@ class TranscriptionService {
         
         if (this.isRecording && restartCount < maxRestarts) {
           restartCount++;
-          console.log(`↻ Restart ${restartCount}/${maxRestarts}`);
+          console.log(`Restart ${restartCount}/${maxRestarts}`);
           
           setTimeout(() => {
             if (this.isRecording) {

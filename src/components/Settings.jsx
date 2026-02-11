@@ -1,9 +1,16 @@
 import { useState, useEffect } from 'react';
-import { User, Settings as SettingsIcon, Download, CreditCard, Bell, Palette, Globe, FileText, Save } from 'lucide-react';
+import { User, Settings as SettingsIcon, Download, CreditCard, Bell, Palette, Globe, FileText, Save, Database, Trash2 } from 'lucide-react';
+import authService from '../services/authService';
+import storageService from '../utils/storage';
+import toast from './Toast';
 import '../styles/settings.css';
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('profile');
+  const [currentUser, setCurrentUser] = useState(null);
+  const [showPlanModal, setShowPlanModal] = useState(false);
+  const [userSessionsCount, setUserSessionsCount] = useState(0);
+  const [legacyData, setLegacyData] = useState(null);
   const [settings, setSettings] = useState({
     // Profile
     fullName: 'Jean Dupont',
@@ -23,7 +30,7 @@ export default function Settings() {
     includeLogo: true,
     
     // Subscription
-    plan: 'Professional',
+    plan: 'free',
     nextBillingDate: '2026-03-05',
     usage: {
       sessions: 42,
@@ -33,16 +40,136 @@ export default function Settings() {
     }
   });
 
+  const plans = [
+    { id: 'free', name: 'Free', price: '0€', desc: 'Pour découvrir' },
+    { id: 'pro', name: 'Pro', price: '29,99€/mois', desc: 'Pour freelances' },
+    { id: 'business', name: 'Business', price: '49,99€/membre', desc: 'Pour équipes' },
+    { id: 'expert', name: 'Expert', price: '129,99€/membre', desc: 'Pour organisations' }
+  ];
+
   useEffect(() => {
-    const savedSettings = localStorage.getItem('meetizy_settings');
-    if (savedSettings) {
-      setSettings({ ...settings, ...JSON.parse(savedSettings) });
-    }
+    const loadUserData = async () => {
+      const user = await authService.getCurrentUser();
+      if (user) {
+        setCurrentUser(user);
+        // Charger les settings isolés par utilisateur
+        const localSettings = storageService.getSettings();
+        
+        // Compter les sessions de l'utilisateur
+        const sessions = storageService.getAllSessions();
+        setUserSessionsCount(sessions.length);
+        
+        // Détecter les anciennes données
+        const legacy = storageService.detectLegacyData();
+        setLegacyData(legacy);
+        
+        setSettings(prev => ({
+          ...prev,
+          ...localSettings,
+          // Ne jamais écraser les données utilisateur réelles
+          email: user.email,
+          company: user.companyName || prev.company,
+          plan: user.plan || 'free' // Toujours prendre le plan de la BDD
+        }));
+      }
+    };
+    loadUserData();
   }, []);
 
   const handleSave = () => {
-    localStorage.setItem('meetizy_settings', JSON.stringify(settings));
-    alert('✅ Paramètres sauvegardés avec succès !');
+    storageService.saveSettings(settings);
+    toast.success('Paramètres sauvegardés avec succès !');
+  };
+
+  const handleChangePlan = async (newPlan) => {
+    try {
+      await authService.updatePlan(newPlan);
+      // Recharger les données utilisateur depuis la BDD pour être sûr
+      const updatedUser = await authService.getCurrentUser();
+      setCurrentUser(updatedUser);
+      setSettings(prev => ({ ...prev, plan: updatedUser.plan }));
+      setShowPlanModal(false);
+      toast.success('Plan modifié avec succès !');
+      // Forcer un rechargement de la page pour mettre à jour tous les composants
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (error) {
+      toast.error('Erreur lors de la modification du plan');
+    }
+  };
+
+  const handleViewBillingHistory = () => {
+    toast.info('Historique de facturation disponible prochainement');
+  };
+
+  const handleContactSupport = () => {
+    const subject = encodeURIComponent('Support Meetizy');
+    const body = encodeURIComponent('Bonjour,\n\nJe souhaite être contacté pour un plan Enterprise.\n\nMerci.');
+    const mailto = `mailto:support@meetizy.com?subject=${subject}&body=${body}`;
+    try {
+      window.location.href = mailto;
+    } catch (error) {
+      toast.info('Contactez support@meetizy.com');
+    }
+  };
+
+  const handleClearUserData = () => {
+    if (window.confirm(`ATTENTION : Cette action supprimera toutes vos ${userSessionsCount} sessions de manière irréversible. Continuer ?`)) {
+      storageService.clearAllData();
+      setUserSessionsCount(0);
+      toast.success('Données supprimées avec succès');
+    }
+  };
+
+  const handleClearAiReports = () => {
+    if (window.confirm('Supprimer les rapports IA enregistrés (résumé, actions, décisions, email) pour régénérer avec Claude ?')) {
+      const updated = storageService.clearAiReports();
+      toast.success(`${updated} rapport(s) IA supprimé(s)`);
+    }
+  };
+
+  const handleCleanOrphanSessions = () => {
+    const orphans = storageService.getOrphanSessions();
+    if (orphans.length === 0) {
+      toast.info('Aucune session orpheline détectée');
+      return;
+    }
+
+    if (window.confirm(`Vous avez ${orphans.length} session(s) orpheline(s) (sans propriétaire). Voulez-vous les supprimer ?`)) {
+      const deleted = storageService.deleteOrphanSessions();
+      toast.success(`${deleted} session(s) orpheline(s) supprimée(s)`);
+      // Rafraîchir le compteur
+      const currentCount = storageService.getAllSessions().length;
+      setUserSessionsCount(currentCount);
+    }
+  };
+
+  const getOrphanSessionsCount = () => {
+    return storageService.getOrphanSessions().length;
+  };
+
+  const handleMigrateLegacyData = () => {
+    const result = storageService.migrateLegacyDataToCurrentUser();
+    if (result.success) {
+      toast.success(`${result.count} type(s) de données récupérées avec succès !`);
+      setLegacyData(storageService.detectLegacyData());
+      // Rafraîchir la page pour voir les nouvelles données
+      setTimeout(() => window.location.reload(), 1000);
+    } else {
+      toast.error('Erreur lors de la migration des données');
+    }
+  };
+
+  const handleDeleteLegacyData = () => {
+    if (window.confirm('Voulez-vous vraiment supprimer ces anciennes données ? Cette action est irréversible.')) {
+      const count = storageService.deleteLegacyData();
+      toast.success(`${count} anciennes données supprimées`);
+      setLegacyData(storageService.detectLegacyData());
+    }
+  };
+
+  const getPlanName = (planId) => {
+    const plan = plans.find(p => p.id === planId);
+    return plan ? plan.name : planId;
   };
 
   const handleLogoUpload = (e) => {
@@ -54,7 +181,7 @@ export default function Settings() {
       };
       reader.readAsDataURL(file);
     } else {
-      alert('⚠️ Le fichier doit faire moins de 2 Mo');
+      alert('Le fichier doit faire moins de 2 Mo');
     }
   };
 
@@ -96,6 +223,12 @@ export default function Settings() {
             onClick={() => setActiveTab('subscription')}
           >
             <CreditCard size={16} /> Abonnement
+          </button>
+          <button 
+            className={`settings-tab ${activeTab === 'data' ? 'active' : ''}`}
+            onClick={() => setActiveTab('data')}
+          >
+            <Database size={16} /> Données
           </button>
         </div>
 
@@ -297,10 +430,10 @@ export default function Settings() {
               <div className="subscription-card">
                 <div className="subscription-header">
                   <div>
-                    <h4>Plan {settings.plan}</h4>
+                    <h4>Plan {getPlanName(settings.plan)}</h4>
                     <p>Renouvellement le {new Date(settings.nextBillingDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                   </div>
-                  <div className="plan-badge">{settings.plan}</div>
+                  <div className="plan-badge">{getPlanName(settings.plan)}</div>
                 </div>
 
                 <div className="usage-stats">
@@ -332,20 +465,258 @@ export default function Settings() {
                 </div>
 
                 <div className="subscription-actions">
-                  <button className="btn-secondary">Modifier l'abonnement</button>
-                  <button className="btn-secondary">Historique de facturation</button>
+                  <button className="btn-secondary" onClick={() => setShowPlanModal(true)}>Modifier l'abonnement</button>
+                  <button className="btn-secondary" onClick={handleViewBillingHistory}>Historique de facturation</button>
                 </div>
               </div>
 
               <div className="info-box">
                 <p><strong>Besoin d'augmenter vos limites ?</strong></p>
                 <p>Contactez notre équipe commerciale pour un plan Enterprise sur mesure.</p>
-                <button className="btn-primary">Contacter le support</button>
+                <button className="btn-primary" onClick={handleContactSupport}>Contacter le support</button>
+              </div>
+            </div>
+          )}
+
+          {/* DATA TAB */}
+          {activeTab === 'data' && (
+            <div className="settings-section">
+              <h3>Gestion des données</h3>
+              
+              <div style={{
+                background: 'rgba(56, 189, 248, 0.05)',
+                border: '1px solid rgba(56, 189, 248, 0.2)',
+                borderRadius: '12px',
+                padding: '20px',
+                marginBottom: '24px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                  <Database size={20} style={{ color: 'var(--accent)' }} />
+                  <h4 style={{ margin: 0 }}>Sessions enregistrées</h4>
+                </div>
+                <p style={{ color: 'var(--muted)', marginBottom: '16px' }}>
+                  Vous avez actuellement <strong style={{ color: 'var(--accent)' }}>{userSessionsCount}</strong> session(s) enregistrée(s) sur ce compte.
+                </p>
+                <div style={{ fontSize: '13px', color: 'var(--muted)' }}>
+                  Info : Les sessions sont liées à votre compte utilisateur. Elles ne sont pas partagées avec d'autres utilisateurs.
+                </div>
+              </div>
+
+              {/* Anciennes données détectées */}
+              {legacyData?.hasAny && (
+                <div style={{
+                  background: 'rgba(251, 191, 36, 0.05)',
+                  border: '1px solid rgba(251, 191, 36, 0.3)',
+                  borderRadius: '12px',
+                  padding: '20px',
+                  marginBottom: '24px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                    <Database size={20} style={{ color: '#fbbf24' }} />
+                    <h4 style={{ margin: 0, color: '#fbbf24' }}>Anciennes données détectées</h4>
+                  </div>
+                  <p style={{ color: 'var(--muted)', marginBottom: '16px' }}>
+                    Des données créées avant le système d'isolation des utilisateurs ont été détectées :
+                  </p>
+                  <ul style={{ color: 'var(--muted)', fontSize: '14px', marginBottom: '16px', marginLeft: '20px' }}>
+                    {legacyData.hasTags && <li>Tags personnalisés</li>}
+                    {legacyData.hasTemplates && <li>Templates personnalisés</li>}
+                    {legacyData.hasSettings && <li>Paramètres</li>}
+                    {legacyData.hasStats && <li>Statistiques</li>}
+                  </ul>
+                  <p style={{ color: 'var(--muted)', fontSize: '13px', marginBottom: '16px' }}>
+                    Ces données peuvent vous appartenir. Vous pouvez les récupérer et les associer à votre compte, ou les supprimer.
+                  </p>
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <button 
+                      onClick={handleMigrateLegacyData}
+                      style={{
+                        padding: '10px 20px',
+                        background: '#fbbf24',
+                        color: '#1f2937',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: '0.2s'
+                      }}
+                      onMouseEnter={(e) => e.target.style.background = '#f59e0b'}
+                      onMouseLeave={(e) => e.target.style.background = '#fbbf24'}
+                    >
+                      Récupérer ces données
+                    </button>
+                    <button 
+                      onClick={handleDeleteLegacyData}
+                      style={{
+                        padding: '10px 20px',
+                        background: 'transparent',
+                        color: '#ef4444',
+                        border: '1px solid #ef4444',
+                        borderRadius: '8px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: '0.2s'
+                      }}
+                      onMouseEnter={(e) => e.target.style.background = 'rgba(239, 68, 68, 0.1)'}
+                      onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                    >
+                      Supprimer
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Sessions orphelines */}
+              {getOrphanSessionsCount() > 0 && (
+                <div style={{
+                  background: 'rgba(251, 191, 36, 0.05)',
+                  border: '1px solid rgba(251, 191, 36, 0.3)',
+                  borderRadius: '12px',
+                  padding: '20px',
+                  marginBottom: '24px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                    <Database size={20} style={{ color: '#fbbf24' }} />
+                    <h4 style={{ margin: 0, color: '#fbbf24' }}>Sessions orphelines détectées</h4>
+                  </div>
+                  <p style={{ color: 'var(--muted)', marginBottom: '16px' }}>
+                    Vous avez <strong style={{ color: '#fbbf24' }}>{getOrphanSessionsCount()}</strong> session(s) sans propriétaire (créées avant le système d'isolation des utilisateurs).
+                  </p>
+                  <p style={{ color: 'var(--muted)', fontSize: '13px', marginBottom: '16px' }}>
+                    Ces sessions peuvent appartenir à un autre compte ou être des données de test. Il est recommandé de les supprimer pour éviter toute confusion.
+                  </p>
+                  <button 
+                    onClick={handleCleanOrphanSessions}
+                    style={{
+                      padding: '10px 20px',
+                      background: '#fbbf24',
+                      color: '#1f2937',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: '0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.background = '#f59e0b'}
+                    onMouseLeave={(e) => e.target.style.background = '#fbbf24'}
+                  >
+                    Nettoyer les sessions orphelines
+                  </button>
+                </div>
+              )}
+
+              <div style={{
+                background: 'rgba(239, 68, 68, 0.05)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                borderRadius: '12px',
+                padding: '20px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                  <Trash2 size={20} style={{ color: '#ef4444' }} />
+                  <h4 style={{ margin: 0, color: '#ef4444' }}>Zone de danger</h4>
+                </div>
+                <p style={{ color: 'var(--muted)', marginBottom: '16px' }}>
+                  Supprimez toutes vos sessions de manière irréversible. Cette action ne peut pas être annulée.
+                </p>
+                <button 
+                  onClick={handleClearAiReports}
+                  style={{
+                    padding: '10px 20px',
+                    background: 'transparent',
+                    color: '#ef4444',
+                    border: '1px solid rgba(239, 68, 68, 0.6)',
+                    borderRadius: '8px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: '0.2s',
+                    marginRight: '12px'
+                  }}
+                  onMouseEnter={(e) => e.target.style.background = 'rgba(239, 68, 68, 0.1)'}
+                  onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                >
+                  Purger les rapports IA
+                </button>
+                <button 
+                  onClick={handleClearUserData}
+                  style={{
+                    padding: '10px 20px',
+                    background: '#ef4444',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: '0.2s'
+                  }}
+                  onMouseEnter={(e) => e.target.style.background = '#dc2626'}
+                  onMouseLeave={(e) => e.target.style.background = '#ef4444'}
+                >
+                  Supprimer toutes mes sessions
+                </button>
               </div>
             </div>
           )}
         </div>
       </div>
+
+      {/* PLAN CHANGE MODAL */}
+      {showPlanModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          backdropFilter: 'blur(4px)'
+        }} onClick={() => setShowPlanModal(false)}>
+          <div style={{
+            background: 'var(--panel)',
+            borderRadius: '16px',
+            padding: '32px',
+            maxWidth: '600px',
+            width: '90%',
+            border: '1px solid var(--border)',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
+          }} onClick={(e) => e.stopPropagation()}>
+            <h2 style={{ marginBottom: '24px', color: 'var(--text)' }}>Changer de plan</h2>
+            <div style={{ display: 'grid', gap: '16px' }}>
+              {plans.map(plan => (
+                <div key={plan.id} style={{
+                  padding: '20px',
+                  border: settings.plan === plan.id ? '2px solid var(--accent)' : '1px solid var(--border)',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  background: settings.plan === plan.id ? 'rgba(56, 189, 248, 0.1)' : 'transparent',
+                  transition: '0.2s'
+                }} onClick={() => handleChangePlan(plan.id)}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <h3 style={{ color: 'var(--text)', marginBottom: '4px' }}>{plan.name}</h3>
+                      <p style={{ color: 'var(--muted)', fontSize: '13px', marginBottom: '8px' }}>{plan.desc}</p>
+                      <p style={{ color: 'var(--accent)', fontSize: '18px', fontWeight: '600' }}>{plan.price}</p>
+                    </div>
+                    {settings.plan === plan.id && (
+                      <div style={{ color: 'var(--accent)', fontWeight: '600' }}>Actuel</div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button style={{
+              marginTop: '24px',
+              width: '100%',
+              padding: '12px',
+              background: 'transparent',
+              border: '1px solid var(--border)',
+              borderRadius: '8px',
+              color: 'var(--text)',
+              cursor: 'pointer'
+            }} onClick={() => setShowPlanModal(false)}>Annuler</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

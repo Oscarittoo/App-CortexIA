@@ -59,7 +59,7 @@ export default function ActiveSession({ config, onEnd }) {
     try {
       console.log('=== DÉBUT INITIALISATION TRANSCRIPTION ===');
       console.log('Configuration:', config);
-      setMicStatus('🔄 Initialisation Web Speech API...');
+      setMicStatus('Initialisation Web Speech API...');
 
       // Vérifier support Web Speech API
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -67,7 +67,7 @@ export default function ActiveSession({ config, onEnd }) {
         throw new Error('Web Speech API non supportée par ce navigateur');
       }
 
-      console.log('✅ Web Speech API supportée');
+      console.log('Web Speech API supportée');
 
       // Créer l'instance de reconnaissance
       const recognition = new SpeechRecognition();
@@ -85,28 +85,28 @@ export default function ActiveSession({ config, onEnd }) {
       // === EVENT HANDLERS AVEC LOGS DÉTAILLÉS ===
 
       recognition.onstart = () => {
-        console.log('✅ [onstart] Recognition started successfully');
-        setMicStatus('✅ Écoute active - Parlez maintenant');
+        console.log('[onstart] Recognition started successfully');
+        setMicStatus('Écoute active - Parlez maintenant');
         setIsRecording(true);
       };
 
       recognition.onaudiostart = () => {
-        console.log('🎤 [onaudiostart] Audio capture active');
+        console.log('[onaudiostart] Audio capture active');
         setAudioDetected(true);
       };
 
       recognition.onsoundstart = () => {
-        console.log('🔊 [onsoundstart] Sound detected');
+        console.log('[onsoundstart] Sound detected');
       };
 
       recognition.onspeechstart = () => {
-        console.log('🗣️ [onspeechstart] Speech detected');
+        console.log('[onspeechstart] Speech detected');
         setSpeechDetected(true);
-        setMicStatus('🗣️ Parole détectée...');
+        setMicStatus('Parole détectée...');
       };
 
       recognition.onresult = (event) => {
-        console.log('📝 [onresult] Result received, results count:', event.results.length);
+        console.log('[onresult] Result received, results count:', event.results.length);
         
         const last = event.results.length - 1;
         const result = event.results[last];
@@ -140,8 +140,8 @@ export default function ActiveSession({ config, onEnd }) {
         });
 
         if (isFinal) {
-          console.log('✅ Résultat final ajouté à la transcription');
-          setMicStatus('✅ Transcription active');
+          console.log('Résultat final ajouté à la transcription');
+          setMicStatus('Transcription active');
           
           // Nettoyage final du texte avant ajout
           const cleanedText = text.trim()
@@ -169,26 +169,26 @@ export default function ActiveSession({ config, onEnd }) {
           analyzeTextForActionsAndDecisions(cleanedText);
         } else {
           const preview = text.length > 40 ? text.substring(0, 40) + '...' : text;
-          setMicStatus(`🎤 ${preview}`);
+          setMicStatus(`Transcription: ${preview}`);
         }
       };
 
       recognition.onspeechend = () => {
-        console.log('⏸️ [onspeechend] Speech ended');
+        console.log('[onspeechend] Speech ended');
         setSpeechDetected(false);
       };
 
       recognition.onsoundend = () => {
-        console.log('🔇 [onsoundend] Sound ended');
+        console.log('[onsoundend] Sound ended');
       };
 
       recognition.onaudioend = () => {
-        console.log('⏹️ [onaudioend] Audio capture ended');
+        console.log('[onaudioend] Audio capture ended');
         setAudioDetected(false);
       };
 
       recognition.onerror = (event) => {
-        console.error('❌ [onerror] Error occurred:', event.error);
+        console.error('[onerror] Error occurred:', event.error);
         console.error('Error details:', {
           error: event.error,
           message: event.message || 'No message'
@@ -197,72 +197,72 @@ export default function ActiveSession({ config, onEnd }) {
         let errorMessage = '';
         switch (event.error) {
           case 'no-speech':
-            errorMessage = '⚠️ Aucune parole détectée - parlez plus fort';
+            errorMessage = 'Aucune parole détectée - parlez plus fort';
             console.warn('Conseil: Assurez-vous que le microphone fonctionne et que vous parlez clairement');
             break;
           case 'audio-capture':
-            errorMessage = '❌ Impossible de capturer l\'audio';
+            errorMessage = 'Impossible de capturer l\'audio';
             console.error('Le microphone est peut-être utilisé par une autre application');
             break;
           case 'not-allowed':
-            errorMessage = '❌ Permission microphone refusée';
+            errorMessage = 'Permission microphone refusée';
             console.error('Autorisez l\'accès au microphone dans les paramètres du navigateur');
-            alert('❌ Accès au microphone refusé. Veuillez autoriser l\'accès dans les paramètres de votre navigateur.');
+            alert('Accès au microphone refusé. Veuillez autoriser l\'accès dans les paramètres de votre navigateur.');
             break;
           case 'network':
-            errorMessage = '❌ Erreur réseau';
+            errorMessage = 'Erreur réseau';
             console.error('Vérifiez votre connexion internet');
             break;
           case 'aborted':
-            errorMessage = '⚠️ Reconnaissance interrompue';
+            errorMessage = 'Reconnaissance interrompue';
             break;
           default:
-            errorMessage = `❌ Erreur: ${event.error}`;
+            errorMessage = `Erreur: ${event.error}`;
         }
         
         setMicStatus(errorMessage);
       };
 
       recognition.onend = () => {
-        console.log('🔄 [onend] Recognition ended');
+        console.log('[onend] Recognition ended');
         
         if (isRecording && !isPaused && restartCountRef.current < 50) {
-          console.log(`🔄 Auto-restart (tentative ${restartCountRef.current + 1}/50)`);
+          console.log(`Auto-restart (tentative ${restartCountRef.current + 1}/50)`);
           restartCountRef.current += 1;
           
           setTimeout(() => {
             try {
               recognition.start();
-              console.log('✅ Recognition restarted');
+              console.log('Recognition restarted');
             } catch (error) {
-              console.error('❌ Restart failed:', error);
-              setMicStatus('❌ Erreur redémarrage reconnaissance');
+              console.error('Restart failed:', error);
+              setMicStatus('Erreur redémarrage reconnaissance');
             }
           }, 100);
         } else if (restartCountRef.current >= 50) {
-          console.warn('⚠️ Limite de redémarrage atteinte (50)');
-          setMicStatus('⚠️ Limite de redémarrage atteinte');
+          console.warn('Limite de redémarrage atteinte (50)');
+          setMicStatus('Limite de redémarrage atteinte');
         }
       };
 
       // Démarrer la reconnaissance
-      console.log('🚀 Tentative de démarrage...');
+      console.log('Tentative de démarrage...');
       recognitionRef.current = recognition;
       recognition.start();
       
       console.log('=== INITIALISATION TERMINÉE ===');
-      setMicStatus('🔄 Démarrage en cours...');
+      setMicStatus('Démarrage en cours...');
 
     } catch (error) {
-      console.error('❌ ERREUR FATALE:', error);
+      console.error('ERREUR FATALE:', error);
       console.error('Stack trace:', error.stack);
-      setMicStatus('❌ Erreur: ' + error.message);
-      alert('❌ Erreur d\'initialisation: ' + error.message);
+      setMicStatus('Erreur: ' + error.message);
+      alert('Erreur d\'initialisation: ' + error.message);
     }
   };
 
   const stopRecording = () => {
-    console.log('🛑 Arrêt de la reconnaissance');
+    console.log('Arrêt de la reconnaissance');
     if (recognitionRef.current) {
       recognitionRef.current.stop();
       recognitionRef.current = null;
@@ -274,26 +274,26 @@ export default function ActiveSession({ config, onEnd }) {
 
   const handlePauseResume = () => {
     if (isPaused) {
-      console.log('▶️ Reprise de la session');
+      console.log('Reprise de la session');
       if (recognitionRef.current) {
         recognitionRef.current.start();
       }
       setTranscript(prev => [...prev, {
         id: Date.now(),
         timestamp: Date.now(),
-        text: '▶ Session reprise',
+        text: 'Session reprise',
         speaker: 'Système',
         isSystem: true
       }]);
     } else {
-      console.log('⏸️ Pause de la session');
+      console.log('Pause de la session');
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
       setTranscript(prev => [...prev, {
         id: Date.now(),
         timestamp: Date.now(),
-        text: '⏸ Session en pause',
+        text: 'Session en pause',
         speaker: 'Système',
         isSystem: true
       }]);
@@ -388,7 +388,7 @@ export default function ActiveSession({ config, onEnd }) {
   };
 
   const handleStop = () => {
-    if (confirm('🛑 Voulez-vous vraiment terminer cette session ?')) {
+    if (confirm('Voulez-vous vraiment terminer cette session ?')) {
       stopRecording();
       // Ajouter les actions et décisions détectées à la session
       const enhancedData = {
@@ -401,12 +401,12 @@ export default function ActiveSession({ config, onEnd }) {
   };
 
   const handleMarkMoment = () => {
-    const note = prompt('📌 Note pour ce moment important :');
+    const note = prompt('Note pour ce moment important :');
     if (note) {
       setTranscript(prev => [...prev, {
         id: Date.now(),
         timestamp: Date.now(),
-        text: `📌 ${note}`,
+        text: `${note}`,
         speaker: 'Système',
         marked: true
       }]);
@@ -662,7 +662,7 @@ export default function ActiveSession({ config, onEnd }) {
             margin: '0 auto 18px auto',
             textAlign: 'center',
           }}>
-            <b>⚠️ La transcription vocale ne fonctionne pas dans l'application installée.</b><br />
+            <b>La transcription vocale ne fonctionne pas dans l'application installée.</b><br />
             <span style={{ fontSize: '14px' }}>
               Veuillez utiliser la version navigateur (Chrome/Edge/Brave) pour profiter de la transcription en temps réel.<br />
               <span style={{ color: '#b91c1c', fontWeight: 500 }}>Limitation technique Electron/Web Speech API</span>
@@ -673,7 +673,7 @@ export default function ActiveSession({ config, onEnd }) {
       <div className="transcript-container">
         <div className="transcript-stats">
           {transcript.filter(t => t.isFinal).length} segments • 
-          📌 {transcript.filter(t => t.marked).length} moments marqués
+          Moments marqués: {transcript.filter(t => t.marked).length}
         </div>
         
         {transcript.length === 0 && (
@@ -681,7 +681,7 @@ export default function ActiveSession({ config, onEnd }) {
             <div style={{ marginBottom: '16px' }}>
               <Mic size={48} style={{ color: audioDetected ? '#10b981' : '#94a3b8' }} />
             </div>
-            <p>🎤 En attente de parole...</p>
+            <p>En attente de parole...</p>
             <small>Commencez à parler pour voir la transcription apparaître</small>
             <br />
             <small style={{ marginTop: '12px', display: 'block', color: '#666' }}>
@@ -697,7 +697,7 @@ export default function ActiveSession({ config, onEnd }) {
                 color: '#856404'
               }}>
                 <AlertCircle size={16} style={{ marginBottom: '4px' }} />
-                <div>⚠️ Aucun audio détecté</div>
+                <div>Aucun audio détecté</div>
                 <div style={{ marginTop: '4px', fontSize: '12px' }}>
                   Vérifiez que votre microphone fonctionne et que les permissions sont accordées
                 </div>

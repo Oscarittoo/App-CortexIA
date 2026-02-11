@@ -7,6 +7,26 @@ import { supabase } from './supabaseClient';
 class AuthService {
   constructor() {
     this.currentUser = null;
+    this.SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 heures en millisecondes
+    this.LAST_ACTIVITY_KEY = 'meetizy_last_activity';
+  }
+
+  /**
+   * Met à jour le timestamp de dernière activité
+   */
+  updateLastActivity() {
+    localStorage.setItem(this.LAST_ACTIVITY_KEY, Date.now().toString());
+  }
+
+  /**
+   * Vérifie si la session a expiré
+   */
+  isSessionExpired() {
+    const lastActivity = localStorage.getItem(this.LAST_ACTIVITY_KEY);
+    if (!lastActivity) return false;
+    
+    const elapsed = Date.now() - parseInt(lastActivity);
+    return elapsed > this.SESSION_TIMEOUT;
   }
 
   /**
@@ -34,6 +54,7 @@ class AuthService {
     };
 
     this.currentUser = userData;
+    this.updateLastActivity(); // Enregistrer l'activité lors du login
     await this.saveToClientDatabase({
       id: data.user.id,
       email: data.user.email,
@@ -49,6 +70,8 @@ class AuthService {
    * Crée un nouveau compte
    */
   async register(email, password, companyName, plan = 'free') {
+    console.log('Inscription d\'un nouveau compte:', email, 'Plan:', plan);
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -61,19 +84,25 @@ class AuthService {
     });
 
     if (error) {
+      console.error('Erreur lors de l\'inscription Auth:', error);
       throw error;
     }
 
+    console.log('Utilisateur créé dans Auth:', data.user?.email, 'ID:', data.user?.id);
+
     if (data.user) {
       try {
+        console.log('Tentative de sauvegarde dans la table clients...');
         await this.saveToClientDatabase({
           id: data.user.id,
           email: data.user.email,
           company_name: companyName,
           plan
         });
+        console.log('Utilisateur sauvegardé dans la table clients');
       } catch (e) {
-        console.warn('Insertion client différée (email confirmation active):', e?.message || e);
+        console.warn('Échec insertion dans table clients (confirmation email?):', e?.message || e);
+        console.warn('Utilisez le bouton "Synchroniser utilisateurs" dans AdminDashboard pour corriger');
       }
     }
 
@@ -95,6 +124,7 @@ class AuthService {
   async logout() {
     await supabase.auth.signOut();
     this.currentUser = null;
+    localStorage.removeItem(this.LAST_ACTIVITY_KEY); // Nettoyer le timestamp
   }
 
   /**
@@ -108,11 +138,22 @@ class AuthService {
    * Récupère l'utilisateur actuel
    */
   async getCurrentUser() {
+    // Vérifier si la session a expiré
+    if (this.isSessionExpired()) {
+      console.log('Session expirée après 24h d\'inactivité - Déconnexion automatique');
+      await this.logout();
+      return null;
+    }
+
     const { data, error } = await supabase.auth.getUser();
 
     if (error || !data?.user) {
+      localStorage.removeItem(this.LAST_ACTIVITY_KEY);
       return null;
     }
+
+    // Mettre à jour l'activité si l'utilisateur est toujours connecté
+    this.updateLastActivity();
 
     const client = await this.getClientById(data.user.id);
     const userData = {
@@ -168,13 +209,19 @@ class AuthService {
       last_updated: new Date().toISOString()
     };
 
-    const { error } = await supabase
+    console.log('Sauvegarde utilisateur dans BDD:', payload.email);
+
+    const { data, error } = await supabase
       .from('clients')
-      .upsert(payload, { onConflict: 'id' });
+      .upsert(payload, { onConflict: 'id', ignoreDuplicates: false });
 
     if (error) {
       console.error('Erreur lors de la sauvegarde dans la BD clients:', error);
+      throw error; // Throw error pour qu'elle soit attrapée en amont
     }
+
+    console.log('Utilisateur sauvegardé dans BDD:', payload.email);
+    return data;
   }
 
   /**
@@ -192,6 +239,71 @@ class AuthService {
     }
 
     return data || [];
+  }
+
+  /**
+   * Synchronise tous les utilisateurs Supabase Auth avec la table clients
+   * (Admin uniquement - nécessite Service Role Key configurée)
+   * 
+   * Note: Cette méthode nécessite que Supabase soit configuré avec une Service Role Key
+   * Si cela ne fonctionne pas, utilisez plutôt un trigger Supabase ou une edge function.
+   */
+  async syncAllUsersToClientDatabase() {
+    console.log('Synchronisation de tous les utilisateurs Auth vers la BD clients...');
+    
+    try {
+      // Vérifier si on a accès à l'API admin
+      // Note: Cela nécessite que le projet Supabase soit configuré correctement
+      const { data: { users }, error: authError } = await supabase.auth.admin.listUsers();
+      
+      if (authError) {
+        console.error('Erreur Admin API (probablement pas de Service Role Key):', authError);
+        // Fallback: au moins recharger les clients existants
+        return { success: false, error: 'Admin API non disponible' };
+      }
+
+      console.log(`Utilisateurs trouvés dans Auth: ${users?.length || 0}`);
+
+      // Récupérer les clients existants
+      const { data: existingClients } = await supabase
+        .from('clients')
+        .select('id, email');
+
+      const existingIds = new Set(existingClients?.map(c => c.id) || []);
+      
+      let created = 0;
+      let updated = 0;
+      let errors = 0;
+
+      // Synchroniser chaque utilisateur
+      for (const authUser of users) {
+        try {
+          const userData = {
+            id: authUser.id,
+            email: authUser.email,
+            company_name: authUser.user_metadata?.company_name || null,
+            plan: authUser.user_metadata?.plan || 'free'
+          };
+
+          await this.saveToClientDatabase(userData);
+          
+          if (existingIds.has(authUser.id)) {
+            updated++;
+          } else {
+            created++;
+          }
+        } catch (err) {
+          console.error(`Erreur sync utilisateur ${authUser.email}:`, err);
+          errors++;
+        }
+      }
+
+      console.log(`Synchronisation terminée: ${created} créés, ${updated} mis à jour, ${errors} erreurs`);
+      return { success: true, created, updated, errors };
+    } catch (error) {
+      console.error('Erreur lors de la synchronisation complète:', error);
+      return { success: false, error: error.message };
+    }
   }
 
   /**

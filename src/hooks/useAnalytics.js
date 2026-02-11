@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays } from 'date-fns';
+import storageService from '../utils/storage';
 
 export const useSearchSessions = (sessions, query, filters = {}) => {
   const [results, setResults] = useState([]);
@@ -53,7 +54,7 @@ export const useSearchSessions = (sessions, query, filters = {}) => {
       }
 
       if (filters.minDuration) {
-        matches = matches && (session.duration || 0 >= filters.minDuration * 60);
+        matches = matches && ((session.duration || 0) >= filters.minDuration * 60);
       }
 
       if (filters.hasActions !== undefined) {
@@ -79,11 +80,14 @@ export const useTagManager = (initialTags = []) => {
   const [tagColors, setTagColors] = useState({});
 
   useEffect(() => {
-    const savedTags = localStorage.getItem('cortexai_tags');
+    const savedTags = storageService.getAllTags();
     if (savedTags) {
-      const parsed = JSON.parse(savedTags);
-      setTags(parsed.tags || []);
-      setTagColors(parsed.colors || {});
+      setTags(savedTags.map(tag => tag.name));
+      const colors = savedTags.reduce((acc, tag) => {
+        acc[tag.name] = tag.color;
+        return acc;
+      }, {});
+      setTagColors(colors);
     }
   }, []);
 
@@ -111,10 +115,12 @@ export const useTagManager = (initialTags = []) => {
   };
 
   const saveTags = (tagsData, colorsData) => {
-    localStorage.setItem('cortexai_tags', JSON.stringify({
-      tags: tagsData,
-      colors: colorsData,
+    const nextTags = tagsData.map(tag => ({
+      id: tag.toLowerCase().replace(/\s+/g, '-'),
+      name: tag,
+      color: colorsData[tag] || '#64748b'
     }));
+    nextTags.forEach(tag => storageService.saveTag(tag));
   };
 
   return {

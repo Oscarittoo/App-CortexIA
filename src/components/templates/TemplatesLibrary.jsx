@@ -1,10 +1,12 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { Plus, Layout, X, Save, Trash2, Edit } from 'lucide-react';
 import toast from '../Toast';
+import storageService from '../../utils/storage';
 
 export default function TemplatesLibrary() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [customTemplates, setCustomTemplates] = useState([]);
   const [newTemplate, setNewTemplate] = useState({
     name: '',
     description: '',
@@ -14,25 +16,22 @@ export default function TemplatesLibrary() {
 
   // Charger le template sélectionné au montage
   useEffect(() => {
-    const savedTemplate = localStorage.getItem('selectedTemplate');
+    const savedTemplate = storageService.getSelectedTemplate();
     if (savedTemplate) {
-      try {
-        setSelectedTemplate(JSON.parse(savedTemplate));
-      } catch (error) {
-        console.error('Erreur chargement template:', error);
-      }
+      setSelectedTemplate(savedTemplate);
     }
+    setCustomTemplates(storageService.getCustomTemplates());
   }, []);
 
   const handleUseTemplate = (template) => {
     // Toggle : si le template est déjà sélectionné, le désélectionner
     if (selectedTemplate?.id === template.id) {
-      localStorage.removeItem('selectedTemplate');
+      storageService.clearSelectedTemplate();
       toast.info('Template désélectionné');
       setSelectedTemplate(null);
     } else {
-      // Sauvegarder le template sélectionné dans localStorage
-      localStorage.setItem('selectedTemplate', JSON.stringify(template));
+      // Sauvegarder le template sélectionné pour l'utilisateur
+      storageService.setSelectedTemplate(template);
       toast.success(`Template "${template.name}" sélectionné ! Il sera appliqué à votre prochaine session.`);
       setSelectedTemplate(template);
     }
@@ -50,16 +49,16 @@ export default function TemplatesLibrary() {
     }
 
     // Sauvegarder le nouveau template
-    const customTemplates = JSON.parse(localStorage.getItem('customTemplates') || '[]');
     const template = {
       ...newTemplate,
       id: `custom-${Date.now()}`,
       sections: newTemplate.sections.filter(s => s.trim()),
       color: 'blue'
     };
-    
-    customTemplates.push(template);
-    localStorage.setItem('customTemplates', JSON.stringify(customTemplates));
+
+    const nextTemplates = [...customTemplates, template];
+    storageService.saveCustomTemplates(nextTemplates);
+    setCustomTemplates(nextTemplates);
     
     toast.success('Template créé avec succès !');
     setShowCreateModal(false);
@@ -104,7 +103,7 @@ export default function TemplatesLibrary() {
       {
         id: 'one-on-one',
         name: 'Entretien 1:1',
-        description: ' tructure pour les points hebdomadaires manager-collaborateur.',
+        description: 'Structure pour les points hebdomadaires manager-collaborateur.',
         sections: ['Succès de la semaine', 'Challenges', 'Feedback', 'Plan de développement'],
         category: 'RH',
         color: 'green'
@@ -125,7 +124,7 @@ export default function TemplatesLibrary() {
         category: 'Vente',
         color: 'pink'
       },
-  ];
+  ].concat(customTemplates);
 
   return (
     <div className="screen templates-library">
@@ -203,7 +202,7 @@ export default function TemplatesLibrary() {
                 className={`btn-outline-sm ${selectedTemplate?.id === template.id ? 'selected' : ''}`}
                 onClick={() => handleUseTemplate(template)}
               >
-                {selectedTemplate?.id === template.id ? '✓ Sélectionné' : 'Utiliser ce modèle'}
+                {selectedTemplate?.id === template.id ? 'Sélectionné' : 'Utiliser ce modèle'}
               </button>
             </div>
           </div>

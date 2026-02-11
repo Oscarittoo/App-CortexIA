@@ -92,7 +92,7 @@ class ErrorBoundary extends React.Component {
               textAlign: 'center',
               marginBottom: '1rem',
             }}>
-              ⚠️
+              
             </div>
             
             <h2 style={{

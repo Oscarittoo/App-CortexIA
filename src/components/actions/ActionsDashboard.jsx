@@ -13,6 +13,7 @@ export default function ActionsDashboard() {
 
   const loadActions = () => {
     const sessions = storageService.getAllSessions() || [];
+    const actionStates = storageService.getActionStates();
     const allActions = [];
 
     sessions.forEach(session => {
@@ -30,29 +31,23 @@ export default function ActionsDashboard() {
             sessionId: session.id,
             sessionTitle: session.title || 'Session sans titre',
             date: session.createdAt,
-            status: 'pending', // Default status as we don't store action status in session yet
+            status: actionStates[`${session.id}-${index}`]?.status || 'pending',
             assignee: 'Moi'
           });
         });
       }
     });
 
-    // Add some mock actions if empty to show the UI
-    if (allActions.length === 0) {
-      allActions.push(
-        { id: 'mock-1', text: 'Envoyer le rapport financier au client', sessionTitle: 'Revue Trimestrielle', date: Date.now() - 86400000, status: 'pending', assignee: 'Moi' },
-        { id: 'mock-2', text: 'Mettre à jour la documentation API', sessionTitle: 'Sync Tech Team', date: Date.now() - 172800000, status: 'completed', assignee: 'Thomas' },
-        { id: 'mock-3', text: 'Planifier la réunion de lancement', sessionTitle: 'Projet Alpha', date: Date.now(), status: 'pending', assignee: 'Sarah' }
-      );
-    }
-
     setActions(allActions.sort((a, b) => b.date - a.date));
   };
 
   const toggleActionStatus = (id) => {
-    setActions(actions.map(a => 
-      a.id === id ? { ...a, status: a.status === 'completed' ? 'pending' : 'completed' } : a
-    ));
+    setActions(actions.map(action => {
+      if (action.id !== id) return action;
+      const nextStatus = action.status === 'completed' ? 'pending' : 'completed';
+      storageService.setActionState(id, { status: nextStatus, updatedAt: Date.now() });
+      return { ...action, status: nextStatus };
+    }));
   };
 
   const filteredActions = actions.filter(action => {
@@ -133,9 +128,6 @@ export default function ActionsDashboard() {
                 </div>
               </div>
 
-              <button className="btn-icon">
-                <ArrowRight size={16} />
-              </button>
             </div>
           ))
         ) : (

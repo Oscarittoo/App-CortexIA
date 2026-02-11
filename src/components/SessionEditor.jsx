@@ -87,7 +87,7 @@ export default function SessionEditor({ session, onSave, onClose }) {
       <div className="editor-modal">
         <div className="editor-header">
           <h2>Éditer la Session</h2>
-          <button className="btn-close" onClick={onClose}>✕</button>
+          <button className="btn-close" onClick={onClose}>Fermer</button>
         </div>
 
         <div className="editor-toolbar">
@@ -168,7 +168,7 @@ export default function SessionEditor({ session, onSave, onClose }) {
                         className="btn-primary btn-sm"
                         onClick={() => setEditingLineId(null)}
                       >
-                        ✓ Valider
+                        Valider
                       </button>
                       <button
                         className="btn-secondary btn-sm"
@@ -183,7 +183,7 @@ export default function SessionEditor({ session, onSave, onClose }) {
                     <p>{line.text}</p>
                     <div className="line-actions">
                       <button onClick={() => setEditingLineId(line.id)}>Éditer</button>
-                      <button onClick={() => handleDeleteLine(line.id)}>🗑️</button>
+                      <button onClick={() => handleDeleteLine(line.id)}>Supprimer</button>
                     </div>
                   </div>
                 )}
@@ -197,7 +197,7 @@ export default function SessionEditor({ session, onSave, onClose }) {
             Annuler
           </button>
           <button className="btn-primary" onClick={handleSave}>
-            💾 Sauvegarder
+            Sauvegarder
           </button>
         </div>
       </div>

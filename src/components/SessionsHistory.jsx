@@ -45,7 +45,10 @@ export default function SessionsHistory({ onViewSession, onNewSession }) {
       const query = searchQuery.toLowerCase();
       result = result.filter(session =>
         session.title?.toLowerCase().includes(query) ||
-        session.transcript?.some(t => t.text.toLowerCase().includes(query))
+        session.transcript?.some(t => {
+          const text = typeof t === 'string' ? t : t?.text;
+          return text?.toLowerCase().includes(query);
+        })
       );
     }
 
@@ -332,14 +335,14 @@ export default function SessionsHistory({ onViewSession, onNewSession }) {
               onClick={() => setViewMode('grid')}
               title="Vue grille"
             >
-              ⊞
+              Grille
             </button>
             <button
               className={viewMode === 'list' ? 'active' : ''}
               onClick={() => setViewMode('list')}
               title="Vue liste"
             >
-              ☰
+              Liste
             </button>
           </div>
         </div>

@@ -5,9 +5,11 @@
 
 class LLMService {
   constructor() {
+    this.useProxy = Boolean(import.meta.env?.DEV);
     this.openaiKey = import.meta.env?.VITE_OPENAI_API_KEY;
-    this.claudeKey = import.meta.env?.VITE_ANTHROPIC_API_KEY;
+    this.claudeKey = this.useProxy ? null : import.meta.env?.VITE_ANTHROPIC_API_KEY;
     this.provider = import.meta.env?.VITE_LLM_PROVIDER || 'openai'; // 'openai' ou 'claude'
+    this.claudeModel = import.meta.env?.VITE_ANTHROPIC_MODEL || 'claude-3-5-sonnet-latest';
   }
 
   /**
@@ -16,8 +18,17 @@ class LLMService {
   async generateReport(transcript, sessionInfo) {
     const { language, title, duration } = sessionInfo;
 
+    const normalizedTranscript = (transcript || [])
+      .map(line => {
+        if (typeof line === 'string') {
+          return { text: line, speaker: 'Locuteur', isSystem: false };
+        }
+        return line;
+      })
+      .filter(line => line && typeof line.text === 'string');
+
     // Préparer le texte de la transcription avec nettoyage avancé
-    const transcriptText = transcript
+    const transcriptText = normalizedTranscript
       .filter(line => line.text && line.text.trim() && !line.isSystem)
       .map(line => {
         // Nettoyer chaque ligne de transcription
@@ -33,9 +44,12 @@ class LLMService {
       .join('\n');
 
     // Vérifier si une API est configurée
-    if (!this.openaiKey || this.openaiKey === 'your_openai_api_key_here') {
-      console.warn('⚠️ API LLM non configurée, génération simulée');
-      return this.generateMockReport(transcript, sessionInfo);
+    const hasOpenAi = this.openaiKey && this.openaiKey !== 'your_openai_api_key_here';
+    const hasClaude = this.useProxy || (this.claudeKey && this.claudeKey !== 'your_anthropic_api_key_here');
+
+    if ((this.provider === 'openai' && !hasOpenAi) || (this.provider === 'claude' && !hasClaude)) {
+      console.warn('API LLM non configurée, génération simulée');
+      return this.generateMockReport(normalizedTranscript, sessionInfo);
     }
 
     try {
@@ -53,13 +67,18 @@ class LLMService {
         summary,
         actions,
         decisions,
-        email
+        email,
+        meta: {
+          provider: this.provider,
+          model: this.provider === 'openai' ? 'gpt-4o' : this.claudeModel,
+          source: 'llm'
+        }
       };
 
     } catch (error) {
-      console.error('❌ Erreur lors de la génération du rapport:', error);
+      console.error('Erreur lors de la génération du rapport:', error);
       // Fallback sur génération simulée
-      return this.generateMockReport(transcript, sessionInfo);
+      return this.generateMockReport(normalizedTranscript, sessionInfo);
     }
   }
 
@@ -67,128 +86,209 @@ class LLMService {
    * Génère un résumé structuré
    */
   async generateSummary(transcriptText, language) {
-    const prompt = language === 'fr' 
-      ? `Tu es un expert en synthèse de réunions. Analyse cette transcription et génère un résumé PROFESSIONNEL, COHÉRENT et SANS RÉPÉTITIONS.
+    if (this.isLowQualityTranscript(transcriptText, language)) {
+      return language === 'fr'
+        ? `**Contexte**\n\nTranscription trop courte ou peu informative pour établir un contexte fiable.\n\n**Points clés**\n- Non mentionné\n- Non mentionné\n- Non mentionné\n\n**Mots-clés techniques**\n- Aucun mot-clé technique explicite\n\n**Conclusion**\n\nTranscription insuffisante pour produire une synthèse professionnelle.`
+        : `**Context**\n\nTranscript too short or not informative enough to build a reliable context.\n\n**Key Points**\n- Not mentioned\n- Not mentioned\n- Not mentioned\n\n**Technical Keywords**\n- No explicit technical keyword\n\n**Conclusion**\n\nTranscript insufficient to produce a professional summary.`;
+    }
+    const prompt = language === 'fr'
+      ? `Tu es un expert en compte-rendu. Réponds UNIQUEMENT avec un JSON valide.
 
-🎯 OBJECTIF:
-Créer un résumé qui reflète fidèlement le contenu de la réunion, en identifiant les vrais sujets discutés (pas juste les mots fréquents).
+RÈGLES STRICTES:
+- N'invente rien. Utilise uniquement ce qui est dans la transcription.
+- Si une info manque, mets "Non mentionné".
+- Pas de phrases vagues (ex: "discussion centrée sur").
+- Mots-clés techniques = technologies, standards, produits, noms propres métiers.
+- Évite les mots génériques (mois, faut, application, réunion, équipe, projet, données si non qualifiées).
 
-📋 ÉTAPE 1 - ANALYSE DU CONTENU:
-1. Identifie QUI parle (combien de personnes, rôles si mentionnés)
-2. Repère les SUJETS RÉELS abordés (projets, problèmes, objectifs)
-3. Extrais 4-6 MOTS-CLÉS TECHNIQUES UNIQUES : noms propres, technologies, termes métier, concepts spécifiques
-   ⚠️ JAMAIS : "réunion", "présentation", "entreprise", "équipe", "discussion", "projet", "application"
-   ✅ EXEMPLES : "API", "PostgreSQL", "Dashboard", "Authentification", "Vercel", "Supabase"
-4. Note les décisions, actions, dates, chiffres importants
-
-✍️ ÉTAPE 2 - RÉDACTION DU RÉSUMÉ:
-
-**Contexte** (2-3 phrases max)
-- Décris le contexte réel de la discussion
-- Utilise les vrais sujets et termes techniques identifiés
-- JAMAIS de formules génériques comme "Cette réunion a porté sur..."
-- Évite absolument de répéter les mêmes mots
-
-**Points Clés** (3-4 points avec -)
-- Chaque point doit être unique et spécifique
-- Utilise les termes exacts de la transcription
-- Mentionne les décisions concrètes
-- PAS de répétitions entre les points
-
-**Conclusion** (1 phrase)
-- Prochaines étapes ou orientations
-
-⚠️ RÈGLES STRICTES:
-- MAXIMUM 120 mots
-- PAS de répétitions (varie le vocabulaire)
-- PAS de mots génériques (réunion, présentation, entreprise)
-- PAS de formules creuses
-- Ton professionnel, phrases fluides
-- Ignore les mots parasites (euh, donc, alors, voilà)
+JSON ATTENDU:
+{
+  "context": "1-2 phrases sur le contexte réel",
+  "key_points": ["point 1", "point 2", "point 3"],
+  "technical_keywords": ["mot-clé 1", "mot-clé 2"],
+  "conclusion": "1 phrase de synthèse des suites / orientations"
+}
 
 TRANSCRIPTION:
 ${transcriptText}
+`
+      : `You are a meeting report expert. Respond ONLY with valid JSON.
 
-Réponds directement avec le résumé en Markdown (max 120 mots).`
-      : `You are a meeting synthesis expert. Analyze this transcript and generate a PROFESSIONAL, COHERENT summary WITHOUT REPETITIONS.
+STRICT RULES:
+- Do NOT invent. Use only what appears in the transcript.
+- If info is missing, write "Not mentioned".
+- Avoid vague phrasing.
+- Technical keywords = technologies, standards, product names, domain proper nouns.
+- Avoid generic words (month, must, application, meeting, team, project).
 
-🎯 OBJECTIVE:
-Create a summary that faithfully reflects the meeting content, identifying real discussed topics (not just frequent words).
-
-📋 STEP 1 - CONTENT ANALYSIS:
-1. Identify WHO speaks (how many people, roles if mentioned)
-2. Identify REAL topics discussed (projects, problems, objectives)
-3. Extract 4-6 UNIQUE TECHNICAL KEYWORDS: proper nouns, technologies, business terms, specific concepts
-   ⚠️ NEVER: "meeting", "presentation", "company", "team", "discussion", "project", "application"
-   ✅ EXAMPLES: "API", "PostgreSQL", "Dashboard", "Authentication", "Vercel", "Supabase"
-4. Note decisions, actions, dates, important numbers
-
-✍️ STEP 2 - WRITING THE SUMMARY:
-
-**Context** (2-3 sentences max)
-- Describe the real context of the discussion
-- Use real topics and technical terms identified
-- NEVER generic formulas like "This meeting focused on..."
-- Absolutely avoid repeating the same words
-
-**Key Points** (3-4 points with -)
-- Each point must be unique and specific
-- Use exact terms from transcript
-- Mention concrete decisions
-- NO repetitions between points
-
-**Conclusion** (1 sentence)
-- Next steps or directions
-
-⚠️ STRICT RULES:
-- MAXIMUM 120 words
-- NO repetitions (vary vocabulary)
-- NO generic words (meeting, presentation, company)
-- NO hollow formulas
-- Professional tone, fluid sentences
-- Ignore filler words (uh, so, well, okay)
+EXPECTED JSON:
+{
+  "context": "1-2 sentences of real context",
+  "key_points": ["point 1", "point 2", "point 3"],
+  "technical_keywords": ["keyword 1", "keyword 2"],
+  "conclusion": "1 sentence of next steps / direction"
+}
 
 TRANSCRIPT:
 ${transcriptText}
+`;
 
-Respond directly with the summary in Markdown (max 120 words).`;
+    const raw = this.provider === 'openai'
+      ? await this.callOpenAI(prompt, true)
+      : await this.callClaude(prompt, true);
 
-    if (this.provider === 'openai') {
-      return await this.callOpenAI(prompt);
-    } else {
-      return await this.callClaude(prompt);
+    const cleaned = raw
+      .replace(/```json/gi, '')
+      .replace(/```/g, '')
+      .trim();
+
+    let parsed;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch (error) {
+      console.error('Erreur parsing résumé JSON:', error);
+      console.error('Résumé brut:', raw);
+      return raw;
     }
+
+    const context = this.normalizeSentence(parsed.context, language);
+    const keyPoints = this.normalizeList(parsed.key_points, 3, language);
+    const keywords = this.normalizeKeywords(parsed.technical_keywords, language);
+    const conclusion = this.normalizeSentence(parsed.conclusion, language);
+
+    const keywordsSection = keywords.length > 0
+      ? keywords.map(keyword => `- ${keyword}`).join('\n')
+      : language === 'fr'
+        ? '- Aucun mot-clé technique explicite'
+        : '- No explicit technical keyword';
+
+    return language === 'fr'
+      ? `**Contexte**\n\n${context}\n\n**Points clés**\n${keyPoints.map(point => `- ${point}`).join('\n')}\n\n**Mots-clés techniques**\n${keywordsSection}\n\n**Conclusion**\n\n${conclusion}`
+      : `**Context**\n\n${context}\n\n**Key Points**\n${keyPoints.map(point => `- ${point}`).join('\n')}\n\n**Technical Keywords**\n${keywordsSection}\n\n**Conclusion**\n\n${conclusion}`;
+  }
+
+  normalizeSentence(value, language) {
+    if (!value || typeof value !== 'string') {
+      return language === 'fr' ? 'Non mentionné' : 'Not mentioned';
+    }
+
+    const cleaned = value
+      .replace(/^[-•\s]+/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+
+    return cleaned || (language === 'fr' ? 'Non mentionné' : 'Not mentioned');
+  }
+
+  normalizeList(items, minItems, language) {
+    if (!Array.isArray(items)) {
+      return [this.normalizeSentence(items, language)];
+    }
+
+    const normalized = items
+      .map(item => this.normalizeSentence(item, language))
+      .filter(item => item && item !== (language === 'fr' ? 'Non mentionné' : 'Not mentioned'));
+
+    const fallback = language === 'fr' ? 'Non mentionné' : 'Not mentioned';
+
+    while (normalized.length < minItems) {
+      normalized.push(fallback);
+    }
+
+    return normalized.slice(0, Math.max(minItems, normalized.length));
+  }
+
+  normalizeKeywords(items, language) {
+    if (!Array.isArray(items)) {
+      items = typeof items === 'string' ? [items] : [];
+    }
+
+    const forbidden = new Set([
+      'mois', 'faut', 'doit', 'doivent', 'faire', 'fait', 'faits', 'faite', 'faites',
+      'application', 'réunion', 'réunions', 'équipe', 'projet', 'discussion', 'présentation',
+      'donnée', 'données', 'client', 'clients', 'objectif', 'objectifs', 'plan', 'plans'
+    ]);
+
+    const cleaned = items
+      .map(item => (typeof item === 'string' ? item.trim() : ''))
+      .filter(item => item.length > 0)
+      .filter(item => {
+        const lower = item.toLowerCase();
+        if (forbidden.has(lower)) return false;
+        if (lower.length < 3) return false;
+        const tokens = lower.split(/[\s,/;-]+/).filter(Boolean);
+        const meaningful = tokens.filter(token => token.length >= 4 && !forbidden.has(token));
+        return meaningful.length > 0 || /[A-Z]{2,}/.test(item);
+      })
+      .map(item => item.replace(/^[-•\s]+/g, '').trim());
+
+    const unique = [];
+    const seen = new Set();
+    cleaned.forEach(item => {
+      const key = item.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(item);
+      }
+    });
+
+    return unique.slice(0, 6);
+  }
+
+  isLowQualityTranscript(text, language) {
+    if (!text || typeof text !== 'string') return true;
+
+    const cleaned = text
+      .replace(/\[[^\]]+\]\s*/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+
+    if (cleaned.length < 120) return true;
+
+    const words = cleaned
+      .toLowerCase()
+      .match(/[a-zàâäéèêëïîôùûüÿæœç']{3,}/g) || [];
+
+    if (words.length < 40) return true;
+
+    const uniqueCount = new Set(words).size;
+    const uniqueRatio = uniqueCount / words.length;
+
+    if (uniqueRatio < 0.25) return true;
+
+    return false;
   }
 
   /**
    * Extrait les actions à réaliser
    */
   async extractActions(transcriptText, language) {
+    let response;
     const prompt = language === 'fr'
-      ? `Analyse cette transcription de réunion et extrais les actions concrètes mentionnées.
+      ? `Analyse cette transcription et EXTRAIS UNIQUEMENT les actions explicites.
 
-RÈGLES D'EXTRACTION:
-- Cherche les phrases avec "doit", "va", "faut", "action", "faire", "préparer", "organiser", "planifier"
-- Identifie qui est responsable (nom de personne ou équipe)
-- Détecte les échéances mentionnées (dates, "demain", "la semaine prochaine", etc.)
-- Évalue la priorité selon l'urgence exprimée
+RÈGLES STRICTES:
+- N'invente rien.
+- Une action = verbe d'action + objet clair.
+- Ne découpe pas une phrase en fragments.
+- Si aucune action explicite, retourne {"actions": []}.
 
 TRANSCRIPTION:
 ${transcriptText}
 
-Retourne un JSON avec la structure suivante (s'il n'y a aucune action, retourne un array vide []):
+JSON ATTENDU:
 {
   "actions": [
     {
-      "task": "Description claire de l'action",
-      "responsible": "Nom de la personne ou 'À définir'",
-      "deadline": "Date ou description temporelle ou 'À définir'",
-      "priority": "Haute" ou "Moyenne" ou "Basse"
+      "task": "Action claire",
+      "responsible": "Nom/équipe ou 'À définir'",
+      "deadline": "Date/repère temporel ou 'À définir'",
+      "priority": "Haute" | "Moyenne" | "Basse"
     }
   ]
 }
 
-Réponds UNIQUEMENT avec le JSON, sans texte additionnel.`
+Réponds UNIQUEMENT avec le JSON.`
       : `Analyze this meeting transcript and extract concrete action items.
 
 EXTRACTION RULES:
@@ -215,7 +315,7 @@ Return JSON with this structure (if no actions, return empty array []):
 Respond ONLY with JSON, no additional text.`;
 
     try {
-      const response = this.provider === 'openai'
+      response = this.provider === 'openai'
         ? await this.callOpenAI(prompt, true)
         : await this.callClaude(prompt, true);
 
@@ -237,36 +337,37 @@ Respond ONLY with JSON, no additional text.`;
    * Extrait les décisions prises
    */
   async extractDecisions(transcriptText, language) {
+    let response;
     const prompt = language === 'fr'
-      ? `Analyse cette transcription de réunion et extrais les décisions formelles prises.
+      ? `Analyse cette transcription et EXTRAIS UNIQUEMENT les décisions FORMELLES.
 
-RÈGLES D'EXTRACTION:
-- Cherche les phrases avec "décidé", "décision", "on part sur", "validé", "approuvé", "on choisit", "accord"
-- Évite les simples opinions ou suggestions
-- Catégorise l'impact de chaque décision
+RÈGLES STRICTES:
+- N'invente rien.
+- Une décision doit être actée/validée (pas une opinion).
+- Si aucune décision formelle, retourne {"decisions": []}.
 
 TRANSCRIPTION:
 ${transcriptText}
 
-CATÉGORies D'IMPACT:
-- Technique: Architecture, technologie, infrastructure
-- Sécurité: Protection des données, accès, conformité
-- Fonctionnel: Features, produit, UX
-- Stratégique: Vision, objectifs long terme
-- Financier: Budget, coûts, investissements
-- Légal: Contrats, RGPD, juridique
+CATÉGORIES D'IMPACT:
+- Technique
+- Sécurité
+- Fonctionnel
+- Stratégique
+- Financier
+- Légal
 
-Retourne un JSON (s'il n'y a aucune décision, retourne un array vide []):
+JSON ATTENDU:
 {
   "decisions": [
     {
-      "text": "Description concise de la décision",
-      "impact": "Catégorie parmi la liste ci-dessus"
+      "text": "Décision concise",
+      "impact": "Catégorie"
     }
   ]
 }
 
-Réponds UNIQUEMENT avec le JSON, sans texte additionnel.`
+Réponds UNIQUEMENT avec le JSON.`
       : `Analyze this meeting transcript and extract formal decisions made.
 
 EXTRACTION RULES:
@@ -298,7 +399,7 @@ Return JSON (if no decisions, return empty array []):
 Respond ONLY with JSON, no additional text.`;
 
     try {
-      const response = this.provider === 'openai'
+      response = this.provider === 'openai'
         ? await this.callOpenAI(prompt, true)
         : await this.callClaude(prompt, true);
 
@@ -356,15 +457,21 @@ Respond ONLY with JSON, no additional text.`;
    * Appelle l'API Claude (Anthropic)
    */
   async callClaude(prompt, jsonMode = false) {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const endpoint = this.useProxy ? '/api/anthropic' : 'https://api.anthropic.com/v1/messages';
+    const headers = this.useProxy
+      ? { 'Content-Type': 'application/json' }
+      : {
+          'Content-Type': 'application/json',
+          'x-api-key': this.claudeKey,
+          'anthropic-version': '2023-06-01'
+        };
+
+    const response = await fetch(endpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': this.claudeKey,
-        'anthropic-version': '2023-06-01'
-      },
+      headers,
       body: JSON.stringify({
-        model: 'claude-3-sonnet-20240229',
+        system: 'You are an expert meeting analyst. Be precise, do not invent information, and follow the requested format strictly.',
+        model: this.claudeModel,
         max_tokens: jsonMode ? 2000 : 1000,
         temperature: 0.3,
         messages: [
@@ -377,7 +484,8 @@ Respond ONLY with JSON, no additional text.`;
     });
 
     if (!response.ok) {
-      throw new Error(`Claude API error: ${response.status}`);
+      const errorText = await response.text();
+      throw new Error(`Claude API error: ${response.status} ${errorText}`);
     }
 
     const data = await response.json();
@@ -660,7 +768,7 @@ CORTEXIA`;
     const { language, title, duration } = sessionInfo;
     
     // Extraire le texte réel de la transcription
-    const realText = transcript
+    const realText = (transcript || [])
       .filter(line => !line.isSystem && line.text)
       .map(line => line.text)
       .join(' ');
@@ -735,7 +843,12 @@ CORTEXIA`;
     
     return {
       ...data,
-      email: this.generateEmail(data.summary, data.actions, data.decisions, title, language)
+      email: this.generateEmail(data.summary, data.actions, data.decisions, title, language),
+      meta: {
+        provider: 'local',
+        model: 'local-heuristics',
+        source: 'fallback'
+      }
     };
   }
 }

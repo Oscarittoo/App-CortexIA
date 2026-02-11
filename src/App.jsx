@@ -42,6 +42,7 @@ import './styles/home.css';
 import './styles/dashboard.css';
 import './styles/sessions-history.css';
 import './styles/public-pages.css';
+import './styles/editor.css';
 // import './styles/active-session-fix.css'; // Removed in favor of inline styles for reliability
 
 export default function App() {
@@ -51,6 +52,7 @@ export default function App() {
   const [editingSession, setEditingSession] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [selectedPlan, setSelectedPlan] = useState('free');
 
   useEffect(() => {
     const loadUser = async () => {
@@ -58,10 +60,38 @@ export default function App() {
       if (user) {
         setIsAuthenticated(true);
         setCurrentUser(user);
+        // IMPORTANT: Informer le storageService de l'utilisateur connecté
+        storageService.setCurrentUser(user.id);
+      } else {
+        // Session expirée ou non connecté
+        setIsAuthenticated(false);
+        setCurrentUser(null);
+        storageService.setCurrentUser(null);
+        if (currentView !== 'home' && currentView !== 'features' && currentView !== 'integrations' && 
+            currentView !== 'security' && currentView !== 'demo' && currentView !== 'pricing' && 
+            currentView !== 'login' && currentView !== 'plugin-install' && currentView !== 'api-docs') {
+          // L'utilisateur était sur une page authentifiée mais la session a expiré
+          setCurrentView('home');
+          toast.error('Votre session a expiré. Veuillez vous reconnecter.');
+        }
       }
     };
     loadUser();
+
+    // Exposer les services dans la console pour le débogage
+    if (typeof window !== 'undefined') {
+      window.storageService = storageService;
+      window.authService = authService;
+      console.log('Services de débogage disponibles: window.storageService, window.authService');
+    }
   }, []);
+
+  // Mettre à jour l'activité lors des interactions utilisateur
+  useEffect(() => {
+    if (isAuthenticated) {
+      authService.updateLastActivity();
+    }
+  }, [currentView, isAuthenticated]);
 
   const handleGetStarted = () => {
     if (isAuthenticated) {
@@ -94,7 +124,7 @@ export default function App() {
     };
     
     // Sauvegarder immédiatement la session dans le storage
-    console.log('💾 Sauvegarde de la session:', data);
+    console.log('Sauvegarde de la session:', data);
     storageService.saveSession(data);
     
     setReportData(data);
@@ -120,6 +150,7 @@ export default function App() {
     await authService.logout();
     setIsAuthenticated(false);
     setCurrentUser(null);
+    storageService.setCurrentUser(null);
     setCurrentView('home');
     toast.success('Déconnexion réussie');
   };
@@ -127,6 +158,8 @@ export default function App() {
   const handleLogin = (user) => {
     setIsAuthenticated(true);
     setCurrentUser(user);
+    // IMPORTANT: Informer le storageService de l'utilisateur connecté
+    storageService.setCurrentUser(user.id);
     // Redirect to dashboard normally, but if they were somewhere else
     setCurrentView('dashboard');
   };
@@ -143,6 +176,7 @@ export default function App() {
   
   const handleSelectPlan = (plan) => {
     console.log("Selected plan", plan); 
+    setSelectedPlan(plan);
     setCurrentView('login');
   }
 
@@ -216,7 +250,7 @@ export default function App() {
             {currentView === 'pricing' && <Pricing onSelectPlan={handleSelectPlan} />}
             {currentView === 'plugin-install' && <PluginInstall onBack={() => setCurrentView('home')} />}
             {currentView === 'api-docs' && <ApiDocs onBack={() => setCurrentView('integrations')} />}
-            {currentView === 'login' && <Login onLogin={handleLogin} onBack={() => setCurrentView('home')} />}
+            {currentView === 'login' && <Login onLogin={handleLogin} onBack={() => setCurrentView('home')} selectedPlan={selectedPlan} />}
           </main>
           
           <footer style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)', borderTop: '1px solid var(--border)' }}>
@@ -258,11 +292,13 @@ export default function App() {
               <FileText size={18} /> Templates
             </a>
             
+            {/* 
             {currentUser?.role === 'admin' && (
               <a className={`nav-item ${currentView === 'admin' ? 'active' : ''}`} onClick={() => setCurrentView('admin')}>
                 <Shield size={18} /> Admin
               </a>
-            )}
+            )} 
+            */}
           </nav>
 
           <div className="sidebar-footer">
@@ -270,7 +306,12 @@ export default function App() {
                <div className="user-avatar">{currentUser?.email?.substring(0, 2).toUpperCase()}</div>
                <div style={{ overflow: 'hidden' }}>
                  <div style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text)', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{currentUser?.email}</div>
-                 <div style={{ fontSize: '11px', color: 'var(--muted)' }}>Pro Plan</div>
+                 <div style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'capitalize' }}>
+                   {currentUser?.plan === 'free' ? 'Free' : 
+                    currentUser?.plan === 'pro' ? 'Pro' : 
+                    currentUser?.plan === 'business' ? 'Business' : 
+                    currentUser?.plan === 'expert' ? 'Expert' : 'Free'} Plan
+                 </div>
                </div>
             </div>
             <button className="btn-icon-premium" onClick={handleLogout} title="Déconnexion">
@@ -284,7 +325,11 @@ export default function App() {
           {/* TOPBAR */}
           <div className="topbar">
             <div className="topbar-actions">
-              <button className="btn-icon-premium" title="Notifications">
+              <button
+                className="btn-icon-premium"
+                title="Notifications"
+                onClick={() => toast.info('Aucune notification pour le moment')}
+              >
                 <Bell size={18} />
               </button>
               <button 
@@ -298,7 +343,7 @@ export default function App() {
           </div>
 
           <div className="content-area">
-             {currentView === 'dashboard' && <Dashboard />}
+             {currentView === 'dashboard' && <Dashboard onNewSession={() => setCurrentView('new')} />}
              
              {currentView === 'new' && <NewSession onStart={handleStartSession} />}
              
@@ -328,7 +373,7 @@ export default function App() {
              
              {currentView === 'settings' && <SettingsPage />}
              
-             {currentView === 'admin' && <AdminDashboard />}
+             {/* {currentView === 'admin' && <AdminDashboard />} */}
           </div>
         </main>
 

@@ -25,13 +25,13 @@ class ExportService {
     content += `**Tags :** ${sessionTags}\n\n`;
     content += `---\n\n`;
     
-    content += `## 📝 Transcription\n\n`;
+    content += `## Transcription\n\n`;
     
     session.transcript?.forEach(line => {
       if (line.isSystem) {
         content += `> *${line.text}*\n\n`;
       } else if (line.marked) {
-        content += `**[${new Date(line.timestamp).toLocaleTimeString('fr-FR')}] ${line.speaker}:** ${line.text} 📌\n\n`;
+        content += `**[${new Date(line.timestamp).toLocaleTimeString('fr-FR')}] ${line.speaker}:** ${line.text}\n\n`;
       } else {
         content += `**[${new Date(line.timestamp).toLocaleTimeString('fr-FR')}] ${line.speaker}:** ${line.text}\n\n`;
       }
@@ -202,14 +202,14 @@ class ExportService {
       </div>
     </div>
 
-    <h2>📝 Transcription</h2>
+    <h2>Transcription</h2>
     <div class="transcript">
       ${session.transcript?.map(line => `
         <div class="transcript-line ${line.marked ? 'marked' : ''}">
           <div class="line-meta">
             <span class="timestamp">${new Date(line.timestamp).toLocaleTimeString('fr-FR')}</span>
             <span class="speaker">${line.speaker}</span>
-            ${line.marked ? '<span style="color: #f59e0b;">📌</span>' : ''}
+            ${line.marked ? '<span style="color: #f59e0b;">Marqué</span>' : ''}
           </div>
           <div class="line-text">${line.text}</div>
         </div>

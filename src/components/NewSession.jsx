@@ -1,6 +1,7 @@
 ﻿import { useState, useEffect } from 'react';
 import { FileText, Video, Mic, Globe, Shield, Play, Layout, X } from 'lucide-react';
 import toast from './Toast';
+import storageService from '../utils/storage';
 
 export default function NewSession({ onStart }) {
   const [audioSource, setAudioSource] = useState('microphone');
@@ -12,21 +13,16 @@ export default function NewSession({ onStart }) {
 
   // Charger le template sélectionné au montage
   useEffect(() => {
-    const savedTemplate = localStorage.getItem('selectedTemplate');
-    if (savedTemplate) {
-      try {
-        const template = JSON.parse(savedTemplate);
-        setSelectedTemplate(template);
-        toast.success(`Template "${template.name}" appliqué !`);
-      } catch (error) {
-        console.error('Erreur chargement template:', error);
-      }
+    const template = storageService.getSelectedTemplate();
+    if (template) {
+      setSelectedTemplate(template);
+      toast.success(`Template "${template.name}" appliqué !`);
     }
   }, []);
 
   const clearTemplate = () => {
     setSelectedTemplate(null);
-    localStorage.removeItem('selectedTemplate');
+    storageService.clearSelectedTemplate();
     toast.info('Template retiré');
   };
 

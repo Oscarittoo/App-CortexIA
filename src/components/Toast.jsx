@@ -47,7 +47,6 @@ export const toast = {
   info: (message, options = {}) => {
     return hotToast(message, {
       ...toastConfig,
-      icon: 'ℹ️',
       ...options,
     });
   },
@@ -55,7 +54,6 @@ export const toast = {
   warning: (message, options = {}) => {
     return hotToast(message, {
       ...toastConfig,
-      icon: '⚠️',
       style: {
         ...toastConfig.style,
         borderColor: 'var(--color-warning)',

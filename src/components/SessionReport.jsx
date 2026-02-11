@@ -1,7 +1,23 @@
 import { useState, useEffect } from 'react';
-import exportService from '../utils/export';
+import { 
+  FileText, 
+  CheckSquare, 
+  AlertTriangle, 
+  Mail, 
+  Download, 
+  ArrowLeft, 
+  Clock, 
+  Calendar,
+  Share2,
+  Copy,
+  Edit,
+  PlusCircle,
+  Target
+} from 'lucide-react';
+import pdfExportService from '../services/pdfExportService';
 import llmService from '../services/llmService';
 import storageService from '../utils/storage';
+import toast from './Toast';
 
 export default function SessionReport({ data, onNewSession, onEdit }) {
   const [summary, setSummary] = useState('');
@@ -10,6 +26,7 @@ export default function SessionReport({ data, onNewSession, onEdit }) {
   const [followUpEmail, setFollowUpEmail] = useState('');
   const [isGenerating, setIsGenerating] = useState(true);
   const [activeTab, setActiveTab] = useState('summary');
+  const [aiMeta, setAiMeta] = useState(null);
 
   useEffect(() => {
     generateReport();
@@ -18,7 +35,7 @@ export default function SessionReport({ data, onNewSession, onEdit }) {
   const generateReport = async () => {
     setIsGenerating(true);
     
-    console.log('🤖 Génération du rapport avec IA OpenAI...');
+    console.log(`Génération du rapport avec IA (${import.meta.env?.VITE_LLM_PROVIDER || 'openai'})...`);
     
     try {
       // Préparer les données de la session
@@ -31,7 +48,7 @@ export default function SessionReport({ data, onNewSession, onEdit }) {
       // Appeler le service LLM pour générer le rapport complet
       const aiReport = await llmService.generateReport(data.transcript || [], sessionInfo);
       
-      console.log('✅ Rapport IA généré avec succès');
+      console.log('Rapport IA généré avec succès');
       console.log('Actions détectées en temps réel:', data.detectedActions);
       console.log('Décisions détectées en temps réel:', data.detectedDecisions);
       
@@ -81,7 +98,7 @@ export default function SessionReport({ data, onNewSession, onEdit }) {
       
       // Mettre à jour l'UI avec les résultats de l'IA
       const fullTranscript = data.transcript
-        ?.map(t => t.text)
+        ?.map(t => (typeof t === 'string' ? t : t?.text))
         .filter(text => text && text.trim())
         .join(' ') || '';
       
@@ -105,6 +122,7 @@ ${aiReport.summary}
       setActions(uniqueActions.length > 0 ? uniqueActions : []);
       setDecisions(uniqueDecisions.length > 0 ? uniqueDecisions : []);
       setFollowUpEmail(aiReport.email || '');
+      setAiMeta(aiReport.meta || null);
       
       // Sauvegarder la session avec le rapport IA et les données fusionnées
       const sessionToSave = {
@@ -114,21 +132,24 @@ ${aiReport.summary}
         decisions: uniqueDecisions,
         email: aiReport.email,
         generatedAt: Date.now(),
-        aiGenerated: true
+        aiGenerated: true,
+        aiMeta: aiReport.meta || null
       };
       
       storageService.saveSession(sessionToSave);
-      console.log('✅ Session sauvegardée avec rapport IA');
+      console.log('Session sauvegardée avec rapport IA');
 
       setIsGenerating(false);
       
     } catch (error) {
-      console.error('❌ Erreur génération IA:', error);
-      console.log('⚠️ Fallback sur analyse locale...');
+      console.error('Erreur génération IA:', error);
+      const errorMessage = error?.message || 'Erreur inconnue';
+      toast.error(`Génération IA impossible: ${errorMessage}`);
+      console.log('Fallback sur analyse locale...');
       
       // Fallback sur extraction manuelle si l'IA échoue
       const fullTranscript = data.transcript
-        ?.map(t => t.text)
+        ?.map(t => (typeof t === 'string' ? t : t?.text))
         .join(' ') || '';
       
       const extractedActions = extractActions(fullTranscript);
@@ -142,6 +163,10 @@ Durée: ${formatDuration(data.duration)}
 Langue: ${data.language === 'fr' ? 'Français' : 'English'}
 
 ---
+
+## ERREUR IA
+
+${errorMessage}
 
 ## TRANSCRIPTION COMPLÈTE
 
@@ -159,6 +184,7 @@ ${extractKeyPoints(fullTranscript)}
 
       setActions(extractedActions);
       setDecisions(extractedDecisions);
+      setAiMeta({ provider: 'local', model: 'local-heuristics', source: 'fallback' });
 
       setFollowUpEmail(`Objet : Compte-rendu - ${data.title || 'Réunion'}\n\nBonjour,\n\nVoici le récapitulatif de notre réunion "${data.title || 'Sans titre'}" du ${new Date().toLocaleDateString('fr-FR')}.\n\nDURÉE : ${formatDuration(data.duration)}\n\n${extractedDecisions.length > 0 && extractedDecisions[0].text !== 'Aucune décision formelle détectée dans la transcription' ? `DÉCISIONS PRISES\n${extractedDecisions.map(d => `• ${d.text} (${d.impact})`).join('\n')}\n\n` : ''}${extractedActions.length > 0 && extractedActions[0].task !== 'Aucune action spécifique détectée dans la transcription' ? `ACTIONS À SUIVRE\n${extractedActions.map(a => `• ${a.task}\n  Responsable: ${a.responsible} | Échéance: ${new Date(a.deadline).toLocaleDateString('fr-FR')} | Priorité: ${a.priority}`).join('\n\n')}\n\n` : ''}TRANSCRIPTION\n${fullTranscript.substring(0, 800)}${fullTranscript.length > 800 ? '...\n\n[Transcription complète disponible dans le compte-rendu joint]' : ''}\n\nCordialement,\nCORTEXIA`);
       
@@ -168,11 +194,12 @@ ${extractKeyPoints(fullTranscript)}
         actions: extractedActions,
         decisions: extractedDecisions,
         generatedAt: Date.now(),
-        aiGenerated: false
+        aiGenerated: false,
+        aiMeta: { provider: 'local', model: 'local-heuristics', source: 'fallback' }
       };
       
       storageService.saveSession(sessionToSave);
-      console.log('✅ Session sauvegardée (mode local)');
+      console.log('Session sauvegardée (mode local)');
 
       setIsGenerating(false);
     }
@@ -323,143 +350,282 @@ ${extractKeyPoints(fullTranscript)}
   };
 
   const handleExportMd = () => {
-    const content = `# Compte-rendu de réunion
-${new Date().toLocaleDateString('fr-FR')}
-
-${summary}
-
-## Décisions
-
-${decisions.map(d => `- **${d.text}** (Impact: ${d.impact})`).join('\n')}
-
-## Actions à suivre
-
-${actions.map(a => `- [ ] **${a.task}**\n  - Responsable: ${a.responsible}\n  - Échéance: ${a.deadline}\n  - Priorité: ${a.priority}`).join('\n\n')}
-
----
-*Généré par CORTEXIA*`;
-
-    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `reunion-${Date.now()}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
+    // ...existing code...
   };
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(followUpEmail);
-    alert('✅ Email copié dans le presse-papier !');
-  };
-
-  const handleExportTranscript = () => {
-    const content = data.transcript.filter(t => t.isFinal || t.marked).map(t => `[${new Date(t.timestamp).toLocaleTimeString()}] ${t.speaker}: ${t.text}`).join('\n');
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `transcription-${Date.now()}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+    // Simple alert removed, toast could be used if available
+    console.log('Email copied');
   };
 
   if (isGenerating) {
     return (
-      <div className="screen session-report">
-        <div className="loading">
-          <div className="spinner"></div>
-          <p>🤖 Génération IA en cours...</p>
-          <small>GPT-4o analyse votre transcription pour extraire résumé, actions et décisions</small>
-          <small style={{ display: 'block', marginTop: '8px', opacity: 0.7 }}>Cela peut prendre 10-30 secondes selon la longueur</small>
+      <div className="screen session-report" style={{ position: 'fixed', inset: 0, background: '#0f172a', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', padding: '40px', background: '#1e293b', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <div className="spinner" style={{ margin: '0 auto 20px auto', border: '3px solid rgba(255,255,255,0.1)', borderTop: '3px solid #38bdf8', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>
+          <h3 style={{ fontSize: '18px', marginBottom: '8px', color: 'white' }}>Génération du rapport IA en cours...</h3>
+          <p style={{ color: '#94a3b8', fontSize: '14px', maxWidth: '400px' }}>
+            Notre intelligence artificielle analyse votre conversation pour en extraire les points clés.
+          </p>
+          <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="screen session-report">
+    <div className="screen session-report" style={{ position: 'fixed', inset: 0, background: '#0f172a', zIndex: 100, display: 'flex', flexDirection: 'column' }}>
+      <style>{`
+        .report-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 24px 40px;
+          border-bottom: 1px solid rgba(255,255,255,0.1);
+          background: #1e293b;
+        }
+        .header-title-group h2 {
+          font-size: 24px;
+          font-weight: 700;
+          color: white;
+          margin: 0 0 8px 0;
+          width: 550px;
+        }
+        .header-meta {
+          display: flex;
+          gap: 16px;
+          color: #94a3b8;
+          font-size: 14px;
+        }
+        .header-actions {
+          display: flex;
+          gap: 12px;
+        }
+        .btn-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 16px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: 0.2s;
+          border: 1px solid rgba(255,255,255,0.1);
+          background: rgba(255,255,255,0.05);
+          color: white;
+        }
+        .btn-header:hover {
+          background: rgba(255,255,255,0.1);
+        }
+        .btn-primary {
+          background: #38bdf8;
+          color: #0f172a;
+          border-color: #38bdf8;
+        }
+        .btn-primary:hover {
+          background: #0ea5e9;
+          border-color: #0ea5e9;
+        }
+        
+        .report-content-wrapper {
+          display: flex;
+          flex-direction: column;
+          flex: 1;
+          overflow: hidden;
+          max-width: 1200px;
+          width: 100%;
+          margin: 0 auto;
+          padding: 32px 40px;
+        }
+        
+        .tabs-header {
+          display: flex;
+          gap: 32px;
+          border-bottom: 1px solid rgba(255,255,255,0.1);
+          margin-bottom: 32px;
+        }
+        .tab-item {
+          padding-bottom: 16px;
+          color: #94a3b8;
+          font-weight: 500;
+          cursor: pointer;
+          position: relative;
+          transition: color 0.2s;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .tab-item:hover {
+          color: white;
+        }
+        .tab-item.active {
+          color: #38bdf8;
+        }
+        .tab-item.active::after {
+          content: '';
+          position: absolute;
+          bottom: -1px;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: #38bdf8;
+        }
+        
+        .tab-content {
+          flex: 1;
+          overflow-y: auto;
+          padding-right: 16px;
+        }
+        
+        /* content styles */
+        .summary-block h3 {
+           color: #38bdf8; 
+           margin-top: 24px; 
+           margin-bottom: 12px;
+           font-size: 18px;
+        }
+        .summary-block p, .summary-block li {
+           color: #cbd5e1;
+           line-height: 1.7;
+           margin-bottom: 12px;
+           font-size: 15px;
+        }
+        
+        .action-row {
+           display: flex;
+           background: rgba(255,255,255,0.03);
+           padding: 16px;
+           border-radius: 8px;
+           border: 1px solid rgba(255,255,255,0.05);
+           margin-bottom: 12px;
+           align-items: center;
+        }
+      `}</style>
+      
+      {/* Top Header */}
       <div className="report-header">
-        <h2>Compte-rendu de session</h2>
-        <div className="report-meta">
-          <span>{formatDuration(data.duration)}</span>
-          <span>{data.transcript.filter(t => t.isFinal).length} segments</span>
-          <span>{data.language === 'fr' ? 'Français' : 'English'}</span>
+        <div className="header-title-group">
+          <h2>{data.title || 'Synthèse de réunion'}</h2>
+          <div className="header-meta">
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Clock size={14} /> {formatDuration(data.duration)}</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><FileText size={14} /> {data.transcript.filter(t => t.isFinal).length} segments</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Target size={14} /> {data.language === 'fr' ? 'Français' : 'English'}</span>
+            {aiMeta && (
+              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <AlertTriangle size={14} /> IA: {aiMeta.provider} ({aiMeta.model})
+              </span>
+            )}
+          </div>
+        </div>
+        
+        <div className="header-actions">
+          <button className="btn-header" onClick={onEdit}>
+            <Edit size={16} /> Éditer texte
+          </button>
+          <button className="btn-header" onClick={() => pdfExportService.exportSession(data)}>
+            <Download size={16} /> Exporter PDF
+          </button>
+          <button className="btn-header btn-primary" onClick={() => onNewSession()}>
+            <PlusCircle size={16} /> Nouvelle session
+          </button>
         </div>
       </div>
 
-      <div className="tabs">
-        <button className={`tab ${activeTab === 'summary' ? 'active' : ''}`} onClick={() => setActiveTab('summary')}>Résumé</button>
-        <button className={`tab ${activeTab === 'actions' ? 'active' : ''}`} onClick={() => setActiveTab('actions')}>Actions ({actions.length})</button>
-        <button className={`tab ${activeTab === 'decisions' ? 'active' : ''}`} onClick={() => setActiveTab('decisions')}>Décisions ({decisions.length})</button>
-        <button className={`tab ${activeTab === 'email' ? 'active' : ''}`} onClick={() => setActiveTab('email')}>Email</button>
-      </div>
+      <div className="report-content-wrapper">
+        {/* Horizontal Tabs */}
+        <div className="tabs-header">
+          <div className={`tab-item ${activeTab === 'summary' ? 'active' : ''}`} onClick={() => setActiveTab('summary')}>
+            <FileText size={18} /> Synthèse
+          </div>
+          <div className={`tab-item ${activeTab === 'actions' ? 'active' : ''}`} onClick={() => setActiveTab('actions')}>
+            <CheckSquare size={18} /> Actions ({actions.length})
+          </div>
+          <div className={`tab-item ${activeTab === 'decisions' ? 'active' : ''}`} onClick={() => setActiveTab('decisions')}>
+            <Target size={18} /> Décisions ({decisions.length})
+          </div>
+          <div className={`tab-item ${activeTab === 'email' ? 'active' : ''}`} onClick={() => setActiveTab('email')}>
+            <Mail size={18} /> Email de suivi
+          </div>
+        </div>
 
-      <div className="tab-content">
-        {activeTab === 'summary' && (
-          <section className="report-section">
-            <div className="report-content">{summary}</div>
-          </section>
-        )}
+        {/* Tab Content */}
+        <div className="tab-content">
+          {activeTab === 'summary' && (
+            <div className="summary-block">
+               {summary ? (
+                 <div style={{ whiteSpace: 'pre-wrap' }}>
+                   {summary.split('---')[1] ? (
+                     <div dangerouslySetInnerHTML={{ 
+                        __html: summary.split('---')[1]
+                        .replace(/^## (.*$)/gim, '<h3>$1</h3>')
+                        .replace(/\*\*(.*?)\*\*/g, '<strong style="color: #e2e8f0;">$1</strong>')
+                        .replace(/\n/g, '<br/>')
+                     }} />
+                   ) : summary}
+                 </div>
+               ) : (
+                 <p>Analyse en cours...</p>
+               )}
+            </div>
+          )}
 
-        {activeTab === 'actions' && (
-          <section className="report-section">
-            <table className="actions-table">
-              <thead>
-                <tr><th>Tâche</th><th>Responsable</th><th>Échéance</th><th>Priorité</th></tr>
-              </thead>
-              <tbody>
-                {actions.map((action) => (
-                  <tr key={action.id}>
-                    <td>{action.task}</td>
-                    <td>{action.responsible}</td>
-                    <td>{new Date(action.deadline).toLocaleDateString('fr-FR')}</td>
-                    <td><span className={`priority priority-${action.priority.toLowerCase()}`}>{action.priority}</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-        )}
+          {activeTab === 'actions' && (
+            <div>
+               {actions.map((action, idx) => (
+                 <div key={idx} className="action-row">
+                    <div style={{ flex: 1 }}>
+                       <div style={{ color: 'white', fontWeight: 500, marginBottom: 4 }}>{action.task}</div>
+                       <div style={{ color: '#94a3b8', fontSize: 13 }}>Responsable: {action.responsible} • Échéance: {action.deadline}</div>
+                    </div>
+                    <div style={{ 
+                       padding: '4px 12px', 
+                       borderRadius: 100, 
+                       fontSize: 12, 
+                       background: action.priority === 'Haute' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(56, 189, 248, 0.1)',
+                       color: action.priority === 'Haute' ? '#fca5a5' : '#7dd3fc'
+                    }}>
+                       {action.priority}
+                    </div>
+                 </div>
+               ))}
+            </div>
+          )}
 
-        {activeTab === 'decisions' && (
-          <section className="report-section">
-            <div className="decisions-list">
-              {decisions.map((decision) => (
-                <div key={decision.id} className="decision-item">
-                  <span className="decision-icon">D</span>
-                  <div className="decision-content">
-                    <p className="decision-text">{decision.text}</p>
-                    <span className="decision-impact">Impact : {decision.impact}</span>
-                  </div>
+          {activeTab === 'decisions' && (
+            <div>
+              {decisions.map((decision, idx) => (
+                <div key={idx} style={{ 
+                  background: 'rgba(255,255,255,0.03)', 
+                  borderLeft: '4px solid #fbbf24', 
+                  padding: '20px', 
+                  marginBottom: '16px',
+                  borderRadius: '0 8px 8px 0'
+                }}>
+                  <div style={{ color: '#fbbf24', fontSize: 12, fontWeight: 700, marginBottom: 8, textTransform: 'uppercase' }}>Décision validée</div>
+                  <div style={{ color: 'white', fontSize: 16 }}>{decision.text}</div>
+                  <div style={{ color: '#94a3b8', fontSize: 13, marginTop: 8 }}>Impact: {decision.impact}</div>
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          )}
 
-        {activeTab === 'email' && (
-          <section className="report-section">
-            <textarea className="email-preview" value={followUpEmail} onChange={(e) => setFollowUpEmail(e.target.value)} rows={15} />
-            <button onClick={handleCopyEmail} className="btn-secondary btn-icon">Copier l'email</button>
-          </section>
-        )}
-      </div>
-
-      <div className="report-actions">
-        <div className="export-group">
-          <button onClick={() => exportService.exportMarkdown(data)} className="btn-secondary">Markdown</button>
-          <button onClick={() => exportService.exportJSON(data)} className="btn-secondary">JSON</button>
-          <button onClick={() => exportService.exportHTML(data)} className="btn-secondary">HTML</button>
-          <button onClick={() => exportService.exportSRT(data)} className="btn-secondary">SRT</button>
-          <button onClick={() => exportService.exportTXT(data)} className="btn-secondary">TXT</button>
-          <button onClick={() => exportService.exportCSV(data)} className="btn-secondary">CSV</button>
-        </div>
-        <div className="main-actions">
-          <button onClick={onEdit} className="btn-secondary">Éditer</button>
-          <button onClick={onNewSession} className="btn-primary">Nouvelle session</button>
+          {activeTab === 'email' && (
+             <div style={{ background: '#1e293b', padding: 32, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)' }}>
+               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+                 <button onClick={handleCopyEmail} style={{ display: 'flex', gap: 8, background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '8px 16px', borderRadius: 6, cursor: 'pointer' }}>
+                   <Copy size={16} /> Copier
+                 </button>
+               </div>
+               <div style={{ fontFamily: 'monospace', color: '#e2e8f0', whiteSpace: 'pre-wrap' }}>
+                 {followUpEmail}
+               </div>
+             </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
+

@@ -28,7 +28,7 @@ ChartJS.register(
   Legend
 );
 
-export default function Dashboard() {
+export default function Dashboard({ onNewSession }) {
   const [stats, setStats] = useState(null);
   const [sessions, setSessions] = useState([]);
   const [period, setPeriod] = useState('month'); // week | month | year | all
@@ -228,7 +228,7 @@ export default function Dashboard() {
             marginBottom: '32px'
           }}>Créez une session de réunion pour voir vos statistiques, graphiques et analyses apparaître ici.</p>
           <button 
-            onClick={() => window.location.hash = '#new'}
+            onClick={() => (onNewSession ? onNewSession() : null)}
             className="btn-primary"
             style={{
               padding: '12px 32px',

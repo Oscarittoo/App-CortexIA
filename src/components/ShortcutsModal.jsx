@@ -32,8 +32,8 @@ export default function ShortcutsModal({ onClose }) {
     <div className="shortcuts-overlay" onClick={onClose}>
       <div className="shortcuts-modal" onClick={(e) => e.stopPropagation()}>
         <div className="shortcuts-header">
-          <h2>⌨️ Raccourcis Clavier</h2>
-          <button className="btn-close" onClick={onClose}>✕</button>
+          <h2>Raccourcis Clavier</h2>
+          <button className="btn-close" onClick={onClose}>Fermer</button>
         </div>
 
         <div className="shortcuts-content">

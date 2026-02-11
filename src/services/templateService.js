@@ -1,3 +1,5 @@
+import storageService from '../utils/storage';
+
 class TemplateService {
   constructor() {
     this.defaultTemplates = [
@@ -49,12 +51,12 @@ class TemplateService {
   }
 
   loadCustomTemplates() {
-    const stored = localStorage.getItem('cortexai_custom_templates');
-    this.customTemplates = stored ? JSON.parse(stored) : [];
+    const stored = storageService.getCustomTemplates();
+    this.customTemplates = stored ? stored : [];
   }
 
   saveCustomTemplates() {
-    localStorage.setItem('cortexai_custom_templates', JSON.stringify(this.customTemplates));
+    storageService.saveCustomTemplates(this.customTemplates);
   }
 
   getAllTemplates() {
