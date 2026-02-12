@@ -521,14 +521,126 @@ ${extractKeyPoints(fullTranscript)}
         </div>
         
         <div className="header-actions">
-          <button className="btn-header" onClick={onEdit}>
-            <Edit size={16} /> Éditer texte
+          <button className="btn-action" onClick={onEdit} title="Modifier la transcription">
+            <Edit size={18} />
+            <span>Éditer</span>
           </button>
-          <button className="btn-header" onClick={() => pdfExportService.exportSession(data)}>
-            <Download size={16} /> Exporter PDF
-          </button>
-          <button className="btn-header btn-primary" onClick={() => onNewSession()}>
-            <PlusCircle size={16} /> Nouvelle session
+          
+          <div className="export-dropdown" style={{ position: 'relative', display: 'inline-block' }}>
+            <button 
+              className="btn-action btn-export" 
+              onClick={() => {
+                const dropdown = document.querySelector('.export-menu');
+                if (dropdown) {
+                  const isShown = dropdown.style.display === 'block';
+                  dropdown.style.display = isShown ? 'none' : 'block';
+                }
+              }}
+              title="Options d'export"
+            >
+              <Download size={18} />
+              <span>Exporter</span>
+            </button>
+            <div className="export-menu" style={{ 
+              display: 'none',
+              position: 'absolute',
+              top: '100%',
+              right: 0,
+              marginTop: '8px',
+              background: 'var(--card-bg)',
+              border: '1px solid var(--border)',
+              borderRadius: '12px',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+              overflow: 'hidden',
+              minWidth: '200px',
+              zIndex: 100
+            }}>
+              <div 
+                onClick={() => {
+                  try {
+                    pdfExportService.exportSession(data);
+                    toast.success('Rapport exporté en PDF avec succès !');
+                    const dropdown = document.querySelector('.export-menu');
+                    if (dropdown) dropdown.style.display = 'none';
+                  } catch (error) {
+                    toast.error('Erreur lors de l\'export PDF');
+                    console.error(error);
+                  }
+                }}
+                style={{
+                  padding: '12px 16px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  transition: 'background 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--hover-bg)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                <FileText size={16} />
+                <span>Exporter en PDF</span>
+              </div>
+              <div 
+                onClick={() => {
+                  const markdown = `# ${data.title}\n\n${summary}\n\n## Actions\n${actions.map(a => `- ${a.task}`).join('\n')}\n\n## Décisions\n${decisions.map(d => `- ${d.text}`).join('\n')}`;
+                  const blob = new Blob([markdown], { type: 'text/markdown' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `${data.title || 'rapport'}.md`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                  toast.success('Rapport exporté en Markdown avec succès !');
+                  const dropdown = document.querySelector('.export-menu');
+                  if (dropdown) dropdown.style.display = 'none';
+                }}
+                style={{
+                  padding: '12px 16px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  transition: 'background 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--hover-bg)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                <FileText size={16} />
+                <span>Exporter en Markdown</span>
+              </div>
+              <div 
+                onClick={() => {
+                  if (followUpEmail) {
+                    navigator.clipboard.writeText(followUpEmail);
+                    toast.success('Email copié dans le presse-papier !');
+                  } else {
+                    toast.info('Aucun email de suivi généré');
+                  }
+                  const dropdown = document.querySelector('.export-menu');
+                  if (dropdown) dropdown.style.display = 'none';
+                }}
+                style={{
+                  padding: '12px 16px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  borderTop: '1px solid var(--border)',
+                  transition: 'background 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--hover-bg)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                <Mail size={16} />
+                <span>Copier l'email de suivi</span>
+              </div>
+            </div>
+          </div>
+          
+          <button className="btn-action btn-new-session" onClick={() => onNewSession()}>
+            <PlusCircle size={18} />
+            <span>Nouvelle session</span>
           </button>
         </div>
       </div>
@@ -625,6 +737,63 @@ ${extractKeyPoints(fullTranscript)}
           )}
         </div>
       </div>
+      
+      <style jsx>{`
+        .btn-action {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 20px;
+          background: var(--card-bg);
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          color: var(--text);
+          fontSize: 14px;
+          fontWeight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .btn-action:hover {
+          background: var(--hover-bg);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        .btn-action svg {
+          transition: transform 0.2s ease;
+        }
+        
+        .btn-action:hover svg {
+          transform: scale(1.1);
+        }
+        
+        .btn-export {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border: none;
+          color: white;
+        }
+        
+        .btn-export:hover {
+          box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-new-session {
+          background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+          border: none;
+          color: white;
+        }
+        
+        .btn-new-session:hover {
+          box-shadow: 0 4px 20px rgba(56, 189, 248, 0.4);
+        }
+        
+        .export-menu > div {
+          font-size: 14px;
+          color: var(--text);
+          font-weight: 500;
+        }
+      `}</style>
     </div>
   );
 }

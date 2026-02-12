@@ -11,6 +11,7 @@ const STORAGE_KEYS = {
   CUSTOM_TEMPLATES: 'meetizy_custom_templates',
   SELECTED_TEMPLATE: 'meetizy_selected_template',
   ACTION_STATES: 'meetizy_action_states',
+  DAILY_METRICS: 'meetizy_daily_metrics', // Nouvelles métriques quotidiennes
 };
 
 class StorageService {
@@ -905,6 +906,99 @@ Date: {{date}}
 
     console.log(`${count} anciennes données supprimées`);
     return count;
+  }
+  
+  // ==================== MÉTRIQUES QUOTIDIENNES ====================
+  
+  /**
+   * Sauvegarde les métriques du jour actuel
+   */
+  saveDailyMetrics() {
+    const userId = this.getCurrentUserId();
+    if (!userId) return;
+
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const allMetrics = this.getDailyMetrics();
+    
+    // Calculer les métriques d'aujourd'hui
+    const sessions = this.getAllSessions();
+    const todaySessions = sessions.filter(s => {
+      const sessionDate = new Date(s.createdAt).toISOString().split('T')[0];
+      return sessionDate === today;
+    });
+
+    const todayMetric = {
+      date: today,
+      userId,
+      sessionCount: todaySessions.length,
+      totalDuration: todaySessions.reduce((sum, s) => sum + (s.duration || 0), 0),
+      platforms: todaySessions.reduce((acc, s) => {
+        acc[s.platform || 'local'] = (acc[s.platform || 'local'] || 0) + 1;
+        return acc;
+      }, {}),
+      transcribedWords: todaySessions.reduce((sum, s) => sum + (s.wordCount || 0), 0)
+    };
+
+    // Mettre à jour ou ajouter la métrique du jour
+    const existingIndex = allMetrics.findIndex(m => m.date === today && m.userId === userId);
+    if (existingIndex >= 0) {
+      allMetrics[existingIndex] = todayMetric;
+    } else {
+      allMetrics.push(todayMetric);
+    }
+
+    // Garder seulement les 90 derniers jours
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+    const filtered = allMetrics.filter(m => new Date(m.date) >= ninetyDaysAgo);
+
+    localStorage.setItem(STORAGE_KEYS.DAILY_METRICS, JSON.stringify(filtered));
+  }
+
+  /**
+   * Récupère toutes les métriques quotidiennes
+   */
+  getDailyMetrics() {
+    const data = localStorage.getItem(STORAGE_KEYS.DAILY_METRICS);
+    if (!data) return [];
+    
+    try {
+      return JSON.parse(data);
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Récupère les métriques des N derniers jours pour l'utilisateur connecté
+   */
+  getMetricsForLastDays(days = 7) {
+    const userId = this.getCurrentUserId();
+    if (!userId) return [];
+
+    const allMetrics = this.getDailyMetrics();
+    const userMetrics = allMetrics.filter(m => m.userId === userId);
+
+    // Générer les N derniers jours
+    const result = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+
+      const metric = userMetrics.find(m => m.date === dateStr) || {
+        date: dateStr,
+        userId,
+        sessionCount: 0,
+        totalDuration: 0,
+        platforms: {},
+        transcribedWords: 0
+      };
+
+      result.push(metric);
+    }
+
+    return result;
   }
   
   // ==================== BACKUP ====================

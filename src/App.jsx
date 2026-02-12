@@ -8,7 +8,11 @@ import {
   Settings, 
   LogOut, 
   Bell,
-  Shield
+  Shield,
+  Users,
+  Calendar as CalendarIcon,
+  Bot,
+  CreditCard
 } from 'lucide-react';
 import Home from './components/Home';
 import Features from './components/Features';
@@ -29,10 +33,14 @@ import AdminDashboard from './components/AdminDashboard';
 import ActionsDashboard from './components/actions/ActionsDashboard';
 import TemplatesLibrary from './components/templates/TemplatesLibrary';
 import SettingsPage from './components/Settings';
+import Teams from './components/Teams';
+import Calendar from './components/Calendar';
+import AgentInstall from './components/AgentInstall';
+import ChatBot from './components/ChatBot';
 import ErrorBoundary from './components/ErrorBoundary';
 import { Toaster } from './components/Toast';
 import toast from './components/Toast';
-import logo from './assets/logo_meetizy.svg';
+import logo from './assets/logo_brain_circuit.svg';
 import authService from './services/authService';
 import storageService from './utils/storage';
 
@@ -53,6 +61,7 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [selectedPlan, setSelectedPlan] = useState('free');
+  const [isChatBotOpen, setIsChatBotOpen] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -292,6 +301,20 @@ export default function App() {
               <FileText size={18} /> Templates
             </a>
             
+            {/* Nouvelles sections */}
+            <a className={`nav-item ${currentView === 'teams' ? 'active' : ''}`} onClick={() => setCurrentView('teams')}>
+              <Users size={18} /> Équipes
+            </a>
+            <a className={`nav-item ${currentView === 'calendar' ? 'active' : ''}`} onClick={() => setCurrentView('calendar')}>
+              <CalendarIcon size={18} /> Calendrier
+            </a>
+            <a className={`nav-item ${currentView === 'agent-install' ? 'active' : ''}`} onClick={() => setCurrentView('agent-install')}>
+              <Bot size={18} /> Installer l'agent IA
+            </a>
+            <a className={`nav-item ${currentView === 'subscription' ? 'active' : ''}`} onClick={() => setCurrentView('subscription')}>
+              <CreditCard size={18} /> Mon abonnement
+            </a>
+            
             {/* 
             {currentUser?.role === 'admin' && (
               <a className={`nav-item ${currentView === 'admin' ? 'active' : ''}`} onClick={() => setCurrentView('admin')}>
@@ -371,6 +394,14 @@ export default function App() {
              
              {currentView === 'templates' && <TemplatesLibrary />}
              
+             {currentView === 'teams' && <Teams currentUser={currentUser} />}
+             
+             {currentView === 'calendar' && <Calendar />}
+             
+             {currentView === 'agent-install' && <AgentInstall />}
+             
+             {currentView === 'subscription' && <SettingsPage initialTab="subscription" />}
+             
              {currentView === 'settings' && <SettingsPage />}
              
              {/* {currentView === 'admin' && <AdminDashboard />} */}
@@ -383,6 +414,45 @@ export default function App() {
             onSave={handleSaveEdit}
             onClose={() => setEditingSession(null)}
           />
+        )}
+
+        {/* ChatBot IA */}
+        <ChatBot isOpen={isChatBotOpen} onClose={() => setIsChatBotOpen(false)} />
+
+        {/* Bouton flottant ChatBot */}
+        {!isChatBotOpen && (
+          <button
+            onClick={() => setIsChatBotOpen(true)}
+            style={{
+              position: 'fixed',
+              bottom: '24px',
+              right: '24px',
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              border: 'none',
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: '0 8px 24px rgba(102, 126, 234, 0.4)',
+              transition: 'all 0.3s ease',
+              zIndex: 999
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'scale(1.1)';
+              e.target.style.boxShadow = '0 12px 32px rgba(102, 126, 234, 0.6)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'scale(1)';
+              e.target.style.boxShadow = '0 8px 24px rgba(102, 126, 234, 0.4)';
+            }}
+            title="Assistant IA"
+          >
+            <Bot size={28} />
+          </button>
         )}
       </div>
     </ErrorBoundary>

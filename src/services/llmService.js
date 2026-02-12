@@ -851,6 +851,127 @@ CORTEXIA`;
       }
     };
   }
+
+  /**
+   * Méthode de chat conversationnel avec l'IA
+   * @param {string} userMessage - Message de l'utilisateur
+   * @param {Array} conversationHistory - Historique des messages
+   * @returns {Promise<string>} - Réponse de l'IA
+   */
+  async chat(userMessage, conversationHistory = []) {
+    try {
+      // Vérifier qu'une API est configurée
+      const hasOpenAi = this.openaiKey && this.openaiKey !== 'your_openai_api_key_here';
+      const hasClaude = this.useProxy || (this.claudeKey && this.claudeKey !== 'your_anthropic_api_key_here');
+
+      if (!hasOpenAi && !hasClaude) {
+        return "Je ne peux pas répondre car aucune clé API n'est configurée. Veuillez configurer vos clés API dans les paramètres.";
+      }
+
+      // Construire l'historique pour le contexte
+      const messages = conversationHistory
+        .slice(-10) // Garder seulement les 10 derniers messages pour limiter les tokens
+        .map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
+
+      // Ajouter le message utilisateur
+      messages.push({
+        role: 'user',
+        content: userMessage
+      });
+
+      // Appeler le provider configuré
+      if (this.provider === 'claude' && hasClaude) {
+        return await this.callClaudeChat(messages);
+      } else if (hasOpenAi) {
+        return await this.callOpenAIChat(messages);
+      }
+
+      return "Erreur: Aucun provider d'IA disponible.";
+
+    } catch (error) {
+      console.error('Erreur lors du chat:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Appeler Claude pour le chat
+   */
+  async callClaudeChat(messages) {
+    const endpoint = this.useProxy
+      ? '/api/anthropic'
+      : 'https://api.anthropic.com/v1/messages';
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'anthropic-version': '2023-06-01'
+    };
+
+    if (!this.useProxy) {
+      headers['x-api-key'] = this.claudeKey;
+    }
+
+    // Séparer le system message si présent
+    const systemMessage = "Tu es un assistant IA professionnel et polyvalent de Meetizy. Tu peux aider sur tous types de sujets : réponses générales, programmation, rédaction, analyse, conseils, et bien sûr la prise de notes et l'analyse de réunions. Réponds de manière claire, concise et professionnelle en français.";
+    
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        model: this.claudeModel,
+        max_tokens: 2048,
+        system: systemMessage,
+        messages: messages.map(msg => ({
+          role: msg.role === 'assistant' ? 'assistant' : 'user',
+          content: msg.content
+        }))
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Claude API error: ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data.content[0].text;
+  }
+
+  /**
+   * Appeler OpenAI pour le chat
+   */
+  async callOpenAIChat(messages) {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.openaiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4',
+        messages: [
+          {
+            role: 'system',
+            content: "Tu es un assistant IA professionnel et polyvalent de Meetizy. Tu peux aider sur tous types de sujets : réponses générales, programmation, rédaction, analyse, conseils, et bien sûr la prise de notes et l'analyse de réunions. Réponds de manière claire, concise et professionnelle en français."
+          },
+          ...messages
+        ],
+        max_tokens: 2048,
+        temperature: 0.7
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`OpenAI API error: ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+  }
 }
 
 // Singleton

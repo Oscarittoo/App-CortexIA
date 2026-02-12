@@ -39,6 +39,9 @@ export default function Dashboard({ onNewSession }) {
 
   const loadData = () => {
     try {
+      // Sauvegarder les métriques du jour
+      storageService.saveDailyMetrics();
+
       const allSessions = storageService.getAllSessions() || [];
       setSessions(filterByPeriod(allSessions));
       setStats(storageService.getStats() || {
@@ -141,35 +144,18 @@ export default function Dashboard({ onNewSession }) {
   }
 
   function getSessionsPerDay() {
-    const counts = new Array(7).fill(0);
-    const now = new Date();
-    
-    sessions.forEach(session => {
-      const sessionDate = new Date(session.createdAt);
-      const daysDiff = Math.floor((now - sessionDate) / (1000 * 60 * 60 * 24));
-      if (daysDiff < 7) {
-        counts[6 - daysDiff]++;
-      }
-    });
-    
-    return counts;
+    // Utiliser les métriques historiques sauvegardées
+    const metrics = storageService.getMetricsForLastDays(7);
+    return metrics.map(m => m.sessionCount);
   }
 
   function getDurationTrend() {
-    const durations = new Array(7).fill(0);
-    const counts = new Array(7).fill(0);
-    const now = new Date();
-    
-    sessions.forEach(session => {
-      const sessionDate = new Date(session.createdAt);
-      const daysDiff = Math.floor((now - sessionDate) / (1000 * 60 * 60 * 24));
-      if (daysDiff < 7) {
-        durations[6 - daysDiff] += (session.duration || 0);
-        counts[6 - daysDiff]++;
-      }
+    // Utiliser les métriques historiques sauvegardées
+    const metrics = storageService.getMetricsForLastDays(7);
+    return metrics.map(m => {
+      if (m.sessionCount === 0) return 0;
+      return Math.round(m.totalDuration / m.sessionCount / 60); // en minutes
     });
-    
-    return durations.map((d, i) => counts[i] > 0 ? Math.round(d / counts[i] / 60) : 0);
   }
 
   function getPlatformName(platform) {
