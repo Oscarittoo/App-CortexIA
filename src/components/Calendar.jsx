@@ -2,14 +2,16 @@ import { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, Plus, Trash2, Clock, Users, MapPin, Video } from 'lucide-react';
 import toast from './Toast';
 import authService from '../services/authService';
+import teamService from '../services/teamService';
 
 /**
  * Composant Calendar - Gestion des réunions futures
- * Avec persistance dans localStorage
+ * Avec partage d'équipe via Supabase
  */
 export default function Calendar() {
   const [meetings, setMeetings] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [isInTeam, setIsInTeam] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newMeeting, setNewMeeting] = useState({
     title: '',
@@ -38,25 +40,47 @@ export default function Calendar() {
     setCurrentUser(user);
 
     if (user) {
-      const stored = localStorage.getItem(`meetizy_meetings_${user.id}`);
-      if (stored) {
-        try {
+      try {
+        // Vérifier si l'utilisateur fait partie d'une équipe
+        const inTeam = await teamService.isInTeam();
+        setIsInTeam(inTeam);
+
+        if (inTeam) {
+          // Charger les réunions partagées de l'équipe
+          const teamMeetings = await teamService.getTeamMeetings();
+          setMeetings(teamMeetings);
+        } else {
+          // Fallback localStorage pour utilisateurs sans équipe
+          const stored = localStorage.getItem(`meetizy_meetings_${user.id}`);
+          if (stored) {
+            try {
+              setMeetings(JSON.parse(stored));
+            } catch (error) {
+              console.error('Erreur chargement réunions:', error);
+              setMeetings([]);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Erreur chargement:', error);
+        // Fallback localStorage
+        const stored = localStorage.getItem(`meetizy_meetings_${user.id}`);
+        if (stored) {
           setMeetings(JSON.parse(stored));
-        } catch (error) {
-          console.error('Erreur chargement réunions:', error);
-          setMeetings([]);
         }
       }
     }
   };
 
   const saveMeetings = () => {
-    if (currentUser) {
+    // Ne plus sauvegarder dans localStorage si l'utilisateur est dans une équipe
+    // Les données sont automatiquement sauvegardées dans Supabase
+    if (currentUser && !isInTeam) {
       localStorage.setItem(`meetizy_meetings_${currentUser.id}`, JSON.stringify(meetings));
     }
   };
 
-  const handleAddMeeting = () => {
+  const handleAddMeeting = async () => {
     if (!newMeeting.title || !newMeeting.date || !newMeeting.time) {
       toast.error('Veuillez remplir tous les champs obligatoires');
       return;
@@ -68,15 +92,42 @@ export default function Calendar() {
       participants: parseInt(newMeeting.participants) || 1
     };
 
-    setMeetings([...meetings, meeting]);
-    setNewMeeting({ title: '', date: '', time: '', duration: '60', participants: '', type: 'video', location: '' });
-    setShowAddForm(false);
-    toast.success('Réunion ajoutée au calendrier');
+    try {
+      if (isInTeam) {
+        // Sauvegarder dans Supabase (partagé avec l'équipe)
+        await teamService.saveSharedMeeting(meeting);
+        // Recharger les réunions
+        await loadUserAndMeetings();
+      } else {
+        // Mode local (localStorage)
+        setMeetings([...meetings, meeting]);
+      }
+      
+      setNewMeeting({ title: '', date: '', time: '', duration: '60', participants: '', type: 'video', location: '' });
+      setShowAddForm(false);
+      toast.success(isInTeam ? 'Réunion ajoutée et partagée avec l\'équipe' : 'Réunion ajoutée au calendrier');
+    } catch (error) {
+      console.error('Erreur ajout réunion:', error);
+      toast.error('Erreur lors de l\'ajout de la réunion');
+    }
   };
 
-  const handleDeleteMeeting = (id) => {
-    setMeetings(meetings.filter(m => m.id !== id));
-    toast.success('Réunion supprimée');
+  const handleDeleteMeeting = async (id) => {
+    try {
+      if (isInTeam) {
+        // Supprimer dans Supabase
+        await teamService.deleteMeeting(id);
+        // Recharger
+        await loadUserAndMeetings();
+      } else {
+        // Mode local
+        setMeetings(meetings.filter(m => m.id !== id));
+      }
+      toast.success('Réunion supprimée');
+    } catch (error) {
+      console.error('Erreur suppression:', error);
+      toast.error('Erreur lors de la suppression');
+    }
   };
 
   const sortedMeetings = [...meetings].sort((a, b) => {

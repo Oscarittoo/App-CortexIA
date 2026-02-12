@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Users, UserPlus, Mail, Trash2, Crown, AlertCircle } from 'lucide-react';
 import toast from './Toast';
+import teamService from '../services/teamService';
 
 /**
  * Composant Teams - Gestion des équipes et invitations
@@ -10,6 +11,25 @@ export default function Teams({ currentUser }) {
   const [teamMembers, setTeamMembers] = useState([]);
   const [inviteEmail, setInviteEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [currentTeam, setCurrentTeam] = useState(null);
+
+  useEffect(() => {
+    loadTeamData();
+  }, []);
+
+  const loadTeamData = async () => {
+    try {
+      const team = await teamService.getUserTeam();
+      setCurrentTeam(team);
+      
+      if (team) {
+        const members = await teamService.getTeamMembers(team.id);
+        setTeamMembers(members);
+      }
+    } catch (error) {
+      console.error('Erreur chargement équipe:', error);
+    }
+  };
 
   // Limites selon le plan
   const planLimits = {
@@ -37,30 +57,66 @@ export default function Teams({ currentUser }) {
     setIsLoading(true);
 
     try {
-      // TODO: Intégrer avec Supabase pour invitations réelles
-      // Simulation pour l'instant
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      let team = currentTeam;
+      
+      // Si pas d'équipe, en créer une
+      if (!team) {
+        team = await teamService.createTeam(`Équipe de ${currentUser?.email || 'Utilisateur'}`);
+        setCurrentTeam(team);
+        toast.success('Équipe créée !');
+      }
 
-      const newMember = {
-        id: Date.now(),
-        email: inviteEmail,
-        status: 'pending',
-        invitedAt: new Date().toISOString()
-      };
+      // Inviter le membre via Supabase
+      try {
+        await teamService.inviteTeamMember(team.id, inviteEmail);
+        toast.success(`${inviteEmail} a été ajouté à l'équipe !`);
+        
+        // Recharger les membres
+        await loadTeamData();
+        setInviteEmail('');
+      } catch (inviteError) {
+        // Si l'utilisateur n'existe pas encore, envoyer un email d'invitation
+        console.log('Utilisateur pas encore inscrit, envoi email...');
+        
+        const subject = encodeURIComponent(`Invitation à rejoindre l'équipe sur Meetizy`);
+        const body = encodeURIComponent(`Bonjour,
 
-      setTeamMembers([...teamMembers, newMember]);
-      setInviteEmail('');
-      toast.success(`Invitation envoyée à ${inviteEmail}`);
+Vous avez été invité(e) à rejoindre notre équipe sur Meetizy par ${currentUser?.name || currentUser?.email || 'un collègue'}.
+
+Meetizy est une plateforme collaborative de gestion de réunions avec transcription en temps réel et intelligence artificielle.
+
+Pour accepter l'invitation et créer votre compte :
+1. Rendez-vous sur : https://app.meetizy.com
+2. Créez un compte avec cet email : ${inviteEmail}
+3. Vous serez automatiquement ajouté à l'équipe
+
+À très bientôt !
+
+---
+L'équipe Meetizy`);
+
+        window.location.href = `mailto:${inviteEmail}?subject=${subject}&body=${body}`;
+        setInviteEmail('');
+        toast.info(`Email d'invitation envoyé à ${inviteEmail}`);
+      }
     } catch (error) {
-      toast.error('Erreur lors de l\'invitation');
+      console.error('Erreur invitation:', error);
+      toast.error(error.message || 'Erreur lors de l\'invitation');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleRemoveMember = (memberId) => {
-    setTeamMembers(teamMembers.filter(m => m.id !== memberId));
-    toast.success('Membre retiré de l\'équipe');
+  const handleRemoveMember = async (memberId) => {
+    if (!currentTeam) return;
+    
+    try {
+      await teamService.removeTeamMember(currentTeam.id, memberId);
+      await loadTeamData();
+      toast.success('Membre retiré de l\'équipe');
+    } catch (error) {
+      toast.error('Erreur lors du retrait');
+    }
   };
 
   return (

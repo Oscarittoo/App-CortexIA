@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Transcription Cortexa</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0f172a;
+            color: #f8fafc;
+        }
+        .card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        button {
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        button.stop {
+            background: #ef4444;
+            color: white;
+        }
+        #status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.05);
+            font-family: monospace;
+        }
+        #output {
+            margin-top: 20px;
+            min-height: 200px;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .interim { color: #94a3b8; }
+        .final { color: #f8fafc; }
+    </style>
+</head>
+<body>
+    <h1>🎤 Test de Transcription (Web Speech API)</h1>
+    
+    <div class="card">
+        <h3>Contrôles</h3>
+        <button id="btnStart" onclick="startRecognition()">Démarrer l'écoute</button>
+        <button id="btnStop" onclick="stopRecognition()" class="stop" disabled>Arrêter</button>
+        <div id="status">Prêt à tester...</div>
+    </div>
+
+    <div class="card">
+        <h3>Résultat en temps réel</h3>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        let recognition = null;
+        let isRecording = false;
+        const statusEl = document.getElementById('status');
+        const outputEl = document.getElementById('output');
+        const btnStart = document.getElementById('btnStart');
+        const btnStop = document.getElementById('btnStop');
+
+        if (!('webkitSpeechRecognition' in window)) {
+            statusEl.innerHTML = "❌ ERREUR: Web Speech API non supportée par ce navigateur (utilisez Chrome, Edge ou Safari)";
+            statusEl.style.color = "#ef4444";
+            btnStart.disabled = true;
+        }
+
+        function startRecognition() {
+            try {
+                recognition = new webkitSpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'fr-FR';
+
+                recognition.onstart = () => {
+                    isRecording = true;
+                    updateUI(true);
+                    statusEl.textContent = "🟢 Écoute en cours... Parlez dans votre microphone.";
+                    statusEl.style.color = "#34d399";
+                };
+
+                recognition.onerror = (event) => {
+                    statusEl.textContent = "❌ Erreur: " + event.error;
+                    statusEl.style.color = "#ef4444";
+                    updateUI(false);
+                };
+
+                recognition.onend = () => {
+                    if (isRecording) {
+                        statusEl.textContent = "⚠️ Arrêt inattendu, redémarrage...";
+                        recognition.start();
+                    } else {
+                        statusEl.textContent = "⚫ Arrêté.";
+                        statusEl.style.color = "#94a3b8";
+                        updateUI(false);
+                    }
+                };
+
+                recognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    let interimTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        if (event.results[i].isFinal) {
+                            finalTranscript += event.results[i][0].transcript + '\n';
+                        } else {
+                            interimTranscript += event.results[i][0].transcript;
+                        }
+                    }
+
+                    // Append final results safely
+                    if (finalTranscript) {
+                        const p = document.createElement('div');
+                        p.className = 'final';
+                        p.textContent = "✅ " + finalTranscript;
+                        outputEl.appendChild(p);
+                    }
+
+                    // Show interim
+                    let interimEl = document.getElementById('interim');
+                    if (!interimEl) {
+                        interimEl = document.createElement('div');
+                        interimEl.id = 'interim';
+                        interimEl.className = 'interim';
+                        outputEl.appendChild(interimEl);
+                    }
+                    interimEl.textContent = interimTranscript ? "Mw " + interimTranscript : "";
+                    
+                    outputEl.scrollTop = outputEl.scrollHeight;
+                };
+
+                recognition.start();
+            } catch (e) {
+                console.error(e);
+                statusEl.textContent = "❌ Exception: " + e.message;
+            }
+        }
+
+        function stopRecognition() {
+            isRecording = false;
+            if (recognition) {
+                recognition.stop();
+            }
+        }
+
+        function updateUI(recording) {
+            btnStart.disabled = recording;
+            btnStop.disabled = !recording;
+        }
+    </script>
+</body>
+</html>

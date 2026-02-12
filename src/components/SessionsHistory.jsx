@@ -1,6 +1,7 @@
 ﻿import { useState, useEffect } from 'react';
 import { ClipboardList, Video, Mic, Monitor, MessageSquare, Gamepad2, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import storageService from '../utils/storage';
+import teamService from '../services/teamService';
 
 export default function SessionsHistory({ onViewSession, onNewSession }) {
   const [sessions, setSessions] = useState([]);
@@ -18,6 +19,7 @@ export default function SessionsHistory({ onViewSession, onNewSession }) {
     language: '',
   });
   const [tags, setTags] = useState([]);
+  const [isInTeam, setIsInTeam] = useState(false);
 
   useEffect(() => {
     loadSessions();
@@ -32,9 +34,35 @@ export default function SessionsHistory({ onViewSession, onNewSession }) {
     setCurrentPage(1); // Reset to page 1 when filters change
   }, [searchQuery, sortBy, filters]);
 
-  const loadSessions = () => {
-    const allSessions = storageService.getAllSessions();
-    setSessions(allSessions);
+  const loadSessions = async () => {
+    try {
+      // Charger les sessions locales
+      const localSessions = storageService.getAllSessions();
+      
+      // Vérifier si l'utilisateur est dans une équipe
+      const inTeam = await teamService.isInTeam();
+      setIsInTeam(inTeam);
+      
+      if (inTeam) {
+        // Charger aussi les sessions partagées de l'équipe
+        const teamSessions = await teamService.getTeamSessions();
+        // Fusionner local + team (dédupliquer par id)
+        const allSessions = [...localSessions];
+        teamSessions.forEach(teamSession => {
+          if (!allSessions.find(s => s.id === teamSession.id)) {
+            allSessions.push(teamSession);
+          }
+        });
+        setSessions(allSessions);
+      } else {
+        // Mode solo: seulement local
+        setSessions(localSessions);
+      }
+    } catch (error) {
+      console.error('Erreur chargement sessions:', error);
+      // Fallback local en cas d'erreur
+      setSessions(storageService.getAllSessions());
+    }
   };
 
   const applyFilters = () => {

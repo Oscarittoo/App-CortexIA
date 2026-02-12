@@ -12,7 +12,9 @@ import {
   Users,
   Calendar as CalendarIcon,
   Bot,
-  CreditCard
+  CreditCard,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import Home from './components/Home';
 import Features from './components/Features';
@@ -62,6 +64,7 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [selectedPlan, setSelectedPlan] = useState('free');
   const [isChatBotOpen, setIsChatBotOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -278,11 +281,64 @@ export default function App() {
         <Toaster />
         
         {/* SIDEBAR */}
-        <aside className="sidebar">
-          <div className="brand">
-            <img src={logo} alt="Meetizy Logo" width="64" height="64" />
-            <span style={{ fontFamily: 'Orbitron, sans-serif', letterSpacing: '1px', fontSize: '18px', fontWeight: 'bold', color: 'var(--text-primary)' }}>MEETIZY</span>
+        <aside className="sidebar" style={{ width: isSidebarCollapsed ? '80px' : '280px', transition: 'width 0.3s ease', position: 'relative' }}>
+          {/* Bouton toggle */}
+          <button
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            style={{
+              position: 'absolute',
+              right: '-12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              width: '24px',
+              height: '24px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              border: '2px solid var(--border)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              zIndex: 10,
+              color: 'white',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+            }}
+            title={isSidebarCollapsed ? 'Agrandir le menu' : 'Réduire le menu'}
+          >
+            {isSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+          </button>
+
+          <div className="brand" style={{ flexDirection: isSidebarCollapsed ? 'column' : 'row', gap: isSidebarCollapsed ? '8px' : '10px' }}>
+            <img src={logo} alt="Meetizy Logo" width={isSidebarCollapsed ? "32" : "64"} height={isSidebarCollapsed ? "32" : "64"} style={{ transition: 'all 0.3s ease' }} />
+            {!isSidebarCollapsed && (
+              <span style={{ fontFamily: 'Orbitron, sans-serif', letterSpacing: '1px', fontSize: '18px', fontWeight: 'bold', color: 'var(--text-primary)' }}>MEETIZY</span>
+            )}
           </div>
+          
+          {/* Toggle Button */}
+          <button 
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            style={{
+              position: 'absolute',
+              top: '20px',
+              right: '-12px',
+              width: '24px',
+              height: '24px',
+              borderRadius: '50%',
+              background: 'var(--accent)',
+              border: '2px solid var(--border)',
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              zIndex: 10,
+              transition: 'all 0.2s ease'
+            }}
+            title={isSidebarCollapsed ? 'Agrandir le menu' : 'Réduire le menu'}
+          >
+            {isSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+          </button>
 
           <nav>
             <a className={`nav-item ${currentView === 'dashboard' ? 'active' : ''}`} onClick={() => setCurrentView('dashboard')}>

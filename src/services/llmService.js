@@ -270,6 +270,8 @@ ${transcriptText}
 RÈGLES STRICTES:
 - N'invente rien.
 - Une action = verbe d'action + objet clair.
+- **MAXIMUM 5-7 MOTS PAR ACTION** (format court et concis).
+- Exemple: "Préparer présentation Q1" au lieu de "Il faudrait préparer une présentation détaillée pour le premier trimestre".
 - Ne découpe pas une phrase en fragments.
 - Si aucune action explicite, retourne {"actions": []}.
 
@@ -280,7 +282,7 @@ JSON ATTENDU:
 {
   "actions": [
     {
-      "task": "Action claire",
+      "task": "Action courte et claire (max 5-7 mots)",
       "responsible": "Nom/équipe ou 'À définir'",
       "deadline": "Date/repère temporel ou 'À définir'",
       "priority": "Haute" | "Moyenne" | "Basse"
@@ -292,6 +294,8 @@ Réponds UNIQUEMENT avec le JSON.`
       : `Analyze this meeting transcript and extract concrete action items.
 
 EXTRACTION RULES:
+- **ACTION MUST BE SHORT: Maximum 5-7 words** (concise format)
+- Example: "Prepare Q1 presentation" instead of "We need to prepare a detailed presentation for the first quarter"
 - Look for phrases with "must", "should", "will", "need to", "action", "prepare", "organize", "plan"
 - Identify who is responsible (person name or team)
 - Detect mentioned deadlines (dates, "tomorrow", "next week", etc.)
@@ -304,7 +308,7 @@ Return JSON with this structure (if no actions, return empty array []):
 {
   "actions": [
     {
-      "task": "Clear action description",
+      "task": "Short clear action (max 5-7 words)",
       "responsible": "Person name or 'TBD'",
       "deadline": "Date or time description or 'TBD'",
       "priority": "High" or "Medium" or "Low"

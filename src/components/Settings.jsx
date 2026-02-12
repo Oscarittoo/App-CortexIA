@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { User, Settings as SettingsIcon, Download, CreditCard, Bell, Palette, Globe, FileText, Save, Database, Trash2 } from 'lucide-react';
 import authService from '../services/authService';
 import storageService from '../utils/storage';
+import stripeService from '../services/stripeService';
 import toast from './Toast';
 import '../styles/settings.css';
 
-export default function Settings() {
-  const [activeTab, setActiveTab] = useState('profile');
+export default function Settings({ initialTab = 'profile' }) {
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [currentUser, setCurrentUser] = useState(null);
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [userSessionsCount, setUserSessionsCount] = useState(0);
@@ -83,6 +84,25 @@ export default function Settings() {
 
   const handleChangePlan = async (newPlan) => {
     try {
+      // Si l'utilisateur passe à un plan payant, rediriger vers Stripe
+      if (newPlan !== 'free' && newPlan !== settings.plan) {
+        // Initialiser Stripe
+        await stripeService.initialize();
+        
+        // Afficher un message de chargement
+        toast.info('Redirection vers la page de paiement...');
+        
+        // Rediriger vers Stripe Checkout
+        try {
+          await stripeService.createCheckoutSession(newPlan, currentUser.email);
+        } catch (stripeError) {
+          console.error('Erreur Stripe:', stripeError);
+          toast.error('Le service de paiement n\'est pas encore configuré. Contactez support@meetizy.com');
+        }
+        return;
+      }
+
+      // Pour le plan gratuit ou downgrades, mise à jour directe
       await authService.updatePlan(newPlan);
       // Recharger les données utilisateur depuis la BDD pour être sûr
       const updatedUser = await authService.getCurrentUser();
@@ -97,8 +117,19 @@ export default function Settings() {
     }
   };
 
-  const handleViewBillingHistory = () => {
-    toast.info('Historique de facturation disponible prochainement');
+  const handleViewBillingHistory = async () => {
+    try {
+      // Si l'utilisateur a un abonnement payant, ouvrir le portail Stripe
+      if (settings.plan !== 'free' && currentUser?.stripeCustomerId) {
+        toast.info('Ouverture du portail de facturation...');
+        await stripeService.createCustomerPortal(currentUser.stripeCustomerId);
+      } else {
+        toast.info('Historique de facturation disponible pour les abonnements payants');
+      }
+    } catch (error) {
+      console.error('Erreur portail facturation:', error);
+      toast.error('Impossible d\'accéder au portail de facturation');
+    }
   };
 
   const handleContactSupport = () => {
@@ -467,6 +498,21 @@ export default function Settings() {
                 <div className="subscription-actions">
                   <button className="btn-secondary" onClick={() => setShowPlanModal(true)}>Modifier l'abonnement</button>
                   <button className="btn-secondary" onClick={handleViewBillingHistory}>Historique de facturation</button>
+                  {settings.plan !== 'free' && (
+                    <button 
+                      className="btn-primary" 
+                      onClick={async () => {
+                        if (currentUser?.stripeCustomerId) {
+                          toast.info('Ouverture du portail Stripe...');
+                          await stripeService.createCustomerPortal(currentUser.stripeCustomerId);
+                        } else {
+                          toast.error('Aucun abonnement actif trouvé');
+                        }
+                      }}
+                    >
+                      Gérer mon abonnement
+                    </button>
+                  )}
                 </div>
               </div>
 

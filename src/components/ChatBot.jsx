@@ -207,13 +207,16 @@ export default function ChatBot({ isOpen, onClose }) {
   return (
     <div style={{
       position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
+      top: '18px',
+      left: '298px', // 280px sidebar + 18px gap
+      right: '18px',
+      bottom: '18px',
       background: 'var(--bg)',
       zIndex: 9999,
-      display: 'flex'
+      display: 'flex',
+      borderRadius: '16px',
+      border: '1px solid var(--border)',
+      overflow: 'hidden'
     }}>
       {/* Sidebar */}
       {showSidebar && (

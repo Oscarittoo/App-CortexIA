@@ -27,10 +27,35 @@ export default function SessionReport({ data, onNewSession, onEdit }) {
   const [isGenerating, setIsGenerating] = useState(true);
   const [activeTab, setActiveTab] = useState('summary');
   const [aiMeta, setAiMeta] = useState(null);
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [userSettings, setUserSettings] = useState(null);
 
   useEffect(() => {
+    // Charger les settings utilisateur
+    const settings = storageService.getSettings();
+    setUserSettings(settings);
     generateReport();
   }, []);
+  const getEmailSignature = () => {
+    if (!userSettings) return '\n\nCordialement,\nMeetizy';
+    
+    const { fullName, position, company } = userSettings;
+    let signature = '\n\nCordialement,';
+    
+    if (fullName && fullName !== 'Jean Dupont') {
+      signature += `\n${fullName}`;
+    }
+    
+    if (position && position !== 'Directeur Commercial') {
+      signature += `\n${position}`;
+    }
+    
+    if (company && company !== 'Entreprise SAS') {
+      signature += `\n${company}`;
+    }
+    
+    return signature || '\n\nCordialement,\nMeetizy';
+  };
 
   const generateReport = async () => {
     setIsGenerating(true);
@@ -121,7 +146,16 @@ ${aiReport.summary}
 
       setActions(uniqueActions.length > 0 ? uniqueActions : []);
       setDecisions(uniqueDecisions.length > 0 ? uniqueDecisions : []);
-      setFollowUpEmail(aiReport.email || '');
+      
+      // Personnaliser l'email avec signature utilisateur
+      let customEmail = aiReport.email || '';
+      if (customEmail) {
+        // Remplacer la signature générique par la signature personnalisée
+        customEmail = customEmail.replace(/Cordialement,\s*CORTEXIA/gi, getEmailSignature());
+        customEmail = customEmail.replace(/Cordialement,\s*Meetizy/gi, getEmailSignature());
+      }
+      setFollowUpEmail(customEmail);
+      
       setAiMeta(aiReport.meta || null);
       
       // Sauvegarder la session avec le rapport IA et les données fusionnées
@@ -186,7 +220,7 @@ ${extractKeyPoints(fullTranscript)}
       setDecisions(extractedDecisions);
       setAiMeta({ provider: 'local', model: 'local-heuristics', source: 'fallback' });
 
-      setFollowUpEmail(`Objet : Compte-rendu - ${data.title || 'Réunion'}\n\nBonjour,\n\nVoici le récapitulatif de notre réunion "${data.title || 'Sans titre'}" du ${new Date().toLocaleDateString('fr-FR')}.\n\nDURÉE : ${formatDuration(data.duration)}\n\n${extractedDecisions.length > 0 && extractedDecisions[0].text !== 'Aucune décision formelle détectée dans la transcription' ? `DÉCISIONS PRISES\n${extractedDecisions.map(d => `• ${d.text} (${d.impact})`).join('\n')}\n\n` : ''}${extractedActions.length > 0 && extractedActions[0].task !== 'Aucune action spécifique détectée dans la transcription' ? `ACTIONS À SUIVRE\n${extractedActions.map(a => `• ${a.task}\n  Responsable: ${a.responsible} | Échéance: ${new Date(a.deadline).toLocaleDateString('fr-FR')} | Priorité: ${a.priority}`).join('\n\n')}\n\n` : ''}TRANSCRIPTION\n${fullTranscript.substring(0, 800)}${fullTranscript.length > 800 ? '...\n\n[Transcription complète disponible dans le compte-rendu joint]' : ''}\n\nCordialement,\nCORTEXIA`);
+      setFollowUpEmail(`Objet : Compte-rendu - ${data.title || 'Réunion'}\n\nBonjour,\n\nVoici le récapitulatif de notre réunion "${data.title || 'Sans titre'}" du ${new Date().toLocaleDateString('fr-FR')}.\n\nDURÉE : ${formatDuration(data.duration)}\n\n${extractedDecisions.length > 0 && extractedDecisions[0].text !== 'Aucune décision formelle détectée dans la transcription' ? `DÉCISIONS PRISES\n${extractedDecisions.map(d => `• ${d.text} (${d.impact})`).join('\n')}\n\n` : ''}${extractedActions.length > 0 && extractedActions[0].task !== 'Aucune action spécifique détectée dans la transcription' ? `ACTIONS À SUIVRE\n${extractedActions.map(a => `• ${a.task}\n  Responsable: ${a.responsible} | Échéance: ${new Date(a.deadline).toLocaleDateString('fr-FR')} | Priorité: ${a.priority}`).join('\n\n')}\n\n` : ''}TRANSCRIPTION\n${fullTranscript.substring(0, 800)}${fullTranscript.length > 800 ? '...\n\n[Transcription complète disponible dans le compte-rendu joint]' : ''}${getEmailSignature()}`);
       
       const sessionToSave = {
         ...data,
@@ -361,7 +395,7 @@ ${extractKeyPoints(fullTranscript)}
 
   if (isGenerating) {
     return (
-      <div className="screen session-report" style={{ position: 'fixed', inset: 0, background: '#0f172a', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="screen session-report" style={{ position: 'fixed', top: '18px', left: '298px', right: '18px', bottom: '18px', background: '#0f172a', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '16px', border: '1px solid var(--border)', overflow: 'hidden' }}>
         <div style={{ textAlign: 'center', padding: '40px', background: '#1e293b', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
           <div className="spinner" style={{ margin: '0 auto 20px auto', border: '3px solid rgba(255,255,255,0.1)', borderTop: '3px solid #38bdf8', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>
           <h3 style={{ fontSize: '18px', marginBottom: '8px', color: 'white' }}>Génération du rapport IA en cours...</h3>
@@ -375,7 +409,7 @@ ${extractKeyPoints(fullTranscript)}
   }
 
   return (
-    <div className="screen session-report" style={{ position: 'fixed', inset: 0, background: '#0f172a', zIndex: 100, display: 'flex', flexDirection: 'column' }}>
+    <div className="screen session-report" style={{ position: 'fixed', top: '18px', left: '298px', right: '18px', bottom: '18px', background: '#0f172a', zIndex: 100, display: 'flex', flexDirection: 'column', borderRadius: '16px', border: '1px solid var(--border)', overflow: 'hidden' }}>
       <style>{`
         .report-header {
           display: flex;
@@ -725,14 +759,75 @@ ${extractKeyPoints(fullTranscript)}
 
           {activeTab === 'email' && (
              <div style={{ background: '#1e293b', padding: 32, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)' }}>
-               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginBottom: 16 }}>
+                 <button 
+                   onClick={() => setIsEditingEmail(!isEditingEmail)} 
+                   style={{ 
+                     display: 'flex', 
+                     gap: 8, 
+                     background: isEditingEmail ? 'rgba(34, 197, 94, 0.2)' : 'transparent', 
+                     border: '1px solid ' + (isEditingEmail ? 'rgba(34, 197, 94, 0.5)' : 'rgba(255,255,255,0.2)'), 
+                     color: 'white', 
+                     padding: '8px 16px', 
+                     borderRadius: 6, 
+                     cursor: 'pointer' 
+                   }}
+                 >
+                   <Edit size={16} /> {isEditingEmail ? 'Terminé' : 'Éditer'}
+                 </button>
+                 <button 
+                   onClick={() => {
+                     // Extraire l'objet et le corps de l'email
+                     const emailLines = followUpEmail.split('\n');
+                     const subjectLine = emailLines.find(line => line.startsWith('Objet :'));
+                     const subject = subjectLine ? subjectLine.replace('Objet :', '').trim() : `Compte-rendu - ${data.title || 'Réunion'}`;
+                     const body = followUpEmail.replace(subjectLine, '').trim();
+                     
+                     // Encoder pour mailto URL
+                     const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                     window.location.href = mailtoUrl;
+                     toast.success('Application mail ouverte');
+                   }}
+                   style={{ 
+                     display: 'flex', 
+                     gap: 8, 
+                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+                     border: 'none', 
+                     color: 'white', 
+                     padding: '8px 16px', 
+                     borderRadius: 6, 
+                     cursor: 'pointer',
+                     fontWeight: 600
+                   }}
+                 >
+                   <Mail size={16} /> Envoyer le mail
+                 </button>
                  <button onClick={handleCopyEmail} style={{ display: 'flex', gap: 8, background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '8px 16px', borderRadius: 6, cursor: 'pointer' }}>
                    <Copy size={16} /> Copier
                  </button>
                </div>
-               <div style={{ fontFamily: 'monospace', color: '#e2e8f0', whiteSpace: 'pre-wrap' }}>
-                 {followUpEmail}
-               </div>
+               {isEditingEmail ? (
+                 <textarea
+                   value={followUpEmail}
+                   onChange={(e) => setFollowUpEmail(e.target.value)}
+                   style={{
+                     width: '100%',
+                     minHeight: '400px',
+                     fontFamily: 'monospace',
+                     fontSize: '14px',
+                     color: '#e2e8f0',
+                     background: '#0f172a',
+                     border: '1px solid rgba(255,255,255,0.2)',
+                     borderRadius: '6px',
+                     padding: '16px',
+                     resize: 'vertical'
+                   }}
+                 />
+               ) : (
+                 <div style={{ fontFamily: 'monospace', color: '#e2e8f0', whiteSpace: 'pre-wrap' }}>
+                   {followUpEmail}
+                 </div>
+               )}
              </div>
           )}
         </div>

@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="url(#gradient-bg)" opacity="0.1"/>
+  
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="gradient-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#06B6D4;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient-brain" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#7C3AED;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#06B6D4;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient-circuit" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06B6D4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0EA5E9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Brain outline -->
+  <path d="M100 30 C85 30 72 38 65 50 C60 45 53 42 45 44 C35 46 28 55 28 66 C28 72 30 77 33 81 C25 88 20 98 20 110 C20 125 30 138 44 143 C44 148 45 152 47 156 C52 165 62 172 74 172 C78 172 82 171 86 169 C90 175 97 179 105 179 C115 179 124 173 128 164 C135 166 142 165 148 162 C160 156 168 145 170 132 C178 128 184 120 184 110 C184 102 180 95 174 90 C176 85 177 80 177 75 C177 60 167 48 154 44 C150 36 142 30 133 29 C127 28 121 29 116 32 C112 30 107 29 102 29 L100 30 Z" 
+        fill="url(#gradient-brain)" 
+        stroke-width="2" 
+        opacity="0.9"/>
+  
+  <!-- Left hemisphere details -->
+  <circle cx="70" cy="80" r="8" fill="none" stroke="url(#gradient-circuit)" stroke-width="2"/>
+  <circle cx="55" cy="105" r="6" fill="none" stroke="url(#gradient-circuit)" stroke-width="2"/>
+  <circle cx="68" cy="125" r="7" fill="none" stroke="url(#gradient-circuit)" stroke-width="2"/>
+  
+  <!-- Right hemisphere details -->
+  <circle cx="130" cy="75" r="8" fill="none" stroke="url(#gradient-circuit)" stroke-width="2"/>
+  <circle cx="145" cy="100" r="6" fill="none" stroke="url(#gradient-circuit)" stroke-width="2"/>
+  <circle cx="132" cy="120" r="7" fill="none" stroke="url(#gradient-circuit)" stroke-width="2"/>
+  
+  <!-- Center connection -->
+  <circle cx="100" cy="95" r="10" fill="none" stroke="url(#gradient-circuit)" stroke-width="2.5"/>
+  
+  <!-- Circuit lines connecting nodes -->
+  <line x1="70" y1="80" x2="92" y2="90" stroke="url(#gradient-circuit)" stroke-width="2" opacity="0.8"/>
+  <line x1="55" y1="105" x2="90" y2="98" stroke="url(#gradient-circuit)" stroke-width="2" opacity="0.8"/>
+  <line x1="68" y1="125" x2="95" y2="105" stroke="url(#gradient-circuit)" stroke-width="2" opacity="0.8"/>
+  
+  <line x1="130" y1="75" x2="108" y2="88" stroke="url(#gradient-circuit)" stroke-width="2" opacity="0.8"/>
+  <line x1="145" y1="100" x2="110" y2="97" stroke="url(#gradient-circuit)" stroke-width="2" opacity="0.8"/>
+  <line x1="132" y1="120" x2="105" y2="103" stroke="url(#gradient-circuit)" stroke-width="2" opacity="0.8"/>
+  
+  <!-- Small circuit nodes -->
+  <circle cx="70" cy="80" r="3" fill="#06B6D4"/>
+  <circle cx="55" cy="105" r="2.5" fill="#06B6D4"/>
+  <circle cx="68" cy="125" r="3" fill="#06B6D4"/>
+  <circle cx="130" cy="75" r="3" fill="#06B6D4"/>
+  <circle cx="145" cy="100" r="2.5" fill="#06B6D4"/>
+  <circle cx="132" cy="120" r="3" fill="#06B6D4"/>
+  <circle cx="100" cy="95" r="4" fill="#4F46E5"/>
+  
+  <!-- Additional circuit details -->
+  <path d="M75 60 L85 65 L90 70" stroke="url(#gradient-circuit)" stroke-width="1.5" fill="none" opacity="0.6"/>
+  <path d="M125 60 L115 65 L110 70" stroke="url(#gradient-circuit)" stroke-width="1.5" fill="none" opacity="0.6"/>
+  <path d="M50 85 L45 90 L44 95" stroke="url(#gradient-circuit)" stroke-width="1.5" fill="none" opacity="0.6"/>
+  <path d="M150 85 L155 90 L156 95" stroke="url(#gradient-circuit)" stroke-width="1.5" fill="none" opacity="0.6"/>
+  
+  <!-- Pulse effect circles (animated) -->
+  <circle cx="100" cy="95" r="10" fill="none" stroke="#06B6D4" stroke-width="1" opacity="0.3">
+    <animate attributeName="r" from="10" to="20" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" from="0.3" to="0" dur="2s" repeatCount="indefinite"/>
+  </circle>
+</svg>
