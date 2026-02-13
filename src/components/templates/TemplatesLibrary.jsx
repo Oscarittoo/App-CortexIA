@@ -86,7 +86,7 @@ export default function TemplatesLibrary() {
   const templates = [
       {
         id: 'standard',
-        name: 'Standard Reporting',
+        name: 'Réunion Standard',
         description: 'Format classique pour les réunions de suivi et les comités de pilotage.',
         sections: ['Résumé Exécutif', 'Points Clés', 'Décisions', 'Actions', 'Prochaines étapes'],
         category: 'Général',
@@ -94,7 +94,7 @@ export default function TemplatesLibrary() {
       },
       {
         id: 'sprint-planning',
-        name: 'Sprint Planning',
+        name: 'Planification Sprint',
         description: 'Template Agile pour planifier le travail de l\'équipe sur la prochaine itération.',
         sections: ['Objectif du Sprint', 'User Stories', 'Tâches Techniques', 'Estimations', 'Risques'],
         category: 'Agile',
@@ -102,28 +102,60 @@ export default function TemplatesLibrary() {
       },
       {
         id: 'one-on-one',
-        name: 'Entretien 1:1',
-        description: 'Structure pour les points hebdomadaires manager-collaborateur.',
-        sections: ['Succès de la semaine', 'Challenges', 'Feedback', 'Plan de développement'],
+        name: 'Entretien Professionnel',
+        description: 'Structure pour les points réguliers manager-collaborateur.',
+        sections: ['Succès récents', 'Challenges', 'Feedback', 'Plan de développement', 'Objectifs'],
         category: 'RH',
         color: 'green'
       },
       {
         id: 'brainstorm',
-        name: 'Brainstorming',
-        description: 'Session créative pour générer et structurer de nouvelles idées.',
-        sections: ['Contexte', 'Idées Brutes', 'Top 3', 'Plan d\'expérimentation'],
-        category: 'Créatif',
+        name: 'Séance Créative',
+        description: 'Session pour générer et structurer de nouvelles idées.',
+        sections: ['Contexte', 'Idées Brutes', 'Top 3', 'Plan d\'action'],
+        category: 'Innovation',
         color: 'orange'
       },
       {
         id: 'sales-disco',
-        name: 'Découverte Commerciale',
+        name: 'Découverte Client',
         description: 'Qualification des besoins client et identification des opportunités.',
-        sections: ['Contexte Client', 'Pain Points', 'Budget & Timeline', 'Décideurs'],
-        category: 'Vente',
+        sections: ['Contexte Client', 'Besoins identifiés', 'Budget & Timeline', 'Décideurs', 'Prochaine étape'],
+        category: 'Commercial',
         color: 'pink'
       },
+      {
+        id: 'team-retrospective',
+        name: 'Rétrospective d\'Équipe',
+        description: 'Bilan d\'une période pour améliorer la collaboration.',
+        sections: ['Ce qui a bien marché', 'Points d\'amélioration', 'Actions d\'optimisation', 'Engagement'],
+        category: 'Agile',
+        color: 'purple'
+      },
+      {
+        id: 'project-kickoff',
+        name: 'Lancement de Projet',
+        description: 'Première réunion pour cadrer un nouveau projet.',
+        sections: ['Objectifs', 'Périmètre', 'Équipe', 'Planning', 'Risques', 'Budget'],
+        category: 'Projet',
+        color: 'blue'
+      },
+      {
+        id: 'client-followup',
+        name: 'Suivi Client',
+        description: 'Point régulier avec un client pour suivre l\'avancement.',
+        sections: ['Avancement', 'Résultats', 'Prochaines livraisons', 'Questions', 'Satisfaction'],
+        category: 'Commercial',
+        color: 'pink'
+      },
+      {
+        id: 'team-meeting',
+        name: 'Réunion d\'Équipe',
+        description: 'Point hebdomadaire ou mensuel avec toute l\'équipe.',
+        sections: ['Actualités', 'Projets en cours', 'Succès', 'Challenges', 'Annonces'],
+        category: 'Général',
+        color: 'blue'
+      }
   ].concat(customTemplates);
 
   return (

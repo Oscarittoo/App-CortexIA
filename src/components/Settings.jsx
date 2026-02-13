@@ -498,21 +498,6 @@ export default function Settings({ initialTab = 'profile' }) {
                 <div className="subscription-actions">
                   <button className="btn-secondary" onClick={() => setShowPlanModal(true)}>Modifier l'abonnement</button>
                   <button className="btn-secondary" onClick={handleViewBillingHistory}>Historique de facturation</button>
-                  {settings.plan !== 'free' && (
-                    <button 
-                      className="btn-primary" 
-                      onClick={async () => {
-                        if (currentUser?.stripeCustomerId) {
-                          toast.info('Ouverture du portail Stripe...');
-                          await stripeService.createCustomerPortal(currentUser.stripeCustomerId);
-                        } else {
-                          toast.error('Aucun abonnement actif trouvé');
-                        }
-                      }}
-                    >
-                      Gérer mon abonnement
-                    </button>
-                  )}
                 </div>
               </div>
 

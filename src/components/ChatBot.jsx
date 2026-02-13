@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bot, Send, Menu, Loader, PlusCircle, Trash2, MessageSquare, X, Crown, Sparkles } from 'lucide-react';
+import { Send, Menu, Loader, PlusCircle, Trash2, MessageSquare, X, Crown, Sparkles } from 'lucide-react';
 import toast from './Toast';
 import llmService from '../services/llmService';
 import authService from '../services/authService';
@@ -207,16 +207,18 @@ export default function ChatBot({ isOpen, onClose }) {
   return (
     <div style={{
       position: 'fixed',
-      top: '18px',
-      left: '298px', // 280px sidebar + 18px gap
-      right: '18px',
-      bottom: '18px',
+      top: '5%',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: 'min(1200px, 85vw)',
+      height: '80vh',
       background: 'var(--bg)',
       zIndex: 9999,
       display: 'flex',
       borderRadius: '16px',
       border: '1px solid var(--border)',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'
     }}>
       {/* Sidebar */}
       {showSidebar && (
@@ -238,8 +240,8 @@ export default function ChatBot({ isOpen, onClose }) {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Bot size={20} color="var(--accent)" />
-                <span style={{ fontWeight: '600', fontSize: '14px' }}>Assistant IA</span>
+                <Sparkles size={20} color="var(--accent)" />
+                <span style={{ fontWeight: '600', fontSize: '14px' }}>Assistant Intelligent</span>
               </div>
               <button
                 onClick={() => setShowSidebar(false)}
@@ -471,11 +473,11 @@ export default function ChatBot({ isOpen, onClose }) {
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <Bot size={22} color="white" />
+              <Sparkles size={22} color="white" />
             </div>
             <div>
               <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>
-                Assistant IA Meetizy
+                Assistant Intelligent Meetizy
               </h3>
               <p style={{ margin: 0, fontSize: '12px', color: 'var(--muted)' }}>
                 Toujours prêt à vous aider
@@ -533,7 +535,7 @@ export default function ChatBot({ isOpen, onClose }) {
                   justifyContent: 'center',
                   flexShrink: 0
                 }}>
-                  <Bot size={20} color="white" />
+                  <Sparkles size={20} color="white" />
                 </div>
               )}
 
@@ -609,7 +611,7 @@ export default function ChatBot({ isOpen, onClose }) {
                 justifyContent: 'center',
                 flexShrink: 0
               }}>
-                <Bot size={20} color="white" />
+                <Sparkles size={20} color="white" />
               </div>
               <div style={{
                 padding: '16px 20px',

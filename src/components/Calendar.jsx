@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Calendar as CalendarIcon, Plus, Trash2, Clock, Users, MapPin, Video } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Trash2, Clock, Users, MapPin, Video, ChevronLeft, ChevronRight } from 'lucide-react';
 import toast from './Toast';
 import authService from '../services/authService';
 import teamService from '../services/teamService';
 
 /**
- * Composant Calendar - Gestion des réunions futures
+ * Composant Calendar - Gestion des réunions futures avec vue calendrier
  * Avec partage d'équipe via Supabase
  */
 export default function Calendar() {
@@ -13,6 +13,8 @@ export default function Calendar() {
   const [currentUser, setCurrentUser] = useState(null);
   const [isInTeam, setIsInTeam] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [newMeeting, setNewMeeting] = useState({
     title: '',
     date: '',
@@ -151,11 +153,65 @@ export default function Calendar() {
     return sortedMeetings.filter(m => new Date(m.date + ' ' + m.time) < now);
   };
 
+  // Fonctions pour le calendrier
+  const getDaysInMonth = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+    
+    const days = [];
+    // Jours du mois précédent
+    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+      const prevDate = new Date(year, month, -i);
+      days.push({ date: prevDate, isCurrentMonth: false });
+    }
+    // Jours du mois actuel
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push({ date: new Date(year, month, i), isCurrentMonth: true });
+    }
+    // Jours du mois suivant pour compléter la grille
+    const remainingDays = 42 - days.length; // 6 semaines * 7 jours
+    for (let i = 1; i <= remainingDays; i++) {
+      days.push({ date: new Date(year, month + 1, i), isCurrentMonth: false });
+    }
+    return days;
+  };
+
+  const getMeetingsForDate = (date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    return meetings.filter(m => m.date === dateStr);
+  };
+
+  const handleDayClick = (day) => {
+    if (!day.isCurrentMonth) return;
+    const dateStr = day.date.toISOString().split('T')[0];
+    setSelectedDate(dateStr);
+    setNewMeeting({ ...newMeeting, date: dateStr });
+    setShowAddForm(true);
+  };
+
+  const nextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+  };
+
+  const prevMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+  };
+
+  const isToday = (date) => {
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  };
+
+  const days = getDaysInMonth(currentMonth);
+  const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
   const upcoming = getUpcomingMeetings();
-  const past = getPastMeetings();
 
   return (
-    <div className="calendar-container" style={{ padding: '32px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div className="calendar-container" style={{ padding: '32px', maxWidth: '1400px', margin: '0 auto' }}>
       {/* Header */}
       <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
@@ -164,11 +220,15 @@ export default function Calendar() {
             Calendrier des Réunions
           </h1>
           <p style={{ color: 'var(--muted)', fontSize: '16px' }}>
-            Planifiez et gérez vos futures réunions
+            {upcoming.length} réunion(s) à venir
           </p>
         </div>
         <button
-          onClick={() => setShowAddForm(!showAddForm)}
+          onClick={() => {
+            setSelectedDate(new Date().toISOString().split('T')[0]);
+            setNewMeeting({ ...newMeeting, date: new Date().toISOString().split('T')[0] });
+            setShowAddForm(true);
+          }}
           className="btn btn-primary"
           style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
         >
@@ -335,6 +395,107 @@ export default function Calendar() {
         </div>
       )}
 
+      {/* Vue Calendrier Mensuel */}
+      <div style={{
+        background: 'var(--card-bg)',
+        border: '1px solid var(--border)',
+        borderRadius: '16px',
+        padding: '24px',
+        marginBottom: '32px'
+      }}>
+        {/* Navigation mois */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+          <button onClick={prevMonth} className="btn-icon-premium">
+            <ChevronLeft size={20} />
+          </button>
+          <h2 style={{ fontSize: '20px', fontWeight: '600', textTransform: 'capitalize' }}>
+            {currentMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
+          </h2>
+          <button onClick={nextMonth} className="btn-icon-premium">
+            <ChevronRight size={20} />
+          </button>
+        </div>
+
+        {/* Jours de la semaine */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', marginBottom: '8px' }}>
+          {weekDays.map(day => (
+            <div key={day} style={{ textAlign: 'center', fontSize: '13px', fontWeight: '600', color: 'var(--muted)', padding: '8px 0' }}>
+              {day}
+            </div>
+          ))}
+        </div>
+
+        {/* Grille des jours */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
+          {days.map((day, index) => {
+            const dayMeetings = getMeetingsForDate(day.date);
+            const isTodayDate = isToday(day.date);
+            
+            return (
+              <div
+                key={index}
+                onClick={() => handleDayClick(day)}
+                style={{
+                  minHeight: '80px',
+                  padding: '8px',
+                  border: `1px solid ${isTodayDate ? 'var(--accent)' : 'var(--border)'}`,
+                  borderRadius: '8px',
+                  background: day.isCurrentMonth ? 'var(--bg)' : 'transparent',
+                  opacity: day.isCurrentMonth ? 1 : 0.3,
+                  cursor: day.isCurrentMonth ? 'pointer' : 'default',
+                  transition: 'all 0.2s',
+                  position: 'relative'
+                }}
+                onMouseEnter={(e) => {
+                  if (day.isCurrentMonth) {
+                    e.currentTarget.style.background = 'rgba(56, 189, 248, 0.05)';
+                    e.currentTarget.style.borderColor = 'var(--accent)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (day.isCurrentMonth) {
+                    e.currentTarget.style.background = 'var(--bg)';
+                    e.currentTarget.style.borderColor = isTodayDate ? 'var(--accent)' : 'var(--border)';
+                  }
+                }}
+              >
+                <div style={{ fontSize: '14px', fontWeight: isTodayDate ? '700' : '500', color: isTodayDate ? 'var(--accent)' : 'var(--text)', marginBottom: '4px' }}>
+                  {day.date.getDate()}
+                </div>
+                {dayMeetings.length > 0 && (
+                  <div style={{ marginTop: '4px' }}>
+                    {dayMeetings.slice(0, 2).map(meeting => (
+                      <div 
+                        key={meeting.id}
+                        style={{
+                          fontSize: '10px',
+                          padding: '2px 4px',
+                          background: 'rgba(56, 189, 248, 0.2)',
+                          borderRadius: '4px',
+                          marginBottom: '2px',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          color: 'var(--accent)'
+                        }}
+                        title={`${meeting.time} - ${meeting.title}`}
+                      >
+                        {meeting.time} {meeting.title}
+                      </div>
+                    ))}
+                    {dayMeetings.length > 2 && (
+                      <div style={{ fontSize: '10px', color: 'var(--muted)', textAlign: 'center' }}>
+                        +{dayMeetings.length - 2}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Upcoming Meetings */}
       <div style={{ marginBottom: '32px' }}>
         <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '16px', color: '#10b981' }}>
@@ -408,48 +569,6 @@ export default function Calendar() {
           </div>
         )}
       </div>
-
-      {/* Past Meetings */}
-      {past.length > 0 && (
-        <div>
-          <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '16px', color: 'var(--muted)' }}>
-            Réunions passées ({past.length})
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', opacity: 0.6 }}>
-            {past.map(meeting => (
-              <div
-                key={meeting.id}
-                style={{
-                  background: 'var(--card-bg)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '12px',
-                  padding: '20px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}
-              >
-                <div>
-                  <h3 style={{ fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>
-                    {meeting.title}
-                  </h3>
-                  <div style={{ fontSize: '14px', color: 'var(--muted)' }}>
-                    {formatDate(meeting.date)} à {meeting.time}
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleDeleteMeeting(meeting.id)}
-                  className="btn-icon-premium"
-                  title="Supprimer"
-                  style={{ color: '#ef4444' }}
-                >
-                  <Trash2 size={18} />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -33,10 +33,10 @@ export default function Teams({ currentUser }) {
 
   // Limites selon le plan
   const planLimits = {
-    free: 5,
-    pro: 10,
-    business: 25,
-    expert: 50
+    free: 3,
+    pro: 5,
+    business: 15,
+    expert: 30
   };
 
   const userPlan = currentUser?.plan || 'free';

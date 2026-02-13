@@ -11,10 +11,11 @@ import {
   Shield,
   Users,
   Calendar as CalendarIcon,
-  Bot,
   CreditCard,
-  ChevronLeft,
-  ChevronRight
+  ChevronsLeft,
+  ChevronsRight,
+  Sparkles,
+  Download
 } from 'lucide-react';
 import Home from './components/Home';
 import Features from './components/Features';
@@ -239,12 +240,8 @@ export default function App() {
                    e.target.style.borderColor = 'rgba(56, 189, 248, 0.3)';
                  }}
                >
-                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                   <polyline points="7 10 12 15 17 10"/>
-                   <line x1="12" y1="15" x2="12" y2="3"/>
-                 </svg>
-                 Installer l'agent interactif IA
+                 <Download size={16} />
+                 Installer l'assistant interactif
                </button>
                
                <button className="btn btn-primary" onClick={() => setCurrentView('login')}>
@@ -282,93 +279,48 @@ export default function App() {
         
         {/* SIDEBAR */}
         <aside className="sidebar" style={{ width: isSidebarCollapsed ? '80px' : '280px', transition: 'width 0.3s ease', position: 'relative' }}>
-          {/* Bouton toggle */}
-          <button
-            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            style={{
-              position: 'absolute',
-              right: '-12px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              width: '24px',
-              height: '24px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              border: '2px solid var(--border)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              zIndex: 10,
-              color: 'white',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
-            }}
-            title={isSidebarCollapsed ? 'Agrandir le menu' : 'Réduire le menu'}
-          >
-            {isSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-          </button>
-
-          <div className="brand" style={{ flexDirection: isSidebarCollapsed ? 'column' : 'row', gap: isSidebarCollapsed ? '8px' : '10px' }}>
+          <div className="brand" style={{ flexDirection: isSidebarCollapsed ? 'column' : 'row', gap: isSidebarCollapsed ? '8px' : '10px', padding: isSidebarCollapsed ? '20px 10px' : '20px' }}>
             <img src={logo} alt="Meetizy Logo" width={isSidebarCollapsed ? "32" : "64"} height={isSidebarCollapsed ? "32" : "64"} style={{ transition: 'all 0.3s ease' }} />
             {!isSidebarCollapsed && (
               <span style={{ fontFamily: 'Orbitron, sans-serif', letterSpacing: '1px', fontSize: '18px', fontWeight: 'bold', color: 'var(--text-primary)' }}>MEETIZY</span>
             )}
           </div>
-          
-          {/* Toggle Button */}
-          <button 
-            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            style={{
-              position: 'absolute',
-              top: '20px',
-              right: '-12px',
-              width: '24px',
-              height: '24px',
-              borderRadius: '50%',
-              background: 'var(--accent)',
-              border: '2px solid var(--border)',
-              color: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              zIndex: 10,
-              transition: 'all 0.2s ease'
-            }}
-            title={isSidebarCollapsed ? 'Agrandir le menu' : 'Réduire le menu'}
-          >
-            {isSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-          </button>
 
           <nav>
-            <a className={`nav-item ${currentView === 'dashboard' ? 'active' : ''}`} onClick={() => setCurrentView('dashboard')}>
-              <LayoutDashboard size={18} /> Tableau de bord
+            <a className={`nav-item ${currentView === 'dashboard' ? 'active' : ''}`} onClick={() => setCurrentView('dashboard')} title="Tableau de bord">
+              <LayoutDashboard size={18} /> {!isSidebarCollapsed && <span>Tableau de bord</span>}
             </a>
-            <a className={`nav-item ${currentView === 'new' || currentView === 'active' ? 'active' : ''}`} onClick={() => setCurrentView('new')}>
-              <PlusCircle size={18} /> Nouvelle session
+            <a className={`nav-item ${currentView === 'new' || currentView === 'active' ? 'active' : ''}`} onClick={() => setCurrentView('new')} title="Nouvelle session">
+              <PlusCircle size={18} /> {!isSidebarCollapsed && <span>Nouvelle session</span>}
             </a>
-            <a className={`nav-item ${currentView === 'history' ? 'active' : ''}`} onClick={() => setCurrentView('history')}>
-              <History size={18} /> Historique
+            <a className={`nav-item ${currentView === 'history' ? 'active' : ''}`} onClick={() => setCurrentView('history')} title="Historique">
+              <History size={18} /> {!isSidebarCollapsed && <span>Historique</span>}
             </a>
-            <a className={`nav-item ${currentView === 'actions' ? 'active' : ''}`} onClick={() => setCurrentView('actions')}>
-              <CheckSquare size={18} /> Actions
+            <a className={`nav-item ${currentView === 'actions' ? 'active' : ''}`} onClick={() => setCurrentView('actions')} title="Actions">
+              <CheckSquare size={18} /> {!isSidebarCollapsed && <span>Actions</span>}
             </a>
-            <a className={`nav-item ${currentView === 'templates' ? 'active' : ''}`} onClick={() => setCurrentView('templates')}>
-              <FileText size={18} /> Templates
+            <a className={`nav-item ${currentView === 'templates' ? 'active' : ''}`} onClick={() => setCurrentView('templates')} title="Templates">
+              <FileText size={18} /> {!isSidebarCollapsed && <span>Templates</span>}
             </a>
             
             {/* Nouvelles sections */}
-            <a className={`nav-item ${currentView === 'teams' ? 'active' : ''}`} onClick={() => setCurrentView('teams')}>
-              <Users size={18} /> Équipes
+            <a className={`nav-item ${currentView === 'teams' ? 'active' : ''}`} onClick={() => setCurrentView('teams')} title="Équipes">
+              <Users size={18} /> {!isSidebarCollapsed && <span>Équipes</span>}
             </a>
-            <a className={`nav-item ${currentView === 'calendar' ? 'active' : ''}`} onClick={() => setCurrentView('calendar')}>
-              <CalendarIcon size={18} /> Calendrier
+            <a className={`nav-item ${currentView === 'calendar' ? 'active' : ''}`} onClick={() => setCurrentView('calendar')} title="Calendrier">
+              <CalendarIcon size={18} /> {!isSidebarCollapsed && <span>Calendrier</span>}
             </a>
-            <a className={`nav-item ${currentView === 'agent-install' ? 'active' : ''}`} onClick={() => setCurrentView('agent-install')}>
-              <Bot size={18} /> Installer l'agent IA
+            <a className={`nav-item ${currentView === 'agent-install' ? 'active' : ''}`} onClick={() => setCurrentView('agent-install')} title="Installer l'assistant">
+              <Sparkles size={18} /> {!isSidebarCollapsed && <span>Installer l'assistant</span>}
             </a>
-            <a className={`nav-item ${currentView === 'subscription' ? 'active' : ''}`} onClick={() => setCurrentView('subscription')}>
-              <CreditCard size={18} /> Mon abonnement
+            <a className={`nav-item ${currentView === 'subscription' ? 'active' : ''}`} onClick={() => setCurrentView('subscription')} title="Mon abonnement">
+              <CreditCard size={18} /> {!isSidebarCollapsed && <span>Mon abonnement</span>}
+            </a>
+            
+            {/* Bouton Réduire */}
+            <a className="nav-item" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} title={isSidebarCollapsed ? 'Agrandir le menu' : 'Réduire le menu'} style={{ marginTop: '8px', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
+              {isSidebarCollapsed ? <ChevronsRight size={18} /> : <ChevronsLeft size={18} />}
+              {!isSidebarCollapsed && <span>Réduire</span>}
             </a>
             
             {/* 
@@ -380,22 +332,30 @@ export default function App() {
             */}
           </nav>
 
-          <div className="sidebar-footer">
-            <div className="user-profile">
-               <div className="user-avatar">{currentUser?.email?.substring(0, 2).toUpperCase()}</div>
-               <div style={{ overflow: 'hidden' }}>
-                 <div style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text)', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{currentUser?.email}</div>
-                 <div style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'capitalize' }}>
-                   {currentUser?.plan === 'free' ? 'Free' : 
-                    currentUser?.plan === 'pro' ? 'Pro' : 
-                    currentUser?.plan === 'business' ? 'Business' : 
-                    currentUser?.plan === 'expert' ? 'Expert' : 'Free'} Plan
-                 </div>
-               </div>
-            </div>
-            <button className="btn-icon-premium" onClick={handleLogout} title="Déconnexion">
-              <LogOut size={16} />
-            </button>
+          <div className="sidebar-footer" style={{ flexDirection: isSidebarCollapsed ? 'column' : 'row', gap: isSidebarCollapsed ? '8px' : '12px', padding: isSidebarCollapsed ? '12px' : '16px' }}>
+            {!isSidebarCollapsed ? (
+              <>
+                <div className="user-profile">
+                  <div className="user-avatar">{currentUser?.email?.substring(0, 2).toUpperCase()}</div>
+                  <div style={{ overflow: 'hidden' }}>
+                    <div style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text)', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{currentUser?.email}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'capitalize' }}>
+                      {currentUser?.plan === 'free' ? 'Free' : 
+                       currentUser?.plan === 'pro' ? 'Pro' : 
+                       currentUser?.plan === 'business' ? 'Business' : 
+                       currentUser?.plan === 'expert' ? 'Expert' : 'Free'} Plan
+                    </div>
+                  </div>
+                </div>
+                <button className="btn-icon-premium" onClick={handleLogout} title="Déconnexion">
+                  <LogOut size={16} />
+                </button>
+              </>
+            ) : (
+              <button className="btn-icon-premium" onClick={handleLogout} title="Déconnexion" style={{ width: '100%', justifyContent: 'center' }}>
+                <LogOut size={16} />
+              </button>
+            )}
           </div>
         </aside>
 
@@ -505,9 +465,9 @@ export default function App() {
               e.target.style.transform = 'scale(1)';
               e.target.style.boxShadow = '0 8px 24px rgba(102, 126, 234, 0.4)';
             }}
-            title="Assistant IA"
+            title="Assistant intelligent"
           >
-            <Bot size={28} />
+            <Sparkles size={28} />
           </button>
         )}
       </div>
