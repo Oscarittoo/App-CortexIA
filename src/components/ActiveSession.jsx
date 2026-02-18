@@ -305,13 +305,9 @@ export default function ActiveSession({ config, onEnd }) {
   const analyzeTextForActionsAndDecisions = (text) => {
     const lowerText = text.toLowerCase();
     
-    // Mots-clés pour actions
+    // Mots-clés pour actions - UNIQUEMENT si le verbe "faire" est présent
     const actionKeywords = [
-      'doit', 'dois', 'devons', 'devez', 'va', 'vais', 'allons', 'allez',
-      'devra', 'faut', 'il faut', 'faudra', 'besoin', 'action', 'faire',
-      'réaliser', 'tâche', 'planifier', 'organiser', 'préparer', 'prévoir',
-      'créer', 'mettre en place', 'lancer', 'développer', 'implémenter',
-      'à suivre', 'next step', 'prochaine étape', 'todo'
+      'faire', 'fais', 'faut', 'il faut', 'faudra', 'faudrait', 'falloir'
     ];
     
     // Mots-clés pour décisions

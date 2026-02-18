@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar as CalendarIcon, Plus, Trash2, Clock, Users, MapPin, Video, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Trash2, Clock, Users, MapPin, Video, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import toast from './Toast';
 import authService from '../services/authService';
 import teamService from '../services/teamService';
@@ -219,22 +219,40 @@ export default function Calendar() {
             <CalendarIcon size={32} />
             Calendrier des Réunions
           </h1>
-          <p style={{ color: 'var(--muted)', fontSize: '16px' }}>
+          <p style={{ color: 'var(--muted)', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
             {upcoming.length} réunion(s) à venir
+            {isInTeam && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(99,102,241,0.15)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.3)', padding: '2px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' }}>
+                <Users size={12} /> Partagé avec l'équipe
+              </span>
+            )}
           </p>
         </div>
-        <button
-          onClick={() => {
-            setSelectedDate(new Date().toISOString().split('T')[0]);
-            setNewMeeting({ ...newMeeting, date: new Date().toISOString().split('T')[0] });
-            setShowAddForm(true);
-          }}
-          className="btn btn-primary"
-          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-        >
-          <Plus size={20} />
-          Nouvelle réunion
-        </button>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          {isInTeam && (
+            <button
+              onClick={loadUserAndMeetings}
+              className="btn btn-secondary"
+              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              title="Actualiser les réunions de l'équipe"
+            >
+              <RefreshCw size={16} />
+              Actualiser
+            </button>
+          )}
+          <button
+            onClick={() => {
+              setSelectedDate(new Date().toISOString().split('T')[0]);
+              setNewMeeting({ ...newMeeting, date: new Date().toISOString().split('T')[0] });
+              setShowAddForm(true);
+            }}
+            className="btn btn-primary"
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+          >
+            <Plus size={20} />
+            Nouvelle réunion
+          </button>
+        </div>
       </div>
 
       {/* Add Meeting Form */}
@@ -530,8 +548,13 @@ export default function Calendar() {
                 }}
               >
                 <div style={{ flex: 1 }}>
-                  <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px' }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                     {meeting.title}
+                    {isInTeam && (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(99,102,241,0.15)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.3)', padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: '600' }}>
+                        <Users size={11} /> Équipe
+                      </span>
+                    )}
                   </h3>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '14px', color: 'var(--muted)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

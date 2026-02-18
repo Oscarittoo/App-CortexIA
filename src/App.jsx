@@ -278,7 +278,7 @@ export default function App() {
         <Toaster />
         
         {/* SIDEBAR */}
-        <aside className="sidebar" style={{ width: isSidebarCollapsed ? '80px' : '280px', transition: 'width 0.3s ease', position: 'relative' }}>
+        <aside className="sidebar" style={{ width: isSidebarCollapsed ? '80px' : '280px', minWidth: isSidebarCollapsed ? '80px' : '280px', transition: 'width 0.3s ease, min-width 0.3s ease', position: 'relative' }}>
           <div className="brand" style={{ flexDirection: isSidebarCollapsed ? 'column' : 'row', gap: isSidebarCollapsed ? '8px' : '10px', padding: isSidebarCollapsed ? '20px 10px' : '20px' }}>
             <img src={logo} alt="Meetizy Logo" width={isSidebarCollapsed ? "32" : "64"} height={isSidebarCollapsed ? "32" : "64"} style={{ transition: 'all 0.3s ease' }} />
             {!isSidebarCollapsed && (
@@ -395,6 +395,7 @@ export default function App() {
                   data={reportData}
                   onNewSession={handleNewSession}
                   onEdit={() => handleEditSession(reportData)}
+                  isSidebarCollapsed={isSidebarCollapsed}
                 />
              )}
 

@@ -273,7 +273,9 @@ RÈGLES STRICTES:
 - **MAXIMUM 5-7 MOTS PAR ACTION** (format court et concis).
 - Exemple: "Préparer présentation Q1" au lieu de "Il faudrait préparer une présentation détaillée pour le premier trimestre".
 - Ne découpe pas une phrase en fragments.
-- Si aucune action explicite, retourne {"actions": []}.
+- **RÈGLE ABSOLUE : N'extraire une action QUE si le verbe "faire", "fais", "faut", "falloir", "faudrait", "faudra" ou "fait" apparaît EXPLICITEMENT dans la même phrase ou la phrase immédiatement précédente.**
+- Si le verbe "faire" (et ses variantes) n'est pas présent, ne pas extraire l'action.
+- Si aucune action avec "faire" n'est trouvée, retourne {"actions": []}.
 
 TRANSCRIPTION:
 ${transcriptText}
@@ -296,7 +298,8 @@ Réponds UNIQUEMENT avec le JSON.`
 EXTRACTION RULES:
 - **ACTION MUST BE SHORT: Maximum 5-7 words** (concise format)
 - Example: "Prepare Q1 presentation" instead of "We need to prepare a detailed presentation for the first quarter"
-- Look for phrases with "must", "should", "will", "need to", "action", "prepare", "organize", "plan"
+- **MANDATORY RULE: Only extract an action if the word "do", "make", "need to do", "must do", or "have to do" (or French "faire", "faut", "falloir") appears EXPLICITLY in the same or immediately preceding sentence.**
+- If no such trigger word is present, skip the action.
 - Identify who is responsible (person name or team)
 - Detect mentioned deadlines (dates, "tomorrow", "next week", etc.)
 - Assess priority based on expressed urgency

@@ -19,7 +19,7 @@ import llmService from '../services/llmService';
 import storageService from '../utils/storage';
 import toast from './Toast';
 
-export default function SessionReport({ data, onNewSession, onEdit }) {
+export default function SessionReport({ data, onNewSession, onEdit, isSidebarCollapsed = false }) {
   const [summary, setSummary] = useState('');
   const [actions, setActions] = useState([]);
   const [decisions, setDecisions] = useState([]);
@@ -34,8 +34,56 @@ export default function SessionReport({ data, onNewSession, onEdit }) {
     // Charger les settings utilisateur
     const settings = storageService.getSettings();
     setUserSettings(settings);
-    generateReport();
+    // Si le rapport IA a déjà été généré et sauvegardé, utiliser les données sauvegardées
+    if (data.aiGenerated && data.summary) {
+      loadSavedReport(settings);
+    } else {
+      generateReport();
+    }
   }, []);
+
+  const loadSavedReport = (settings) => {
+    // Reconstruire le résumé complet affiché (comme generateReport le fait)
+    const savedSummary = `COMPTE-RENDU DE RÉUNION
+
+Titre: ${data.title || 'Sans titre'}
+Date: ${data.date ? new Date(data.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : new Date(data.generatedAt || Date.now()).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+Durée: ${formatDuration(data.duration)}
+Langue: ${data.language === 'fr' ? 'Français' : 'English'}
+
+---
+
+## SYNTHÈSE
+
+${data.summary}
+
+---
+
+*Ce rapport a été généré automatiquement par IA*`;
+
+    setSummary(savedSummary);
+    setActions(data.actions || []);
+    setDecisions(data.decisions || []);
+
+    // Restaurer l'email sauvegardé ou reconstruire avec signature
+    let email = data.email || '';
+    if (email && settings) {
+      const { fullName, position, company } = settings;
+      let signature = '\n\nCordialement,';
+      if (fullName && fullName !== 'Jean Dupont') signature += `\n${fullName}`;
+      if (position && position !== 'Directeur Commercial') signature += `\n${position}`;
+      if (company && company !== 'Entreprise SAS') signature += `\n${company}`;
+      if (signature !== '\n\nCordialement,') {
+        email = email.replace(/Cordialement,\s*CORTEXIA/gi, signature);
+        email = email.replace(/Cordialement,\s*Meetizy/gi, signature);
+      }
+    }
+    setFollowUpEmail(email);
+
+    setAiMeta(data.aiMeta || null);
+    setIsGenerating(false);
+  };
+
   const getEmailSignature = () => {
     if (!userSettings) return '\n\nCordialement,\nMeetizy';
     
@@ -395,7 +443,7 @@ ${extractKeyPoints(fullTranscript)}
 
   if (isGenerating) {
     return (
-      <div className="screen session-report" style={{ position: 'fixed', top: '18px', left: '298px', right: '18px', bottom: '18px', background: '#0f172a', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '16px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+      <div className="screen session-report" style={{ position: 'fixed', top: '18px', left: isSidebarCollapsed ? '116px' : '316px', right: '18px', bottom: '18px', background: '#0f172a', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '16px', border: '1px solid var(--border)', overflow: 'hidden', transition: 'left 0.3s ease' }}>
         <div style={{ textAlign: 'center', padding: '40px', background: '#1e293b', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
           <div className="spinner" style={{ margin: '0 auto 20px auto', border: '3px solid rgba(255,255,255,0.1)', borderTop: '3px solid #38bdf8', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>
           <h3 style={{ fontSize: '18px', marginBottom: '8px', color: 'white' }}>Génération du rapport IA en cours...</h3>
@@ -409,7 +457,7 @@ ${extractKeyPoints(fullTranscript)}
   }
 
   return (
-    <div className="screen session-report" style={{ position: 'fixed', top: '18px', left: '298px', right: '18px', bottom: '18px', background: '#0f172a', zIndex: 100, display: 'flex', flexDirection: 'column', borderRadius: '16px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+    <div className="screen session-report" style={{ position: 'fixed', top: '18px', left: isSidebarCollapsed ? '116px' : '316px', right: '18px', bottom: '18px', background: '#0f172a', zIndex: 100, display: 'flex', flexDirection: 'column', borderRadius: '16px', border: '1px solid var(--border)', overflow: 'hidden', transition: 'left 0.3s ease' }}>
       <style>{`
         .report-header {
           display: flex;
