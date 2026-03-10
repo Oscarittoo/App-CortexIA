@@ -1,338 +1,214 @@
-import { Bot, Download, Chrome, Copy, CheckCircle, ExternalLink } from 'lucide-react';
-import { useState } from 'react';
+﻿import { Bot, Download, Monitor, Keyboard, Mic, FileText, CheckCircle, Layers } from 'lucide-react';
 import toast from './Toast';
 
-/**
- * Composant AgentInstall - Instructions d'installation de l'agent IA
- */
+const OS_LINKS = {
+  windows: { label: 'Windows (.exe)', href: '#' },
+  mac: { label: 'macOS (.dmg)', href: '#' },
+  linux: { label: 'Linux (.AppImage)', href: '#' },
+};
+
+const installSteps = [
+  {
+    title: 'TÃ©lÃ©charger l\'agent MEETIZY',
+    description: 'Un seul fichier Ã  installer pour Windows, macOS ou Linux. L\'agent tient en arriÃ¨re-plan et ne consomme presque aucune ressource.',
+    icon: Download,
+    color: '#667eea',
+  },
+  {
+    title: 'Lancer l\'application',
+    description: 'Double-cliquez sur le fichier installÃ©. Une icÃ´ne MEETIZY apparaÃ®t dans votre barre des tÃ¢ches (Windows) ou la barre de menus (Mac). L\'agent est prÃªt.',
+    icon: Monitor,
+    color: '#10b981',
+  },
+  {
+    title: 'Rejoignez votre rÃ©union normalement',
+    description: 'Ouvrez Teams, Zoom, Google Meet ou n\'importe quel autre outil. L\'agent fonctionne en parallÃ¨le, sans interfÃ©rer.',
+    icon: Layers,
+    color: '#3b82f6',
+  },
+  {
+    title: 'Activez l\'overlay avec Ctrl + Shift + M',
+    description: 'Pendant la rÃ©union, appuyez sur ce raccourci. Une petite fenÃªtre flottante s\'affiche par-dessus votre rÃ©union avec un bouton Start / Pause / Stop.',
+    icon: Keyboard,
+    color: '#f59e0b',
+  },
+  {
+    title: 'Enregistrement et transcription automatique',
+    description: 'Le micro est activÃ© dÃ¨s que vous cliquez sur Start. La transcription s\'affiche en direct dans l\'overlay.',
+    icon: Mic,
+    color: '#8b5cf6',
+  },
+  {
+    title: 'Compte-rendu dans votre espace Meetizy',
+    description: 'Cliquez sur Â« Ouvrir Meetizy Â» depuis l\'overlay pour retrouver la transcription complÃ¨te, le rÃ©sumÃ© IA et les action items dans votre tableau de bord.',
+    icon: FileText,
+    color: '#ec4899',
+  },
+];
+
 export default function AgentInstall() {
-  const [copiedStep, setCopiedStep] = useState(null);
-
-  const copyToClipboard = (text, step) => {
-    navigator.clipboard.writeText(text);
-    setCopiedStep(step);
-    toast.success('Copié dans le presse-papier');
-    setTimeout(() => setCopiedStep(null), 2000);
-  };
-
-  const installSteps = [
-    {
-      title: 'Télécharger l\'extension Chrome',
-      description: 'L\'agent IA est disponible sous forme d\'extension Chrome pour s\'intégrer à votre navigateur',
-      action: 'Télécharger l\'extension',
-      icon: Chrome,
-      color: '#4285f4'
-    },
-    {
-      title: 'Installer l\'extension',
-      description: 'Ouvrez le fichier téléchargé et suivez les instructions d\'installation',
-      icon: Download,
-      color: '#10b981'
-    },
-    {
-      title: 'Connectez-vous avec votre compte',
-      description: 'L\'agent IA utilise les clés API fournies automatiquement avec votre abonnement Meetizy',
-      icon: Bot,
-      color: '#8b5cf6'
-    }
-  ];
+  const detectedOS = navigator.platform.toLowerCase().includes('win')
+    ? 'windows'
+    : navigator.platform.toLowerCase().includes('mac')
+    ? 'mac'
+    : 'linux';
 
   return (
-    <div className="agent-install-container" style={{ padding: '32px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ padding: '32px', maxWidth: '900px', margin: '0 auto' }}>
+
       {/* Header */}
-      <div style={{ marginBottom: '48px', textAlign: 'center' }}>
+      <div style={{ textAlign: 'center', marginBottom: '48px' }}>
         <div style={{
-          width: '80px',
-          height: '80px',
-          margin: '0 auto 24px',
+          width: '80px', height: '80px', margin: '0 auto 24px',
           borderRadius: '20px',
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
         }}>
           <Bot size={40} color="white" />
         </div>
-        <h1 style={{ fontSize: '36px', fontWeight: '700', marginBottom: '12px' }}>
-          Installer l'Agent IA
+        <h1 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '12px' }}>
+          Agent MEETIZY â€” icÃ´ne dans la barre des tÃ¢ches
         </h1>
-        <p style={{ fontSize: '18px', color: 'var(--muted)', maxWidth: '600px', margin: '0 auto' }}>
-          Transformez votre navigateur en assistant intelligent avec notre agent IA interactif
+        <p style={{ fontSize: '16px', color: 'var(--muted)', maxWidth: '580px', margin: '0 auto', lineHeight: '1.6' }}>
+          Installez l'agent une seule fois. Il reste discret dans votre barre des tÃ¢ches et s'active d'un raccourci clavier pendant vos rÃ©unions Teams, Zoom ou Google Meet.
         </p>
       </div>
 
-      {/* Features Grid */}
+      {/* Download buttons */}
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '20px',
-        marginBottom: '48px'
+        background: 'linear-gradient(135deg, rgba(102,126,234,0.12) 0%, rgba(118,75,162,0.12) 100%)',
+        border: '1px solid rgba(102,126,234,0.3)',
+        borderRadius: '16px',
+        padding: '32px',
+        marginBottom: '48px',
+        textAlign: 'center'
       }}>
-        <div style={{
-          background: 'var(--card-bg)',
-          border: '1px solid var(--border)',
-          borderRadius: '12px',
-          padding: '24px',
-          textAlign: 'center'
-        }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            margin: '0 auto 16px',
-            borderRadius: '12px',
-            background: 'rgba(16, 185, 129, 0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <Bot size={24} color="#10b981" />
-          </div>
-          <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>
-            Chatbot Intelligent
-          </h3>
-          <p style={{ fontSize: '14px', color: 'var(--muted)' }}>
-            Posez des questions et obtenez des réponses instantanées
-          </p>
+        <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>
+          TÃ©lÃ©charger l'agent
+        </h2>
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          {Object.entries(OS_LINKS).map(([os, { label, href }]) => (
+            <button
+              key={os}
+              className={`btn ${os === detectedOS ? 'btn-primary' : 'btn-secondary'}`}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '180px' }}
+              onClick={() => toast.info('Build en cours â€” disponible lors du lancement officiel')}
+            >
+              <Download size={16} />
+              {label}
+              {os === detectedOS && (
+                <span style={{
+                  fontSize: '10px', fontWeight: '700', padding: '2px 6px',
+                  background: 'rgba(255,255,255,0.25)', borderRadius: '999px', marginLeft: '4px'
+                }}>RecommandÃ©</span>
+              )}
+            </button>
+          ))}
         </div>
-
-        <div style={{
-          background: 'var(--card-bg)',
-          border: '1px solid var(--border)',
-          borderRadius: '12px',
-          padding: '24px',
-          textAlign: 'center'
-        }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            margin: '0 auto 16px',
-            borderRadius: '12px',
-            background: 'rgba(139, 92, 246, 0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <CheckCircle size={24} color="#8b5cf6" />
-          </div>
-          <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>
-            Analyse en Temps Réel
-          </h3>
-          <p style={{ fontSize: '14px', color: 'var(--muted)' }}>
-            Analyse automatique de vos réunions et conversations
-          </p>
-        </div>
-
-        <div style={{
-          background: 'var(--card-bg)',
-          border: '1px solid var(--border)',
-          borderRadius: '12px',
-          padding: '24px',
-          textAlign: 'center'
-        }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            margin: '0 auto 16px',
-            borderRadius: '12px',
-            background: 'rgba(66, 133, 244, 0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <ExternalLink size={24} color="#4285f4" />
-          </div>
-          <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>
-            Intégration Transparente
-          </h3>
-          <p style={{ fontSize: '14px', color: 'var(--muted)' }}>
-            Compatible avec toutes vos applications web préférées
-          </p>
-        </div>
+        <p style={{ fontSize: '13px', color: 'var(--muted)', marginTop: '16px' }}>
+          Aucune extension navigateur ni droit administrateur requis
+        </p>
       </div>
 
-      {/* Installation Steps */}
-      <div style={{ marginBottom: '48px' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '24px' }}>
-          Étapes d'installation
-        </h2>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {installSteps.map((step, index) => {
-            const Icon = step.icon;
-            return (
-              <div
-                key={index}
-                style={{
-                  background: 'var(--card-bg)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '12px',
-                  padding: '24px',
-                  display: 'flex',
-                  gap: '20px',
-                  alignItems: 'flex-start'
-                }}
-              >
-                <div style={{
-                  width: '48px',
-                  height: '48px',
-                  flexShrink: 0,
-                  borderRadius: '12px',
-                  background: `${step.color}20`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <Icon size={24} color={step.color} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                    <span style={{
-                      width: '24px',
-                      height: '24px',
-                      borderRadius: '50%',
-                      background: step.color,
-                      color: 'white',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '12px',
-                      fontWeight: '700'
-                    }}>
-                      {index + 1}
-                    </span>
-                    <h3 style={{ fontSize: '18px', fontWeight: '600' }}>
-                      {step.title}
-                    </h3>
-                  </div>
-                  <p style={{ color: 'var(--muted)', marginBottom: '16px' }}>
-                    {step.description}
-                  </p>
-                  {step.action && (
-                    <button
-                      className="btn btn-primary"
-                      style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                      onClick={() => toast.info('Fonctionnalité bientôt disponible')}
-                    >
-                      <Download size={18} />
-                      {step.action}
-                    </button>
-                  )}
-                </div>
+      {/* Steps */}
+      <h2 style={{ fontSize: '22px', fontWeight: '600', marginBottom: '24px' }}>
+        Comment Ã§a marche
+      </h2>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '48px' }}>
+        {installSteps.map((step, i) => {
+          const Icon = step.icon;
+          return (
+            <div key={i} style={{
+              background: 'var(--card-bg)',
+              border: '1px solid var(--border)',
+              borderRadius: '12px',
+              padding: '20px 24px',
+              display: 'flex',
+              gap: '20px',
+              alignItems: 'flex-start'
+            }}>
+              <div style={{
+                width: '44px', height: '44px', flexShrink: 0,
+                borderRadius: '12px',
+                background: `${step.color}20`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>
+                <Icon size={22} color={step.color} />
               </div>
-            );
-          })}
-        </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                  <span style={{
+                    width: '22px', height: '22px', borderRadius: '50%',
+                    background: step.color, color: 'white',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '12px', fontWeight: '700', flexShrink: 0
+                  }}>{i + 1}</span>
+                  <h3 style={{ fontSize: '16px', fontWeight: '600' }}>{step.title}</h3>
+                </div>
+                <p style={{ color: 'var(--muted)', fontSize: '14px', lineHeight: '1.55', marginLeft: '32px' }}>
+                  {step.description}
+                </p>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {/* API Information */}
+      {/* Keyboard shortcut callout */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
-        border: '1px solid rgba(102, 126, 234, 0.3)',
+        background: 'rgba(245,158,11,0.1)',
+        border: '1px solid rgba(245,158,11,0.35)',
         borderRadius: '12px',
-        padding: '32px',
-        marginBottom: '32px'
+        padding: '20px 24px',
+        marginBottom: '32px',
+        display: 'flex', alignItems: 'center', gap: '16px'
       }}>
-        <h2 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Bot size={28} color="#667eea" />
-          Clés API fournies automatiquement
-        </h2>
-        <p style={{ color: 'var(--text)', marginBottom: '20px', fontSize: '16px', lineHeight: '1.6' }}>
-          <strong>🎉 Bonne nouvelle !</strong> Vous n'avez pas besoin de configurer de clés API manuellement. 
-          Les clés API (OpenAI GPT-4, Anthropic Claude, Whisper) sont <strong>automatiquement fournies et configurées</strong> selon votre plan d'abonnement.
-        </p>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginTop: '24px' }}>
-          <div style={{
-            padding: '16px',
-            background: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '8px',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: '14px', color: 'var(--muted)', marginBottom: '4px' }}>Plan Free</div>
-            <div style={{ fontSize: '18px', fontWeight: '700', color: '#6b7280' }}>Limité</div>
-            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>10 requêtes/jour</div>
-          </div>
-
-          <div style={{
-            padding: '16px',
-            background: 'rgba(139, 92, 246, 0.15)',
-            borderRadius: '8px',
-            textAlign: 'center',
-            border: '1px solid rgba(139, 92, 246, 0.3)'
-          }}>
-            <div style={{ fontSize: '14px', color: 'var(--muted)', marginBottom: '4px' }}>Plan Pro</div>
-            <div style={{ fontSize: '18px', fontWeight: '700', color: '#8b5cf6' }}>100/jour</div>
-            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>+ GPT-4 & Claude</div>
-          </div>
-
-          <div style={{
-            padding: '16px',
-            background: 'rgba(59, 130, 246, 0.15)',
-            borderRadius: '8px',
-            textAlign: 'center',
-            border: '1px solid rgba(59, 130, 246, 0.3)'
-          }}>
-            <div style={{ fontSize: '14px', color: 'var(--muted)', marginBottom: '4px' }}>Plan Business</div>
-            <div style={{ fontSize: '18px', fontWeight: '700', color: '#3b82f6' }}>500/jour</div>
-            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>+ API prioritaire</div>
-          </div>
-
-          <div style={{
-            padding: '16px',
-            background: 'rgba(245, 158, 11, 0.15)',
-            borderRadius: '8px',
-            textAlign: 'center',
-            border: '1px solid rgba(245, 158, 11, 0.3)'
-          }}>
-            <div style={{ fontSize: '14px', color: 'var(--muted)', marginBottom: '4px' }}>Plan Expert</div>
-            <div style={{ fontSize: '18px', fontWeight: '700', color: '#f59e0b' }}>Illimité</div>
-            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>+ Support dédié</div>
-          </div>
-        </div>
-
-        <div style={{
-          marginTop: '24px',
-          padding: '16px',
-          background: 'rgba(16, 185, 129, 0.1)',
-          border: '1px solid rgba(16, 185, 129, 0.3)',
-          borderRadius: '8px',
-          fontSize: '14px',
-          lineHeight: '1.6'
-        }}>
-          <strong style={{ color: '#10b981' }}>✓ Avantages :</strong>
-          <ul style={{ marginTop: '8px', marginLeft: '20px', color: 'var(--text)' }}>
-            <li>Aucune configuration technique requise</li>
-            <li>Mise à jour automatique des clés</li>
-            <li>Sécurité renforcée (clés côté serveur)</li>
-            <li>Support multi-modèles (GPT-4, Claude, Whisper)</li>
-          </ul>
+        <Keyboard size={28} color="#f59e0b" style={{ flexShrink: 0 }} />
+        <div>
+          <strong style={{ color: '#f59e0b' }}>Raccourci global : Ctrl + Shift + M</strong>
+          <p style={{ color: 'var(--muted)', fontSize: '14px', marginTop: '4px' }}>
+            Fonctionne mÃªme quand Meetizy est rÃ©duit. Sur macOS : Cmd + Shift + M.
+            L'overlay apparaÃ®t par-dessus votre rÃ©union en bas Ã  droite de l'Ã©cran.
+          </p>
         </div>
       </div>
 
-      {/* Need Help */}
+      {/* Compatible with */}
       <div style={{
-        marginTop: '32px',
-        textAlign: 'center',
-        padding: '32px',
         background: 'var(--card-bg)',
         border: '1px solid var(--border)',
-        borderRadius: '12px'
+        borderRadius: '12px',
+        padding: '24px',
+        marginBottom: '32px'
       }}>
-        <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '12px' }}>
-          Besoin d'aide ?
+        <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <CheckCircle size={18} color="#10b981" /> Compatible avec tous vos outils de rÃ©union
         </h3>
-        <p style={{ color: 'var(--muted)', marginBottom: '20px' }}>
-          Consultez notre documentation complète ou contactez le support
-        </p>
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-          <button className="btn btn-secondary">
-            Documentation
-          </button>
-          <button className="btn btn-primary">
-            Contacter le support
-          </button>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+          {['Microsoft Teams', 'Zoom', 'Google Meet', 'Webex', 'Slack Huddle', 'Discord', 'Tout autre outil'].map(tool => (
+            <span key={tool} style={{
+              padding: '6px 14px',
+              background: 'rgba(16,185,129,0.1)',
+              border: '1px solid rgba(16,185,129,0.25)',
+              borderRadius: '999px',
+              fontSize: '13px',
+              color: '#10b981',
+              fontWeight: '500'
+            }}>{tool}</span>
+          ))}
         </div>
       </div>
+
+      {/* Help */}
+      <div style={{ textAlign: 'center', padding: '24px' }}>
+        <p style={{ color: 'var(--muted)', marginBottom: '16px', fontSize: '14px' }}>
+          Un problÃ¨me d'installation ? Notre support rÃ©pond en moins de 2h.
+        </p>
+        <button className="btn btn-secondary" onClick={() => toast.info('Support disponible lors du lancement')}>
+          Contacter le support
+        </button>
+      </div>
+
     </div>
   );
 }
