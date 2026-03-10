@@ -166,12 +166,25 @@ export default function ChatBot({ isOpen, onClose }) {
       updateCurrentConversation(finalMessages);
     } catch (error) {
       console.error('Erreur IA:', error);
+
+      let errorContent = 'Désolé, une erreur s\'est produite. Veuillez réessayer.';
+      const msg = error?.message || '';
+      if (msg.includes('401') || msg.includes('403')) {
+        errorContent = 'Clé API invalide ou non autorisée. Vérifiez votre configuration dans les paramètres.';
+      } else if (msg.includes('429')) {
+        errorContent = 'Limite de requêtes atteinte. Patientez quelques secondes avant de réessayer.';
+      } else if (msg.includes('500') || msg.includes('503')) {
+        errorContent = 'Le service IA est momentanément indisponible. Veuillez réessayer dans quelques instants.';
+      } else if (msg.includes('non configurée') || msg.includes('API key')) {
+        errorContent = 'Aucune clé API configurée. Les clés sont fournies avec votre abonnement — contactez le support si le problème persiste.';
+      }
+
       toast.error('Erreur de communication avec l\'IA');
       
       const errorMessage = {
         id: Date.now() + 1,
         role: 'assistant',
-        content: 'Désolé, une erreur s\'est produite. Les clés API sont fournies automatiquement avec votre abonnement. Si le problème persiste, contactez le support.',
+        content: errorContent,
         timestamp: new Date().toISOString()
       };
       

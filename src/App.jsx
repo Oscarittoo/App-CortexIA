@@ -173,6 +173,11 @@ export default function App() {
     setCurrentUser(user);
     // IMPORTANT: Informer le storageService de l'utilisateur connecté
     storageService.setCurrentUser(user.id);
+    // Migration automatique des sessions orphelines (créées avant isolation userId)
+    const migratedCount = storageService.assignOrphanSessions(user.id);
+    if (migratedCount > 0) {
+      console.log(`${migratedCount} session(s) orpheline(s) migrée(s) vers l'utilisateur ${user.id}`);
+    }
     // Redirect to dashboard normally, but if they were somewhere else
     setCurrentView('dashboard');
   };

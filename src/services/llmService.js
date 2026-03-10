@@ -427,43 +427,57 @@ Respond ONLY with JSON, no additional text.`;
   /**
    * Appelle l'API OpenAI (GPT-4)
    */
-  async callOpenAI(prompt, jsonMode = false) {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.openaiKey}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [
-          {
-            role: 'system',
-            content: 'Tu es un assistant expert en analyse de réunions. Tu es précis, concis et structuré.'
+  async callOpenAI(prompt, jsonMode = false, retries = 2) {
+    let lastError;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      if (attempt > 0) {
+        const delay = attempt * 1500;
+        await new Promise(resolve => setTimeout(resolve, delay));
+        console.warn(`Retry OpenAI API (tentative ${attempt}/${retries})...`);
+      }
+      try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.openaiKey}`
           },
-          {
-            role: 'user',
-            content: prompt
+          body: JSON.stringify({
+            model: 'gpt-4o',
+            messages: [
+              { role: 'system', content: 'Tu es un assistant expert en analyse de réunions. Tu es précis, concis et structuré.' },
+              { role: 'user', content: prompt }
+            ],
+            temperature: 0.3,
+            max_tokens: jsonMode ? 2000 : 1500,
+            response_format: jsonMode ? { type: 'json_object' } : undefined
+          })
+        });
+
+        if (!response.ok) {
+          const status = response.status;
+          // Ne pas retenter sur erreurs 4xx sauf 429
+          if (status !== 429 && status >= 400 && status < 500) {
+            throw new Error(`OpenAI API error: ${status}`);
           }
-        ],
-        temperature: 0.3,
-        max_tokens: jsonMode ? 2000 : 1500,
-        response_format: jsonMode ? { type: 'json_object' } : undefined
-      })
-    });
+          lastError = new Error(`OpenAI API error: ${status}`);
+          continue;
+        }
 
-    if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
+        const data = await response.json();
+        return data.choices[0].message.content;
+      } catch (err) {
+        lastError = err;
+        if (err.message?.includes('OpenAI API error: 4') && !err.message?.includes('429')) throw err;
+      }
     }
-
-    const data = await response.json();
-    return data.choices[0].message.content;
+    throw lastError;
   }
 
   /**
    * Appelle l'API Claude (Anthropic)
    */
-  async callClaude(prompt, jsonMode = false) {
+  async callClaude(prompt, jsonMode = false, retries = 2) {
     const endpoint = this.useProxy ? '/api/anthropic' : 'https://api.anthropic.com/v1/messages';
     const headers = this.useProxy
       ? { 'Content-Type': 'application/json' }
@@ -473,30 +487,44 @@ Respond ONLY with JSON, no additional text.`;
           'anthropic-version': '2023-06-01'
         };
 
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        system: 'You are an expert meeting analyst. Be precise, do not invent information, and follow the requested format strictly.',
-        model: this.claudeModel,
-        max_tokens: jsonMode ? 2000 : 1000,
-        temperature: 0.3,
-        messages: [
-          {
-            role: 'user',
-            content: prompt
+    let lastError;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      if (attempt > 0) {
+        const delay = attempt * 1500;
+        await new Promise(resolve => setTimeout(resolve, delay));
+        console.warn(`Retry Claude API (tentative ${attempt}/${retries})...`);
+      }
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            system: 'You are an expert meeting analyst. Be precise, do not invent information, and follow the requested format strictly.',
+            model: this.claudeModel,
+            max_tokens: jsonMode ? 2000 : 1000,
+            temperature: 0.3,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          // Ne pas retenter sur erreurs 4xx (sauf 429 rate limit)
+          if (response.status !== 429 && response.status >= 400 && response.status < 500) {
+            throw new Error(`Claude API error: ${response.status} ${errorText}`);
           }
-        ]
-      })
-    });
+          lastError = new Error(`Claude API error: ${response.status} ${errorText}`);
+          continue;
+        }
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Claude API error: ${response.status} ${errorText}`);
+        const data = await response.json();
+        return data.content[0].text;
+      } catch (err) {
+        lastError = err;
+        if (err.message?.includes('Claude API error: 4') && !err.message?.includes('429')) throw err;
+      }
     }
-
-    const data = await response.json();
-    return data.content[0].text;
+    throw lastError;
   }
 
   /**

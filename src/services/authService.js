@@ -128,6 +128,16 @@ class AuthService {
   }
 
   /**
+   * Envoie un email de réinitialisation de mot de passe
+   */
+  async resetPassword(email) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`
+    });
+    if (error) throw error;
+  }
+
+  /**
    * Vérifie si l'utilisateur est connecté
    */
   isAuthenticated() {

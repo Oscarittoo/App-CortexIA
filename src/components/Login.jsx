@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import toast from './Toast';
 import authService from '../services/authService';
 
@@ -8,8 +8,10 @@ export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [companyName, setCompanyName] = useState('');
   const [plan, setPlan] = useState(selectedPlan);
+  const [resetSent, setResetSent] = useState(false);
 
   const plans = [
     { id: 'free', name: 'Free', price: '0€' },
@@ -44,10 +46,68 @@ export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
     }
   };
 
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    if (!email) {
+      toast.error('Veuillez entrer votre adresse email');
+      return;
+    }
+    try {
+      await authService.resetPassword(email);
+      setResetSent(true);
+    } catch (error) {
+      toast.error(error?.message || 'Erreur lors de l\'envoi du lien');
+    }
+  };
+
   return (
     <div className="login-page">
       <div className="login-container">
         <div className="login-card">
+
+          {/* VUE RÉINITIALISATION MOT DE PASSE */}
+          {isForgotPassword ? (
+            <>
+              <div className="login-header">
+                <h2>Mot de passe oublié</h2>
+                <p>{resetSent ? 'Email envoyé !' : 'Un lien de réinitialisation vous sera envoyé'}</p>
+              </div>
+              {resetSent ? (
+                <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>✉️</div>
+                  <p style={{ color: 'var(--muted)', marginBottom: '24px' }}>
+                    Un email a été envoyé à <strong>{email}</strong>.<br/>Vérifiez votre boîte mail et cliquez sur le lien.
+                  </p>
+                  <button className="btn btn-secondary btn-lg" onClick={() => { setIsForgotPassword(false); setResetSent(false); }}>
+                    Retour à la connexion
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleResetPassword} className="login-form">
+                  <div className="form-group">
+                    <label htmlFor="reset-email">Adresse email</label>
+                    <div className="input-with-icon">
+                      <Mail size={18} className="input-icon" />
+                      <input
+                        id="reset-email"
+                        type="email"
+                        className="input"
+                        placeholder="vous@entreprise.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+                  <button type="submit" className="btn btn-primary btn-lg">ENVOYER LE LIEN</button>
+                  <button type="button" className="btn btn-ghost btn-links" onClick={() => setIsForgotPassword(false)}>
+                    <ArrowLeft size={16} style={{ marginRight: '6px' }} /> Retour à la connexion
+                  </button>
+                </form>
+              )}
+            </>
+          ) : (
+          <>
           <div className="login-header">
             <h2>{isRegistering ? 'Créer un compte' : 'Connexion'}</h2>
             <p>
@@ -139,7 +199,7 @@ export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
                 <button
                   type="button"
                   className="forgot-password"
-                  onClick={() => toast.info('Pour réinitialiser votre mot de passe, contactez support@meetizy.com')}
+                  onClick={() => { setIsForgotPassword(true); setResetSent(false); }}
                 >
                   Mot de passe oublié ?
                 </button>
@@ -172,6 +232,8 @@ export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
           >
             Retour à l'accueil
           </button>
+          </>
+          )}
         </div>
       </div>
 
