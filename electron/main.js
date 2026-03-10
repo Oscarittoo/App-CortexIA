@@ -16,7 +16,10 @@ let tray = null;
 // ─────────────────────────────────────────────
 function getTrayIcon() {
   // Petit carré bleu/violet 16x16 encodé en base64 — remplacez par votre vrai fichier .png
-  const iconPath = path.join(__dirname, '..', 'src', 'assets', 'logo_meetizy.png');
+  // Cherche d'abord dans electron/ (packagé), puis dans src/assets/ (dev)
+  const iconPath = app.isPackaged
+    ? path.join(__dirname, 'icon.png')
+    : path.join(__dirname, '..', 'src', 'assets', 'logo_meetizy.png');
   try {
     return nativeImage.createFromPath(iconPath).resize({ width: 16, height: 16 });
   } catch (e) {
