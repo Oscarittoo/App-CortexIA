@@ -266,8 +266,8 @@ export default function App() {
             width: '100%',
           }}>
             <div onClick={handleGoHome} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-              <img src={logo} alt="Cortexa Logo" width="40" height="40" />
-              <span style={{ fontFamily: 'Orbitron, sans-serif', fontWeight: '700', fontSize: '20px', letterSpacing: '1px', color: '#ffffff' }}>CORTEXA</span>
+              <img src={logo} alt="Meetizy Logo" width="40" height="40" />
+              <span style={{ fontFamily: 'Orbitron, sans-serif', fontWeight: '700', fontSize: '20px', letterSpacing: '1px', color: '#ffffff' }}>MEETIZY</span>
             </div>
 
             {/* Links desktop */}
@@ -332,7 +332,7 @@ export default function App() {
           </main>
 
           <footer style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)', borderTop: '1px solid var(--border)' }}>
-            <p>© 2026 CORTEXA · Premium AI Assistant</p>
+            <p>© 2026 MEETIZY · Premium AI Assistant</p>
           </footer>
         </div>
       </ErrorBoundary>
@@ -349,9 +349,9 @@ export default function App() {
         {/* SIDEBAR */}
         <aside className={`sidebar${isMobileSidebarOpen ? ' open' : ''}`} style={{ width: isSidebarCollapsed ? '80px' : '280px', minWidth: isSidebarCollapsed ? '80px' : '280px', transition: 'width 0.3s ease, min-width 0.3s ease, left 0.3s ease', position: 'relative' }}>
           <div className="brand" style={{ flexDirection: isSidebarCollapsed ? 'column' : 'row', gap: isSidebarCollapsed ? '8px' : '10px', padding: isSidebarCollapsed ? '20px 10px' : '20px' }}>
-            <img src={logo} alt="Cortexa Logo" width={isSidebarCollapsed ? "32" : "64"} height={isSidebarCollapsed ? "32" : "64"} style={{ transition: 'all 0.3s ease' }} />
+            <img src={logo} alt="Meetizy Logo" width={isSidebarCollapsed ? "32" : "64"} height={isSidebarCollapsed ? "32" : "64"} style={{ transition: 'all 0.3s ease' }} />
             {!isSidebarCollapsed && (
-              <span style={{ fontFamily: 'Orbitron, sans-serif', letterSpacing: '1px', fontSize: '18px', fontWeight: 'bold', color: 'var(--text-primary)' }}>CORTEXA</span>
+              <span style={{ fontFamily: 'Orbitron, sans-serif', letterSpacing: '1px', fontSize: '18px', fontWeight: 'bold', color: 'var(--text-primary)' }}>MEETIZY</span>
             )}
           </div>
 

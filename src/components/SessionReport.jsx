@@ -90,7 +90,7 @@ ${data.summary}
       if (position && position !== 'Directeur Commercial') signature += `\n${position}`;
       if (company && company !== 'Entreprise SAS') signature += `\n${company}`;
       if (signature !== '\n\nCordialement,') {
-        email = email.replace(/Cordialement,\s*(CORTEXA|Meetizy|Cortexa)/gi, signature);
+        email = email.replace(/Cordialement,\s*(Meetizy|MEETIZY|CORTEXA|Cortexa)/gi, signature);
       }
     }
     setFollowUpEmail(email);
@@ -101,7 +101,7 @@ ${data.summary}
 
   const getEmailSignature = (settingsOverride = null) => {
     const s = settingsOverride || userSettings;
-    if (!s) return '\n\nCordialement,\nCortexa';
+    if (!s) return '\n\nCordialement,\nMeetizy';
     
     const { fullName, position, company } = s;
     let signature = '\n\nCordialement,';
@@ -118,7 +118,7 @@ ${data.summary}
       signature += `\n${company}`;
     }
     
-    return signature || '\n\nCordialement,\nCortexa';
+    return signature || '\n\nCordialement,\nMeetizy';
   };
 
   const generateReport = async (settingsOverride = null) => {
@@ -216,7 +216,7 @@ ${aiReport.summary}
       let customEmail = aiReport.email || '';
       if (customEmail) {
         // Remplacer la signature générique par la signature personnalisée
-        customEmail = customEmail.replace(/Cordialement,\s*(CORTEXA|Meetizy|Cortexa)/gi, getEmailSignature());
+        customEmail = customEmail.replace(/Cordialement,\s*(Meetizy|MEETIZY|CORTEXA|Cortexa)/gi, getEmailSignature());
       }
       setFollowUpEmail(customEmail);
       
@@ -496,7 +496,7 @@ ${extractKeyPoints(fullTranscript)}
     }
 
     lines.push('---');
-    lines.push('*Généré par CORTEXA*');
+    lines.push('*Généré par Meetizy*');
 
     const content = lines.join('\n');
     const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });

@@ -74,7 +74,7 @@ class PDFExportService {
     doc.setFontSize(24);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...this.colors.primary);
-    doc.text('CORTEXA', pageWidth / 2, yPos, { align: 'center' });
+    doc.text('MEETIZY', pageWidth / 2, yPos, { align: 'center' });
     
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
@@ -348,8 +348,7 @@ class PDFExportService {
       doc.setTextColor(...this.colors.textLight);
       
       doc.text(
-        `Généré par CORTEXA - ${format(new Date(), 'dd/MM/yyyy HH:mm')}`,
-        pageWidth / 2,
+        `Généré par MEETIZY - ${format(new Date(), 'dd/MM/yyyy HH:mm')}`,        pageWidth / 2,
         pageHeight - 10,
         { align: 'center' }
       );

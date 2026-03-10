@@ -118,7 +118,7 @@ function createOverlayWindow() {
 // ─────────────────────────────────────────────
 function createTray() {
   tray = new Tray(getTrayIcon());
-  tray.setToolTip('CORTEXA — Cliquez pour ouvrir l\'overlay');
+  tray.setToolTip('MEETIZY — Cliquez pour ouvrir l\'overlay');
 
   const contextMenu = Menu.buildFromTemplate([
     {
@@ -126,7 +126,7 @@ function createTray() {
       click: () => createOverlayWindow(),
     },
     {
-      label: '🪟  Ouvrir Cortexa',
+      label: '🫟  Ouvrir Meetizy',
       click: () => { createMainWindow(); mainWindow?.show(); mainWindow?.focus(); },
     },
     { type: 'separator' },

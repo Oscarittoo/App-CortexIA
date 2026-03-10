@@ -65,7 +65,7 @@ export default function Security({ onGetStarted }) {
             <div className="badge">RGPD Ready</div>
             <div className="badge">SOC 2</div>
          </div>
-         <p className="dpo-contact">Une question pour notre DPO ? <a href="#">privacy@cortexia.ai</a></p>
+         <p className="dpo-contact">Une question pour notre DPO ? <a href="#">privacy@meetizy.ai</a></p>
       </div>
 
       <style jsx>{`${css}`}</style>

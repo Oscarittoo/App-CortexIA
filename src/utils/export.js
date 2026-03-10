@@ -49,7 +49,7 @@ class ExportService {
     });
     
     content += `\n---\n\n`;
-    content += `*Généré par CORTEXA - ${new Date().toLocaleDateString('fr-FR')}*\n`;
+    content += `*Généré par Meetizy - ${new Date().toLocaleDateString('fr-FR')}*\n`;
     
     this.download(content, `${session.title || 'session'}.md`, 'text/markdown');
   }
@@ -89,7 +89,7 @@ class ExportService {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(session.title) || 'Session CORTEXA'}</title>
+  <title>${escapeHtml(session.title) || 'Session Meetizy'}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -228,7 +228,7 @@ class ExportService {
     </div>
 
     <div class="footer">
-      <p>Généré par <strong>CORTEXA</strong> - ${new Date().toLocaleDateString('fr-FR')}</p>
+      <p>Généré par <strong>Meetizy</strong> - ${new Date().toLocaleDateString('fr-FR')}</p>
     </div>
   </div>
 </body>
@@ -352,7 +352,7 @@ class ExportService {
       };
       
       const json = JSON.stringify(data, null, 2);
-      this.download(json, `cortexia-all-sessions-${Date.now()}.json`, 'application/json');
+      this.download(json, `meetizy-all-sessions-${Date.now()}.json`, 'application/json');
     } else if (format === 'csv') {
       let csv = 'ID,Title,Date,Duration,Platform,Language,Transcript Length\n';
       
@@ -360,7 +360,7 @@ class ExportService {
         csv += `${session.id},"${session.title || ''}",${new Date(session.createdAt).toISOString()},${session.duration},${session.platform},${session.language},${session.transcript?.length || 0}\n`;
       });
       
-      this.download(csv, `cortexia-sessions-index-${Date.now()}.csv`, 'text/csv');
+      this.download(csv, `meetizy-sessions-index-${Date.now()}.csv`, 'text/csv');
     }
   }
 }

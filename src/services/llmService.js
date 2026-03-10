@@ -624,7 +624,7 @@ ${actions.slice(0, 5).map(a => `• ${a.task} - ${a.responsible} (${a.deadline})
 Le compte-rendu complet est disponible en pièce jointe.
 
 Cordialement,
-CORTEXA`;
+Meetizy`;
     } else {
       return `Subject: Meeting Report - ${title}
 
@@ -644,7 +644,7 @@ ${actions.slice(0, 5).map(a => `• ${a.task} - ${a.responsible} (${a.deadline})
 The full report is attached.
 
 Best regards,
-CORTEXA`;
+Meetizy`;
     }
   }
 

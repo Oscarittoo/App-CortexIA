@@ -1,5 +1,5 @@
 /**
- * Service Stripe pour CORTEXA
+ * Service Stripe pour Meetizy
  * Gère les paiements et abonnements
  */
 
