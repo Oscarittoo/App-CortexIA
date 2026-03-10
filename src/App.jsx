@@ -138,7 +138,11 @@ export default function App() {
     
     // Sauvegarder immédiatement la session dans le storage
     console.log('Sauvegarde de la session:', data);
-    storageService.saveSession(data);
+    try {
+      storageService.saveSession(data);
+    } catch (err) {
+      toast.error(err.message || 'Erreur lors de la sauvegarde de la session');
+    }
     
     setReportData(data);
     setCurrentView('report');

@@ -44,6 +44,14 @@ export const PLAN_MAX_DURATION = {
 // Durée d'avertissement avant la fin (en secondes)
 export const PLAN_WARNING_BEFORE_END = 5 * 60; // 5 min
 
+// Fonctionnalités disponibles par plan
+export const PLAN_LIMITS = {
+  free:     { maxSessions: 10,       pdfExport: false, customTemplates: false },
+  pro:      { maxSessions: Infinity, pdfExport: true,  customTemplates: true  },
+  business: { maxSessions: Infinity, pdfExport: true,  customTemplates: true  },
+  expert:   { maxSessions: Infinity, pdfExport: true,  customTemplates: true  },
+};
+
 /**
  * Get feature flag value
  * @param {string} flagName - Name of the feature flag

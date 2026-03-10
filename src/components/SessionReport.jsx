@@ -17,6 +17,8 @@ import {
 import pdfExportService from '../services/pdfExportService';
 import llmService from '../services/llmService';
 import storageService from '../utils/storage';
+import authService from '../services/authService';
+import { PLAN_LIMITS } from '../config/featureFlags';
 import toast from './Toast';
 
 export default function SessionReport({ data, onNewSession, onEdit, isSidebarCollapsed = false }) {
@@ -639,6 +641,13 @@ ${extractKeyPoints(fullTranscript)}
             }}>
               <div 
                 onClick={() => {
+                  const plan = authService.currentUser?.plan || 'free';
+                  if (!(PLAN_LIMITS[plan] || PLAN_LIMITS.free).pdfExport) {
+                    toast.error('🔒 Export PDF disponible à partir du plan Pro. Mettez à niveau votre abonnement dans Paramètres → Abonnement.');
+                    const dropdown = document.querySelector('.export-menu');
+                    if (dropdown) dropdown.style.display = 'none';
+                    return;
+                  }
                   try {
                     pdfExportService.exportSession(data);
                     toast.success('Rapport exporté en PDF avec succès !');

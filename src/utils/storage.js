@@ -1,5 +1,6 @@
 // Service de gestion du stockage local pour MEETIZY
 import authService from '../services/authService';
+import { PLAN_LIMITS } from '../config/featureFlags';
 
 const STORAGE_KEYS = {
   SESSIONS: 'meetizy_sessions',
@@ -58,6 +59,18 @@ class StorageService {
 
     const allSessions = this._getAllSessionsRaw(); // Toutes les sessions (tous utilisateurs)
     const existingIndex = allSessions.findIndex(s => s.id === session.id && s.userId === userId);
+
+    // Vérifier la limite de sessions pour le plan Free (nouvelles sessions uniquement)
+    if (existingIndex < 0) {
+      const plan = authService.currentUser?.plan || 'free';
+      const limit = (PLAN_LIMITS[plan] || PLAN_LIMITS.free).maxSessions;
+      if (limit !== Infinity) {
+        const userSessions = allSessions.filter(s => s.userId === userId);
+        if (userSessions.length >= limit) {
+          throw new Error(`Limite de ${limit} sessions atteinte (plan ${plan.toUpperCase()}). Passez au plan Pro pour un stockage illimité.`);
+        }
+      }
+    }
     
     const sessionWithUser = {
       ...session,

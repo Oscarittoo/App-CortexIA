@@ -1,7 +1,9 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { Plus, Layout, X, Save, Trash2, Edit } from 'lucide-react';
+import { Plus, Layout, X, Save, Trash2, Edit, Lock } from 'lucide-react';
 import toast from '../Toast';
 import storageService from '../../utils/storage';
+import authService from '../../services/authService';
+import { PLAN_LIMITS } from '../../config/featureFlags';
 
 export default function TemplatesLibrary() {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -38,6 +40,11 @@ export default function TemplatesLibrary() {
   };
 
   const handleCreateTemplate = () => {
+    const plan = authService.currentUser?.plan || 'free';
+    if (!(PLAN_LIMITS[plan] || PLAN_LIMITS.free).customTemplates) {
+      toast.error('🔒 Les templates personnalisés sont disponibles à partir du plan Pro. Mettez à niveau votre abonnement.');
+      return;
+    }
     if (!newTemplate.name || !newTemplate.description) {
       toast.error('Le nom et la description sont requis');
       return;
@@ -198,7 +205,12 @@ export default function TemplatesLibrary() {
             </div>
           )}
           <button className="btn-primary" onClick={() => setShowCreateModal(true)}>
-            <Plus size={18} style={{ marginRight: '8px' }} />
+            {(() => {
+              const plan = authService.currentUser?.plan || 'free';
+              return (PLAN_LIMITS[plan] || PLAN_LIMITS.free).customTemplates
+                ? <Plus size={18} style={{ marginRight: '8px' }} />
+                : <Lock size={16} style={{ marginRight: '8px' }} />;
+            })()}
             Créer un template
           </button>
         </div>
