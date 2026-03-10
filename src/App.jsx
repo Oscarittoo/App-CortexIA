@@ -83,7 +83,7 @@ export default function App() {
         storageService.setCurrentUser(null);
         if (currentView !== 'home' && currentView !== 'features' && currentView !== 'integrations' && 
             currentView !== 'security' && currentView !== 'demo' && currentView !== 'pricing' && 
-            currentView !== 'login' && currentView !== 'plugin-install' && currentView !== 'api-docs') {
+            currentView !== 'login' && currentView !== 'agent-install' && currentView !== 'api-docs') {
           // L'utilisateur était sur une page authentifiée mais la session a expiré
           setCurrentView('home');
           toast.error('Votre session a expiré. Veuillez vous reconnecter.');
@@ -240,7 +240,7 @@ export default function App() {
                 </a>
               ))}
               <button
-                onClick={() => setCurrentView('plugin-install')}
+                onClick={() => setCurrentView('agent-install')}
                 style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.3)', borderRadius: '8px', color: '#38bdf8', fontSize: '13px', fontWeight: '600', cursor: 'pointer', marginLeft: '8px' }}
               >
                 <Download size={14} />
@@ -270,7 +270,7 @@ export default function App() {
               </a>
             ))}
             <button
-              onClick={() => { setCurrentView('plugin-install'); setIsMobileNavOpen(false); }}
+              onClick={() => { setCurrentView('agent-install'); setIsMobileNavOpen(false); }}
               style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.3)', borderRadius: '8px', color: '#38bdf8', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
             >
               <Download size={14} /> Installer l'assistant
@@ -287,7 +287,7 @@ export default function App() {
             {currentView === 'security' && <Security onGetStarted={handleGetStarted} />}
             {currentView === 'demo' && <Demo onGetStarted={handleGetStarted} />}
             {currentView === 'pricing' && <Pricing onSelectPlan={handleSelectPlan} />}
-            {currentView === 'plugin-install' && <PluginInstall onBack={() => setCurrentView('home')} />}
+            {currentView === 'agent-install' && <AgentInstall />}
             {currentView === 'api-docs' && <ApiDocs onBack={() => setCurrentView('integrations')} />}
             {currentView === 'login' && <Login onLogin={handleLogin} onBack={() => setCurrentView('home')} selectedPlan={selectedPlan} />}
           </main>
