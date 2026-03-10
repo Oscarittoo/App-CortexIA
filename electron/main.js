@@ -118,7 +118,7 @@ function createOverlayWindow() {
 // ─────────────────────────────────────────────
 function createTray() {
   tray = new Tray(getTrayIcon());
-  tray.setToolTip('MEETIZY — Cliquez pour ouvrir l\'overlay');
+  tray.setToolTip('CORTEXA — Cliquez pour ouvrir l\'overlay');
 
   const contextMenu = Menu.buildFromTemplate([
     {
@@ -126,7 +126,7 @@ function createTray() {
       click: () => createOverlayWindow(),
     },
     {
-      label: '🪟  Ouvrir Meetizy',
+      label: '🪟  Ouvrir Cortexa',
       click: () => { createMainWindow(); mainWindow?.show(); mainWindow?.focus(); },
     },
     { type: 'separator' },
@@ -184,7 +184,10 @@ ipcMain.handle('get-sessions', async () => []);
 // ─────────────────────────────────────────────
 app.commandLine.appendSwitch('enable-speech-input');
 app.commandLine.appendSwitch('enable-media-stream');
-app.commandLine.appendSwitch('use-fake-ui-for-media-stream');
+// En développement uniquement : approuver automatiquement les demandes micro (évite les popups répétées)
+if (!app.isPackaged) {
+  app.commandLine.appendSwitch('use-fake-ui-for-media-stream');
+}
 
 app.whenReady().then(() => {
   createTray();

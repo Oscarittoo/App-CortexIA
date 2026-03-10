@@ -2,6 +2,17 @@
 
 import storageService from './storage';
 
+// Protection XSS : échapper les caractères HTML dangereux dans les données utilisateur
+const escapeHtml = (str) => {
+  if (!str || typeof str !== 'string') return str || '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+};
+
 class ExportService {
   // ==================== MARKDOWN ====================
   exportMarkdown(session) {
@@ -38,7 +49,7 @@ class ExportService {
     });
     
     content += `\n---\n\n`;
-    content += `*Généré par CORTEXIA - ${new Date().toLocaleDateString('fr-FR')}*\n`;
+    content += `*Généré par CORTEXA - ${new Date().toLocaleDateString('fr-FR')}*\n`;
     
     this.download(content, `${session.title || 'session'}.md`, 'text/markdown');
   }
@@ -70,7 +81,7 @@ class ExportService {
     const tags = storageService.getAllTags();
     const sessionTags = session.tags?.map(tagId => {
       const tag = tags.find(t => t.id === tagId);
-      return tag ? `<span style="background: ${tag.color}; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px;">${tag.name}</span>` : '';
+      return tag ? `<span style="background: ${tag.color}; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px;">${escapeHtml(tag.name)}</span>` : '';
     }).filter(Boolean).join(' ') || 'Aucun';
 
     const html = `<!DOCTYPE html>
@@ -78,7 +89,7 @@ class ExportService {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${session.title || 'Session CORTEXIA'}</title>
+  <title>${escapeHtml(session.title) || 'Session CORTEXA'}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -174,7 +185,7 @@ class ExportService {
 </head>
 <body>
   <div class="container">
-    <h1>${session.title || 'Session sans titre'}</h1>
+    <h1>${escapeHtml(session.title) || 'Session sans titre'}</h1>
     
     <div class="meta">
       <div class="meta-item">
@@ -206,18 +217,18 @@ class ExportService {
     <div class="transcript">
       ${session.transcript?.map(line => `
         <div class="transcript-line ${line.marked ? 'marked' : ''}">
-          <div class="line-meta">
+          <span class="line-meta">
             <span class="timestamp">${new Date(line.timestamp).toLocaleTimeString('fr-FR')}</span>
-            <span class="speaker">${line.speaker}</span>
+            <span class="speaker">${escapeHtml(line.speaker)}</span>
             ${line.marked ? '<span style="color: #f59e0b;">Marqué</span>' : ''}
-          </div>
-          <div class="line-text">${line.text}</div>
+          </span>
+          <div class="line-text">${escapeHtml(line.text)}</div>
         </div>
       `).join('') || '<p>Aucune transcription</p>'}
     </div>
 
     <div class="footer">
-      <p>Généré par <strong>CORTEXIA</strong> - ${new Date().toLocaleDateString('fr-FR')}</p>
+      <p>Généré par <strong>CORTEXA</strong> - ${new Date().toLocaleDateString('fr-FR')}</p>
     </div>
   </div>
 </body>

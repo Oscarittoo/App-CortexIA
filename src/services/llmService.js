@@ -9,8 +9,11 @@ class LLMService {
     // En production, toutes les requêtes passent par le backend (/api/openai ou /api/anthropic).
     // Pour développement local sans proxy, positionner VITE_DIRECT_API=true dans .env.local uniquement.
     this.useProxy = !Boolean(import.meta.env?.VITE_DIRECT_API);
-    this.openaiKey = import.meta.env?.VITE_OPENAI_API_KEY;
-    this.claudeKey = import.meta.env?.VITE_ANTHROPIC_API_KEY;
+    // Les clés API ne sont lues qu'en mode développement local (VITE_DIRECT_API=true).
+    // En production, toutes les requêtes passent par le proxy backend.
+    // Ne jamais définir VITE_OPENAI_API_KEY / VITE_ANTHROPIC_API_KEY dans le build de production.
+    this.openaiKey = import.meta.env?.DEV ? import.meta.env?.VITE_OPENAI_API_KEY : undefined;
+    this.claudeKey = import.meta.env?.DEV ? import.meta.env?.VITE_ANTHROPIC_API_KEY : undefined;
     this.provider = import.meta.env?.VITE_LLM_PROVIDER || 'openai'; // 'openai' ou 'claude'
     this.claudeModel = import.meta.env?.VITE_ANTHROPIC_MODEL || 'claude-3-5-sonnet-latest';
   }
@@ -621,7 +624,7 @@ ${actions.slice(0, 5).map(a => `• ${a.task} - ${a.responsible} (${a.deadline})
 Le compte-rendu complet est disponible en pièce jointe.
 
 Cordialement,
-CORTEXIA`;
+CORTEXA`;
     } else {
       return `Subject: Meeting Report - ${title}
 
@@ -641,7 +644,7 @@ ${actions.slice(0, 5).map(a => `• ${a.task} - ${a.responsible} (${a.deadline})
 The full report is attached.
 
 Best regards,
-CORTEXIA`;
+CORTEXA`;
     }
   }
 

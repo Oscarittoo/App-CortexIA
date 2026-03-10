@@ -11,7 +11,6 @@ export default function TagManager({ tags = [], onAddTag, onRemoveTag, onUpdateT
   const [newTagName, setNewTagName] = useState('');
   const [editingTag, setEditingTag] = useState(null);
   const [editName, setEditName] = useState('');
-  const [tagColors, setTagColors] = useState({});
 
   const handleAddTag = () => {
     if (newTagName.trim()) {
@@ -40,19 +39,19 @@ export default function TagManager({ tags = [], onAddTag, onRemoveTag, onUpdateT
   };
 
   const getTagColor = (tag, index) => {
-    return tagColors[tag] || TAG_COLORS[index % TAG_COLORS.length];
+    return TAG_COLORS[index % TAG_COLORS.length];
   };
 
   return (
     <div className="tag-manager">
       <div className="tag-manager-header">
-        <h3>Manage Tags</h3>
+        <h3>Gestion des étiquettes</h3>
         <button
           className="btn btn-primary btn-sm"
           onClick={() => setIsAdding(true)}
         >
           <Plus size={16} />
-          Add Tag
+          Ajouter
         </button>
       </div>
 
@@ -61,7 +60,7 @@ export default function TagManager({ tags = [], onAddTag, onRemoveTag, onUpdateT
           <input
             type="text"
             className="input"
-            placeholder="Tag name"
+            placeholder="Nom de l'étiquette"
             value={newTagName}
             onChange={(e) => setNewTagName(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
@@ -133,7 +132,7 @@ export default function TagManager({ tags = [], onAddTag, onRemoveTag, onUpdateT
 
         {tags.length === 0 && !isAdding && (
           <div className="empty-state">
-            <p>No tags yet. Create your first tag to organize sessions.</p>
+            <p>Aucune étiquette. Créez votre première étiquette pour organiser vos sessions.</p>
           </div>
         )}
       </div>

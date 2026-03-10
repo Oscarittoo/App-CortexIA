@@ -54,7 +54,7 @@ export default function SessionReport({ data, onNewSession, onEdit, isSidebarCol
     if (data.aiGenerated && data.summary) {
       loadSavedReport(settings);
     } else {
-      generateReport();
+      generateReport(settings);
     }
   }, []);
 
@@ -90,8 +90,7 @@ ${data.summary}
       if (position && position !== 'Directeur Commercial') signature += `\n${position}`;
       if (company && company !== 'Entreprise SAS') signature += `\n${company}`;
       if (signature !== '\n\nCordialement,') {
-        email = email.replace(/Cordialement,\s*CORTEXA/gi, signature);
-        email = email.replace(/Cordialement,\s*Meetizy/gi, signature);
+        email = email.replace(/Cordialement,\s*(CORTEXA|Meetizy|Cortexa)/gi, signature);
       }
     }
     setFollowUpEmail(email);
@@ -100,10 +99,11 @@ ${data.summary}
     setIsGenerating(false);
   };
 
-  const getEmailSignature = () => {
-    if (!userSettings) return '\n\nCordialement,\nMeetizy';
+  const getEmailSignature = (settingsOverride = null) => {
+    const s = settingsOverride || userSettings;
+    if (!s) return '\n\nCordialement,\nCortexa';
     
-    const { fullName, position, company } = userSettings;
+    const { fullName, position, company } = s;
     let signature = '\n\nCordialement,';
     
     if (fullName && fullName !== 'Jean Dupont') {
@@ -118,10 +118,10 @@ ${data.summary}
       signature += `\n${company}`;
     }
     
-    return signature || '\n\nCordialement,\nMeetizy';
+    return signature || '\n\nCordialement,\nCortexa';
   };
 
-  const generateReport = async () => {
+  const generateReport = async (settingsOverride = null) => {
     setIsGenerating(true);
     
     console.log(`Génération du rapport avec IA (${import.meta.env?.VITE_LLM_PROVIDER || 'openai'})...`);
@@ -216,8 +216,7 @@ ${aiReport.summary}
       let customEmail = aiReport.email || '';
       if (customEmail) {
         // Remplacer la signature générique par la signature personnalisée
-        customEmail = customEmail.replace(/Cordialement,\s*CORTEXA/gi, getEmailSignature());
-        customEmail = customEmail.replace(/Cordialement,\s*Meetizy/gi, getEmailSignature());
+        customEmail = customEmail.replace(/Cordialement,\s*(CORTEXA|Meetizy|Cortexa)/gi, getEmailSignature());
       }
       setFollowUpEmail(customEmail);
       
@@ -285,7 +284,7 @@ ${extractKeyPoints(fullTranscript)}
       setDecisions(extractedDecisions);
       setAiMeta({ provider: 'local', model: 'local-heuristics', source: 'fallback' });
 
-      setFollowUpEmail(`Objet : Compte-rendu - ${data.title || 'Réunion'}\n\nBonjour,\n\nVoici le récapitulatif de notre réunion "${data.title || 'Sans titre'}" du ${new Date().toLocaleDateString('fr-FR')}.\n\nDURÉE : ${formatDuration(data.duration)}\n\n${extractedDecisions.length > 0 && extractedDecisions[0].text !== 'Aucune décision formelle détectée dans la transcription' ? `DÉCISIONS PRISES\n${extractedDecisions.map(d => `• ${d.text} (${d.impact})`).join('\n')}\n\n` : ''}${extractedActions.length > 0 && extractedActions[0].task !== 'Aucune action spécifique détectée dans la transcription' ? `ACTIONS À SUIVRE\n${extractedActions.map(a => `• ${a.task}\n  Responsable: ${a.responsible} | Échéance: ${new Date(a.deadline).toLocaleDateString('fr-FR')} | Priorité: ${a.priority}`).join('\n\n')}\n\n` : ''}TRANSCRIPTION\n${fullTranscript.substring(0, 800)}${fullTranscript.length > 800 ? '...\n\n[Transcription complète disponible dans le compte-rendu joint]' : ''}${getEmailSignature()}`);
+      setFollowUpEmail(`Objet : Compte-rendu - ${data.title || 'Réunion'}\n\nBonjour,\n\nVoici le récapitulatif de notre réunion "${data.title || 'Sans titre'}" du ${new Date().toLocaleDateString('fr-FR')}.\n\nDURÉE : ${formatDuration(data.duration)}\n\n${extractedDecisions.length > 0 && extractedDecisions[0].text !== 'Aucune décision formelle détectée dans la transcription' ? `DÉCISIONS PRISES\n${extractedDecisions.map(d => `• ${d.text} (${d.impact})`).join('\n')}\n\n` : ''}${extractedActions.length > 0 && extractedActions[0].task !== 'Aucune action spécifique détectée dans la transcription' ? `ACTIONS À SUIVRE\n${extractedActions.map(a => `• ${a.task}\n  Responsable: ${a.responsible} | Échéance: ${new Date(a.deadline).toLocaleDateString('fr-FR')} | Priorité: ${a.priority}`).join('\n\n')}\n\n` : ''}TRANSCRIPTION\n${fullTranscript.substring(0, 800)}${fullTranscript.length > 800 ? '...\n\n[Transcription complète disponible dans le compte-rendu joint]' : ''}${getEmailSignature(settingsOverride)}`);
       
       const sessionToSave = {
         ...data,

@@ -49,7 +49,7 @@ class AuthService {
       companyName: client?.company_name || null,
       plan: client?.plan || 'free',
       stripeSubscriptionId: client?.stripe_subscription_id || null,
-      role: client?.role || this.determineRole(data.user.email),
+      role: client?.role || 'user',
       loginAt: Date.now()
     };
 
@@ -172,7 +172,7 @@ class AuthService {
       companyName: client?.company_name || null,
       plan: client?.plan || 'free',
       stripeSubscriptionId: client?.stripe_subscription_id || null,
-      role: client?.role || this.determineRole(data.user.email)
+      role: client?.role || 'user'
     };
 
     this.currentUser = userData;
@@ -314,16 +314,6 @@ class AuthService {
     }
 
     return data || null;
-  }
-
-  /**
-   * Détermine le rôle en fonction de l'email (liste d'admins)
-   */
-  determineRole(email) {
-    const adminEmails = [
-      'oscarbrixon@gmail.com'
-    ];
-    return adminEmails.includes(email?.toLowerCase()) ? 'admin' : 'user';
   }
 
   /**

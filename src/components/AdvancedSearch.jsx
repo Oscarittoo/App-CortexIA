@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Filter, X, Calendar, Tag, Clock } from 'lucide-react';
 
 export default function AdvancedSearch({ onSearch, availableTags = [] }) {
@@ -18,6 +18,11 @@ export default function AdvancedSearch({ onSearch, availableTags = [] }) {
     onSearch(query, filters);
   };
 
+  // Déclencher la recherche automatiquement quand les filtres changent
+  useEffect(() => {
+    onSearch(query, filters);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
   const handleTagToggle = (tag) => {
     setFilters(prev => ({
       ...prev,

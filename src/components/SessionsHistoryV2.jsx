@@ -140,9 +140,9 @@ export default function SessionsHistoryV2({ onViewSession, onEditSession }) {
                   <span className="meta-item">
                     {formatDuration(session.duration)}
                   </span>
-                  {session.transcriptCount && (
+                  {session.transcript?.length > 0 && (
                     <span className="meta-item">
-                      {session.transcriptCount} segments
+                      {session.transcript.length} segments
                     </span>
                   )}
                 </div>

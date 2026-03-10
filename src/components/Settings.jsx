@@ -314,11 +314,12 @@ export default function Settings({ initialTab = 'profile' }) {
               </div>
 
               <div className="settings-field">
-                <label>Email professionnel</label>
+                <label>Email professionnel <span style={{ fontSize: '11px', opacity: 0.5 }}>(modifier via Supabase Auth)</span></label>
                 <input
                   type="email"
                   value={settings.email}
-                  onChange={(e) => setSettings({ ...settings, email: e.target.value })}
+                  readOnly
+                  style={{ opacity: 0.7, cursor: 'not-allowed' }}
                   placeholder="jean.dupont@entreprise.fr"
                 />
               </div>
@@ -497,7 +498,7 @@ export default function Settings({ initialTab = 'profile' }) {
                 <div className="subscription-header">
                   <div>
                     <h4>Plan {getPlanName(settings.plan)}</h4>
-                    <p>Renouvellement le {new Date(settings.nextBillingDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                    <p>Renouvellement le {settings.nextBillingDate ? new Date(settings.nextBillingDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A'}</p>
                   </div>
                   <div className="plan-badge">{getPlanName(settings.plan)}</div>
                 </div>

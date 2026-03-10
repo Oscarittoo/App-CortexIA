@@ -95,9 +95,9 @@ class StorageService {
     } catch (e) {
       if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.code === 22)) {
         // Stockage plein : supprimer les 3 sessions les plus anciennes et réessayer
-        const userId = this.getCurrentUserId();
+        const trimUserId = this.getCurrentUserId();
         const toDelete = allSessions
-          .filter(s => s.userId === userId)
+          .filter(s => s.userId === trimUserId)
           .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0))
           .slice(0, 3)
           .map(s => s.id);
@@ -124,8 +124,8 @@ class StorageService {
     try {
       return JSON.parse(data);
     } catch (e) {
-      console.error('localStorage corrompu (SESSIONS) — données réinitialisées:', e);
-      localStorage.removeItem(STORAGE_KEYS.SESSIONS);
+      console.error('localStorage corrompu (SESSIONS) — récupération impossible, retour tableau vide:', e);
+      // Ne pas supprimer les données : laisser l'utilisateur décider via Paramètres > Effacer les données
       return [];
     }
   }

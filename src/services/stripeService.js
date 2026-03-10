@@ -1,9 +1,9 @@
 /**
- * Service Stripe pour MEETIZY
+ * Service Stripe pour CORTEXA
  * Gère les paiements et abonnements
- * 
- * TODO: Configurer avec vos vraies clés Stripe
  */
+
+import { supabase } from './supabaseClient';
 
 class StripeService {
   constructor() {
@@ -53,17 +53,27 @@ class StripeService {
   }
 
   /**
+   * Récupère le token JWT de l'utilisateur courant pour les appels API
+   */
+  async getAuthHeader() {
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
+  /**
    * Crée une session de paiement
    * @param {string} planId - L'ID du plan (pro, enterprise)
    * @param {string} customerEmail - Email du client
    */
   async createCheckoutSession(planId, customerEmail) {
     try {
-      // TODO: Appeler votre backend pour créer la session Stripe
+      const authHeader = await this.getAuthHeader();
       const response = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...authHeader,
         },
         body: JSON.stringify({
           planId,
@@ -88,8 +98,10 @@ class StripeService {
    */
   async getSubscription(subscriptionId) {
     try {
-      // TODO: Appeler votre backend
-      const response = await fetch(`/api/stripe/subscription/${subscriptionId}`);
+      const authHeader = await this.getAuthHeader();
+      const response = await fetch(`/api/stripe/subscription/${subscriptionId}`, {
+        headers: { ...authHeader },
+      });
       return await response.json();
     } catch (error) {
       console.error('Erreur lors de la récupération de l\'abonnement:', error);
@@ -102,9 +114,10 @@ class StripeService {
    */
   async cancelSubscription(subscriptionId) {
     try {
-      // TODO: Appeler votre backend
+      const authHeader = await this.getAuthHeader();
       const response = await fetch(`/api/stripe/subscription/${subscriptionId}/cancel`, {
         method: 'POST',
+        headers: { ...authHeader },
       });
       return await response.json();
     } catch (error) {
@@ -118,11 +131,12 @@ class StripeService {
    */
   async createCustomerPortal(customerId) {
     try {
-      // TODO: Appeler votre backend
+      const authHeader = await this.getAuthHeader();
       const response = await fetch('/api/stripe/create-portal-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...authHeader,
         },
         body: JSON.stringify({
           customerId,

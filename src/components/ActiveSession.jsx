@@ -32,9 +32,14 @@ export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
   const recognitionRef = useRef(null);
   const transcriptEndRef = useRef(null);
   const restartCountRef = useRef(0);
+  const restartTimerRef = useRef(null);
   const isPausedRef = useRef(false);
   const isRecordingRef = useRef(false);
   const durationRef = useRef(0);
+  // Refs pour éviter les stale closures dans les effets asynchrones
+  const transcriptRef = useRef([]);
+  const detectedActionsRef = useRef([]);
+  const detectedDecisionsRef = useRef([]);
 
   const MAX_DURATION = PLAN_MAX_DURATION[userPlan] ?? PLAN_MAX_DURATION.free;
 
@@ -49,6 +54,7 @@ export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
 
     return () => {
       clearInterval(timer);
+      clearTimeout(restartTimerRef.current);
       stopRecording();
     };
   }, []);
@@ -58,6 +64,10 @@ export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
     isPausedRef.current = isPaused;
   }, [isPaused]);
 
+  // Maintenir les refs synchronisées (pour éviter les stale closures dans les effets)
+  useEffect(() => { transcriptRef.current = transcript; }, [transcript]);
+  useEffect(() => { detectedActionsRef.current = detectedActions; }, [detectedActions]);
+  useEffect(() => { detectedDecisionsRef.current = detectedDecisions; }, [detectedDecisions]);
   useEffect(() => {
     // Auto-scroll vers le bas
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -78,7 +88,10 @@ export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
     }
     if (duration >= MAX_DURATION) {
       stopRecording();
-      onEnd(transcript, duration, { detectedActions, detectedDecisions });
+      onEnd(transcriptRef.current, duration, {
+        detectedActions: detectedActionsRef.current,
+        detectedDecisions: detectedDecisionsRef.current
+      });
     }
   }, [duration]);
 
@@ -260,7 +273,8 @@ export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
           console.log(`Auto-restart (tentative ${restartCountRef.current + 1}/50)`);
           restartCountRef.current += 1;
           
-          setTimeout(() => {
+          clearTimeout(restartTimerRef.current);
+          restartTimerRef.current = setTimeout(() => {
             try {
               recognition.start();
               console.log('Recognition restarted');

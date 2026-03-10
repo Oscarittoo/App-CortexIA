@@ -27,6 +27,7 @@ import NewSession from './components/NewSession';
 import ActiveSession from './components/ActiveSession';
 import SessionReport from './components/SessionReport';
 import Dashboard from './components/Dashboard';
+import DashboardProfessional from './components/DashboardProfessional';
 import SessionsHistory from './components/SessionsHistory';
 import SessionEditor from './components/SessionEditor';
 import Pricing from './components/Pricing';
@@ -47,7 +48,7 @@ import toast from './components/Toast';
 import logo from './assets/logo_brain_circuit.svg';
 import authService from './services/authService';
 import storageService from './utils/storage';
-import { loadFeatureFlags } from './config/featureFlags';
+import { loadFeatureFlags, FEATURE_FLAGS } from './config/featureFlags';
 import { supabase } from './services/supabaseClient';
 
 // Import New Theme - Replaces design-system.css and app.css
@@ -103,9 +104,14 @@ export default function App() {
     loadUser();
 
     // Écouter les événements Supabase (récupération de mot de passe, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
         setCurrentView('reset-password');
+      }
+      if (event === 'SIGNED_OUT') {
+        setIsAuthenticated(false);
+        setCurrentUser(null);
+        setCurrentView('home');
       }
     });
 
@@ -260,8 +266,8 @@ export default function App() {
             width: '100%',
           }}>
             <div onClick={handleGoHome} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-              <img src={logo} alt="Meetizy Logo" width="40" height="40" />
-              <span style={{ fontFamily: 'Orbitron, sans-serif', fontWeight: '700', fontSize: '20px', letterSpacing: '1px', color: '#ffffff' }}>MEETIZY</span>
+              <img src={logo} alt="Cortexa Logo" width="40" height="40" />
+              <span style={{ fontFamily: 'Orbitron, sans-serif', fontWeight: '700', fontSize: '20px', letterSpacing: '1px', color: '#ffffff' }}>CORTEXA</span>
             </div>
 
             {/* Links desktop */}
@@ -326,7 +332,7 @@ export default function App() {
           </main>
 
           <footer style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)', borderTop: '1px solid var(--border)' }}>
-            <p>© 2026 MEETIZY · Premium AI Assistant</p>
+            <p>© 2026 CORTEXA · Premium AI Assistant</p>
           </footer>
         </div>
       </ErrorBoundary>
@@ -343,9 +349,9 @@ export default function App() {
         {/* SIDEBAR */}
         <aside className={`sidebar${isMobileSidebarOpen ? ' open' : ''}`} style={{ width: isSidebarCollapsed ? '80px' : '280px', minWidth: isSidebarCollapsed ? '80px' : '280px', transition: 'width 0.3s ease, min-width 0.3s ease, left 0.3s ease', position: 'relative' }}>
           <div className="brand" style={{ flexDirection: isSidebarCollapsed ? 'column' : 'row', gap: isSidebarCollapsed ? '8px' : '10px', padding: isSidebarCollapsed ? '20px 10px' : '20px' }}>
-            <img src={logo} alt="Meetizy Logo" width={isSidebarCollapsed ? "32" : "64"} height={isSidebarCollapsed ? "32" : "64"} style={{ transition: 'all 0.3s ease' }} />
+            <img src={logo} alt="Cortexa Logo" width={isSidebarCollapsed ? "32" : "64"} height={isSidebarCollapsed ? "32" : "64"} style={{ transition: 'all 0.3s ease' }} />
             {!isSidebarCollapsed && (
-              <span style={{ fontFamily: 'Orbitron, sans-serif', letterSpacing: '1px', fontSize: '18px', fontWeight: 'bold', color: 'var(--text-primary)' }}>MEETIZY</span>
+              <span style={{ fontFamily: 'Orbitron, sans-serif', letterSpacing: '1px', fontSize: '18px', fontWeight: 'bold', color: 'var(--text-primary)' }}>CORTEXA</span>
             )}
           </div>
 
@@ -428,7 +434,7 @@ export default function App() {
               className="btn-icon-premium sidebar-mobile-toggle"
               onClick={() => setIsMobileSidebarOpen(v => !v)}
               title="Menu"
-              style={{ display: 'none' }}
+              style={{}}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
@@ -451,7 +457,11 @@ export default function App() {
           </div>
 
           <div className="content-area">
-             {currentView === 'dashboard' && <Dashboard onNewSession={() => setCurrentView('new')} />}
+             {currentView === 'dashboard' && (
+               FEATURE_FLAGS.USE_DASHBOARD_PROFESSIONAL
+                 ? <DashboardProfessional onNewSession={() => setCurrentView('new')} sessions={storageService.getSessions()} />
+                 : <Dashboard onNewSession={() => setCurrentView('new')} />
+             )}
              
              {currentView === 'new' && <NewSession onStart={handleStartSession} />}
              
