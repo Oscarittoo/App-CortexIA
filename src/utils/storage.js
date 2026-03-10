@@ -121,7 +121,13 @@ class StorageService {
   _getAllSessionsRaw() {
     const data = localStorage.getItem(STORAGE_KEYS.SESSIONS);
     if (!data) return [];
-    return JSON.parse(data);
+    try {
+      return JSON.parse(data);
+    } catch (e) {
+      console.error('localStorage corrompu (SESSIONS) — données réinitialisées:', e);
+      localStorage.removeItem(STORAGE_KEYS.SESSIONS);
+      return [];
+    }
   }
   
   /**

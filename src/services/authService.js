@@ -252,66 +252,29 @@ class AuthService {
   }
 
   /**
-   * Synchronise tous les utilisateurs Supabase Auth avec la table clients
-   * (Admin uniquement - nécessite Service Role Key configurée)
-   * 
-   * Note: Cette méthode nécessite que Supabase soit configuré avec une Service Role Key
-   * Si cela ne fonctionne pas, utilisez plutôt un trigger Supabase ou une edge function.
+   * Synchronise l'utilisateur courant avec la table clients.
+   * NOTE: supabase.auth.admin.listUsers() nécessite la Service Role Key côté serveur.
+   * Cette méthode ne liste plus tous les utilisateurs (exposition de la clé admin supprimée).
+   * Pour une sync complète, utiliser un trigger Supabase ou une Edge Function dédiée.
    */
   async syncAllUsersToClientDatabase() {
-    console.log('Synchronisation de tous les utilisateurs Auth vers la BD clients...');
-    
+    console.log('Synchronisation de l\'utilisateur courant vers la BD clients...');
     try {
-      // Vérifier si on a accès à l'API admin
-      // Note: Cela nécessite que le projet Supabase soit configuré correctement
-      const { data: { users }, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError) {
-        console.error('Erreur Admin API (probablement pas de Service Role Key):', authError);
-        // Fallback: au moins recharger les clients existants
-        return { success: false, error: 'Admin API non disponible' };
+      const user = this.currentUser || await this.getCurrentUser();
+      if (!user?.id) {
+        return { success: false, error: 'Aucun utilisateur connecté' };
       }
 
-      console.log(`Utilisateurs trouvés dans Auth: ${users?.length || 0}`);
+      await this.saveToClientDatabase({
+        id: user.id,
+        email: user.email,
+        company_name: user.companyName || null,
+        plan: user.plan || 'free',
+      });
 
-      // Récupérer les clients existants
-      const { data: existingClients } = await supabase
-        .from('clients')
-        .select('id, email');
-
-      const existingIds = new Set(existingClients?.map(c => c.id) || []);
-      
-      let created = 0;
-      let updated = 0;
-      let errors = 0;
-
-      // Synchroniser chaque utilisateur
-      for (const authUser of users) {
-        try {
-          const userData = {
-            id: authUser.id,
-            email: authUser.email,
-            company_name: authUser.user_metadata?.company_name || null,
-            plan: authUser.user_metadata?.plan || 'free'
-          };
-
-          await this.saveToClientDatabase(userData);
-          
-          if (existingIds.has(authUser.id)) {
-            updated++;
-          } else {
-            created++;
-          }
-        } catch (err) {
-          console.error(`Erreur sync utilisateur ${authUser.email}:`, err);
-          errors++;
-        }
-      }
-
-      console.log(`Synchronisation terminée: ${created} créés, ${updated} mis à jour, ${errors} erreurs`);
-      return { success: true, created, updated, errors };
+      return { success: true, created: 0, updated: 1, errors: 0 };
     } catch (error) {
-      console.error('Erreur lors de la synchronisation complète:', error);
+      console.error('Erreur lors de la synchronisation:', error);
       return { success: false, error: error.message };
     }
   }

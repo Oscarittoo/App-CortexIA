@@ -37,7 +37,7 @@ class PDFExportService {
     yPos += 30;
 
     if (session.summary) {
-      yPos = this.addSection(doc, 'Summary', session.summary, pageWidth, yPos, pageHeight);
+      yPos = this.addSection(doc, 'Synthèse', session.summary, pageWidth, yPos, pageHeight);
     }
 
     if (session.keyPoints && session.keyPoints.length > 0) {
@@ -88,7 +88,7 @@ class PDFExportService {
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...this.colors.text);
-    doc.text(session.title, leftMargin, yPos);
+    doc.text(session.title || 'Sans titre', leftMargin, yPos);
     
     yPos += 10;
     
@@ -96,12 +96,12 @@ class PDFExportService {
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...this.colors.textLight);
     
-    const dateStr = format(new Date(session.createdAt), "d MMMM yyyy 'at' HH:mm", { locale: fr });
-    doc.text(`Date: ${dateStr}`, leftMargin, yPos);
+    const dateStr = format(new Date(session.createdAt), "d MMMM yyyy 'à' HH:mm", { locale: fr });
+    doc.text(`Date : ${dateStr}`, leftMargin, yPos);
     
     if (session.duration) {
       const duration = Math.floor(session.duration / 60);
-      doc.text(`Duration: ${duration} min`, leftMargin + 70, yPos);
+      doc.text(`Durée : ${duration} min`, leftMargin + 70, yPos);
     }
     
     if (session.tags && session.tags.length > 0) {
@@ -155,7 +155,7 @@ class PDFExportService {
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...this.colors.primary);
-    doc.text('Key Points', leftMargin, yPos);
+    doc.text('Points clés', leftMargin, yPos);
     
     yPos += 8;
     
@@ -191,21 +191,21 @@ class PDFExportService {
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...this.colors.primary);
-    doc.text('Action Items', leftMargin, yPos);
+    doc.text('Actions à réaliser', leftMargin, yPos);
     
     yPos += 10;
     
-    const tableData = actions.map(action => [
-      action.action || action.text || '',
-      action.responsible || 'Not assigned',
-      action.priority || 'Medium',
-      action.deadline || 'No deadline',
+    const tableDataActions = actions.map(action => [
+      action.task || action.action || action.text || '',
+      action.responsible || 'Non assigné',
+      action.priority || 'Moyenne',
+      action.deadline || 'Sans échéance',
     ]);
     
     doc.autoTable({
       startY: yPos,
-      head: [['Action', 'Responsible', 'Priority', 'Deadline']],
-      body: tableData,
+      head: [['Action', 'Responsable', 'Priorité', 'Échéance']],
+      body: tableDataActions,
       theme: 'striped',
       headStyles: {
         fillColor: this.colors.primary,
@@ -237,20 +237,20 @@ class PDFExportService {
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...this.colors.primary);
-    doc.text('Decisions', leftMargin, yPos);
+    doc.text('Décisions prises', leftMargin, yPos);
     
     yPos += 10;
     
-    const tableData = decisions.map(decision => [
+    const tableDataDecisions = decisions.map(decision => [
       decision.decision || decision.text || '',
-      decision.impact || 'Medium',
-      decision.category || 'General',
+      decision.impact || 'Moyen',
+      decision.category || 'Général',
     ]);
     
     doc.autoTable({
       startY: yPos,
-      head: [['Decision', 'Impact', 'Category']],
-      body: tableData,
+      head: [['Décision', 'Impact', 'Catégorie']],
+      body: tableDataDecisions,
       theme: 'striped',
       headStyles: {
         fillColor: this.colors.primary,
@@ -306,7 +306,7 @@ class PDFExportService {
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...this.colors.primary);
-    doc.text('Full Transcript', leftMargin, yPos);
+    doc.text('Transcription intégrale', leftMargin, yPos);
     
     yPos += 8;
     
@@ -355,7 +355,7 @@ class PDFExportService {
       );
       
       doc.text(
-        `Page ${i} of ${pageCount}`,
+        `Page ${i} sur ${pageCount}`,
         pageWidth - 20,
         pageHeight - 10,
         { align: 'right' }
@@ -373,9 +373,9 @@ class PDFExportService {
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...this.colors.text);
-    doc.text('Sessions Summary', pageWidth / 2, 40, { align: 'center' });
+    doc.text('Résumé des sessions', pageWidth / 2, 40, { align: 'center' });
     
-    const tableData = sessions.map(session => [
+    const tableDataSessions = sessions.map(session => [
       session.title,
       format(new Date(session.createdAt), 'dd/MM/yyyy'),
       session.duration ? `${Math.floor(session.duration / 60)} min` : 'N/A',
@@ -384,8 +384,8 @@ class PDFExportService {
     
     doc.autoTable({
       startY: 50,
-      head: [['Title', 'Date', 'Duration', 'Tags']],
-      body: tableData,
+      head: [['Titre', 'Date', 'Durée', 'Tags']],
+      body: tableDataSessions,
       theme: 'striped',
       headStyles: {
         fillColor: this.colors.primary,
@@ -401,7 +401,7 @@ class PDFExportService {
     
     this.addFooter(doc, pageWidth, pageHeight);
     
-    const fileName = `Sessions_Summary_${format(new Date(), 'yyyy-MM-dd')}.pdf`;
+    const fileName = `Resume_Sessions_${format(new Date(), 'yyyy-MM-dd')}.pdf`;
     doc.save(fileName);
     
     return fileName;

@@ -5,9 +5,12 @@
 
 class LLMService {
   constructor() {
-    this.useProxy = Boolean(import.meta.env?.DEV);
+    // useProxy = true par défaut — les clés API ne doivent JAMAIS être exposées dans le bundle JS.
+    // En production, toutes les requêtes passent par le backend (/api/openai ou /api/anthropic).
+    // Pour développement local sans proxy, positionner VITE_DIRECT_API=true dans .env.local uniquement.
+    this.useProxy = !Boolean(import.meta.env?.VITE_DIRECT_API);
     this.openaiKey = import.meta.env?.VITE_OPENAI_API_KEY;
-    this.claudeKey = this.useProxy ? null : import.meta.env?.VITE_ANTHROPIC_API_KEY;
+    this.claudeKey = import.meta.env?.VITE_ANTHROPIC_API_KEY;
     this.provider = import.meta.env?.VITE_LLM_PROVIDER || 'openai'; // 'openai' ou 'claude'
     this.claudeModel = import.meta.env?.VITE_ANTHROPIC_MODEL || 'claude-3-5-sonnet-latest';
   }
@@ -16,7 +19,7 @@ class LLMService {
    * Génère un compte-rendu complet à partir de la transcription
    */
   async generateReport(transcript, sessionInfo) {
-    const { language, title, duration } = sessionInfo;
+    const { language, title, duration, template } = sessionInfo;
 
     const normalizedTranscript = (transcript || [])
       .map(line => {
@@ -55,8 +58,8 @@ class LLMService {
     try {
       // Générer en parallèle le résumé, les actions et les décisions
       const [summary, actions, decisions] = await Promise.all([
-        this.generateSummary(transcriptText, language),
-        this.extractActions(transcriptText, language),
+        this.generateSummary(transcriptText, language, template),
+        this.extractActions(transcriptText, language, template),
         this.extractDecisions(transcriptText, language)
       ]);
 
@@ -85,15 +88,21 @@ class LLMService {
   /**
    * Génère un résumé structuré
    */
-  async generateSummary(transcriptText, language) {
+  async generateSummary(transcriptText, language, template = null) {
     if (this.isLowQualityTranscript(transcriptText, language)) {
       return language === 'fr'
         ? `**Contexte**\n\nTranscription trop courte ou peu informative pour établir un contexte fiable.\n\n**Points clés**\n- Non mentionné\n- Non mentionné\n- Non mentionné\n\n**Mots-clés techniques**\n- Aucun mot-clé technique explicite\n\n**Conclusion**\n\nTranscription insuffisante pour produire une synthèse professionnelle.`
         : `**Context**\n\nTranscript too short or not informative enough to build a reliable context.\n\n**Key Points**\n- Not mentioned\n- Not mentioned\n- Not mentioned\n\n**Technical Keywords**\n- No explicit technical keyword\n\n**Conclusion**\n\nTranscript insufficient to produce a professional summary.`;
     }
+    const templateInstruction = template?.content
+      ? (language === 'fr'
+          ? `\nMODÈLE DE RÉUNION (utilise-le comme guide de structure) :\n${template.content}\n`
+          : `\nMEETING TEMPLATE (use this as a structure guide):\n${template.content}\n`)
+      : '';
+
     const prompt = language === 'fr'
       ? `Tu es un expert en compte-rendu. Réponds UNIQUEMENT avec un JSON valide.
-
+${templateInstruction}
 RÈGLES STRICTES:
 - N'invente rien. Utilise uniquement ce qui est dans la transcription.
 - Si une info manque, mets "Non mentionné".
@@ -262,11 +271,16 @@ ${transcriptText}
   /**
    * Extrait les actions à réaliser
    */
-  async extractActions(transcriptText, language) {
+  async extractActions(transcriptText, language, template = null) {
     let response;
+    const templateInstruction = template?.content
+      ? (language === 'fr'
+          ? `\nMODÈLE APPLIQUÉ: ${template.name}. Adapte les actions à ce type de réunion.\n`
+          : `\nAPPLIED TEMPLATE: ${template.name}. Adapt actions to this meeting type.\n`)
+      : '';
     const prompt = language === 'fr'
       ? `Analyse cette transcription et EXTRAIS UNIQUEMENT les actions explicites.
-
+${templateInstruction}
 RÈGLES STRICTES:
 - N'invente rien.
 - Une action = verbe d'action + objet clair.
@@ -428,6 +442,13 @@ Respond ONLY with JSON, no additional text.`;
    * Appelle l'API OpenAI (GPT-4)
    */
   async callOpenAI(prompt, jsonMode = false, retries = 2) {
+    const endpoint = this.useProxy
+      ? '/api/openai'
+      : 'https://api.openai.com/v1/chat/completions';
+    const headers = this.useProxy
+      ? { 'Content-Type': 'application/json' }
+      : { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.openaiKey}` };
+
     let lastError;
     for (let attempt = 0; attempt <= retries; attempt++) {
       if (attempt > 0) {
@@ -436,12 +457,9 @@ Respond ONLY with JSON, no additional text.`;
         console.warn(`Retry OpenAI API (tentative ${attempt}/${retries})...`);
       }
       try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        const response = await fetch(endpoint, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.openaiKey}`
-          },
+          headers,
           body: JSON.stringify({
             model: 'gpt-4o',
             messages: [

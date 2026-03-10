@@ -40,12 +40,15 @@ import Teams from './components/Teams';
 import Calendar from './components/Calendar';
 import AgentInstall from './components/AgentInstall';
 import ChatBot from './components/ChatBot';
+import ResetPassword from './components/ResetPassword';
 import ErrorBoundary from './components/ErrorBoundary';
 import { Toaster } from './components/Toast';
 import toast from './components/Toast';
 import logo from './assets/logo_brain_circuit.svg';
 import authService from './services/authService';
 import storageService from './utils/storage';
+import { loadFeatureFlags } from './config/featureFlags';
+import { supabase } from './services/supabaseClient';
 
 // Import New Theme - Replaces design-system.css and app.css
 import './styles/theme-premium.css';
@@ -71,6 +74,9 @@ export default function App() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
+    // Charger les feature flags depuis localStorage (overrides)
+    loadFeatureFlags();
+
     const loadUser = async () => {
       setIsAuthLoading(true);
       try {
@@ -96,12 +102,21 @@ export default function App() {
     };
     loadUser();
 
-    // Exposer les services dans la console pour le débogage
-    if (typeof window !== 'undefined') {
+    // Écouter les événements Supabase (récupération de mot de passe, etc.)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setCurrentView('reset-password');
+      }
+    });
+
+    // Exposer les services uniquement en développement
+    if (import.meta.env?.DEV && typeof window !== 'undefined') {
       window.storageService = storageService;
       window.authService = authService;
       console.log('Services de débogage disponibles: window.storageService, window.authService');
     }
+
+    return () => subscription?.unsubscribe();
   }, []);
 
   // Mettre à jour l'activité lors des interactions utilisateur
@@ -307,6 +322,7 @@ export default function App() {
             {currentView === 'agent-install' && <AgentInstall />}
             {currentView === 'api-docs' && <ApiDocs onBack={() => setCurrentView('integrations')} />}
             {currentView === 'login' && <Login onLogin={handleLogin} onBack={() => setCurrentView('home')} selectedPlan={selectedPlan} />}
+            {currentView === 'reset-password' && <ResetPassword onDone={() => setCurrentView('login')} />}
           </main>
 
           <footer style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)', borderTop: '1px solid var(--border)' }}>

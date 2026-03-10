@@ -25,6 +25,7 @@ export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
   const [speechDetected, setSpeechDetected] = useState(false);
   const [detectedActions, setDetectedActions] = useState([]);
   const [detectedDecisions, setDetectedDecisions] = useState([]);
+  const [speechNotSupported, setSpeechNotSupported] = useState(false);
   const [showStopConfirm, setShowStopConfirm] = useState(false);
   const [showMarkModal, setShowMarkModal] = useState(false);
   const [markNote, setMarkNote] = useState('');
@@ -90,7 +91,9 @@ export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
       // Vérifier support Web Speech API
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
-        throw new Error('Web Speech API non supportée par ce navigateur');
+        setSpeechNotSupported(true);
+        setMicStatus('Navigateur incompatible');
+        return;
       }
 
       console.log('Web Speech API supportée');
@@ -449,6 +452,31 @@ export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
     }
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  if (speechNotSupported) {
+    return (
+      <div className="screen active-session" style={{ width: '100%', height: 'calc(100vh - 120px)', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', maxWidth: '480px', padding: '40px' }}>
+          <AlertCircle size={48} style={{ color: '#f87171', margin: '0 auto 24px', display: 'block' }} />
+          <h2 style={{ color: 'var(--text)', marginBottom: '12px' }}>Navigateur incompatible</h2>
+          <p style={{ color: 'var(--muted)', marginBottom: '8px', lineHeight: '1.6' }}>
+            La transcription audio en temps réel nécessite l'<strong>API Web Speech</strong>,
+            disponible uniquement dans <strong>Google Chrome</strong>, <strong>Microsoft Edge</strong>
+            ou un navigateur basé sur Chromium.
+          </p>
+          <p style={{ color: 'var(--muted)', marginBottom: '32px', fontSize: '14px' }}>
+            Firefox et Safari ne supportent pas cette fonctionnalité.
+          </p>
+          <button
+            className="btn-primary"
+            onClick={() => onEnd([], 0, { detectedActions: [], detectedDecisions: [] })}
+          >
+            Retour
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="screen active-session" style={{ width: '100%', height: 'calc(100vh - 120px)', boxSizing: 'border-box' }}>

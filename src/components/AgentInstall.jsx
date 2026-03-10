@@ -47,11 +47,8 @@ const installSteps = [
 ];
 
 export default function AgentInstall() {
-  const detectedOS = navigator.platform.toLowerCase().includes('win')
-    ? 'windows'
-    : navigator.platform.toLowerCase().includes('mac')
-    ? 'mac'
-    : 'linux';
+  const ua = navigator.userAgent.toLowerCase();
+  const detectedOS = ua.includes('win') ? 'windows' : ua.includes('mac') ? 'mac' : 'linux';
 
   return (
     <div style={{ padding: '32px', maxWidth: '900px', margin: '0 auto' }}>

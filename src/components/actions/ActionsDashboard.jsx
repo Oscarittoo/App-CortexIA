@@ -17,22 +17,44 @@ export default function ActionsDashboard() {
     const allActions = [];
 
     sessions.forEach(session => {
-      // Check if session has detected actions
-      if (session.detectedActions && Array.isArray(session.detectedActions)) {
-        session.detectedActions.forEach((actionText, index) => {
-          // Ensure actionText is a string
-          const text = typeof actionText === 'string' ? actionText : 
-                       (actionText && actionText.text) ? actionText.text : 
-                       'Action sans description';
-          
+      // Actions IA générées (avec deadline/assigné/priorité) — source principale
+      if (session.actions && Array.isArray(session.actions)) {
+        session.actions.forEach((action, index) => {
+          const id = `${session.id}-ai-${index}`;
           allActions.push({
-            id: `${session.id}-${index}`,
-            text: text,
+            id,
+            text: action.task || action.text || 'Action sans description',
             sessionId: session.id,
             sessionTitle: session.title || 'Session sans titre',
             date: session.createdAt,
-            status: actionStates[`${session.id}-${index}`]?.status || 'pending',
-            assignee: 'Moi'
+            status: actionStates[id]?.status || 'pending',
+            responsible: action.responsible || 'À définir',
+            deadline: action.deadline || 'À définir',
+            priority: action.priority || 'Moyenne',
+            source: 'ai'
+          });
+        });
+      }
+
+      // Actions détectées en temps réel (heuristique) — complément si pas d'actions IA
+      const hasAiActions = session.actions && session.actions.length > 0;
+      if (!hasAiActions && session.detectedActions && Array.isArray(session.detectedActions)) {
+        session.detectedActions.forEach((actionText, index) => {
+          const text = typeof actionText === 'string' ? actionText :
+                       (actionText && actionText.text) ? actionText.text :
+                       'Action sans description';
+          const id = `${session.id}-rt-${index}`;
+          allActions.push({
+            id,
+            text,
+            sessionId: session.id,
+            sessionTitle: session.title || 'Session sans titre',
+            date: session.createdAt,
+            status: actionStates[id]?.status || 'pending',
+            responsible: 'À définir',
+            deadline: 'À définir',
+            priority: 'Moyenne',
+            source: 'realtime'
           });
         });
       }
@@ -122,9 +144,17 @@ export default function ActionsDashboard() {
                   <span className="meta-tag date">
                     {new Date(action.date).toLocaleDateString()}
                   </span>
-                  <span className="meta-tag assignee">
-                    {action.assignee}
-                  </span>
+                  {action.responsible && action.responsible !== 'À définir' && (
+                    <span className="meta-tag assignee">{action.responsible}</span>
+                  )}
+                  {action.deadline && action.deadline !== 'À définir' && (
+                    <span className="meta-tag deadline">📅 {action.deadline}</span>
+                  )}
+                  {action.priority && action.priority !== 'Moyenne' && (
+                    <span className={`meta-tag priority priority-${action.priority.toLowerCase()}`}>
+                      {action.priority === 'Haute' ? '🔴' : '🔵'} {action.priority}
+                    </span>
+                  )}
                 </div>
               </div>
 

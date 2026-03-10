@@ -3,7 +3,7 @@ import { ClipboardList, Video, Mic, Monitor, MessageSquare, Gamepad2, Calendar, 
 import storageService from '../utils/storage';
 import teamService from '../services/teamService';
 
-export default function SessionsHistory({ onViewSession, onNewSession }) {
+export default function SessionsHistory({ onViewSession, onNewSession, onEditSession }) {
   const [sessions, setSessions] = useState([]);
   const [filteredSessions, setFilteredSessions] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -514,6 +514,14 @@ export default function SessionsHistory({ onViewSession, onNewSession }) {
                       >
                         Voir
                       </button>
+                      {onEditSession && (
+                        <button
+                          className="btn-secondary btn-sm"
+                          onClick={() => onEditSession(session)}
+                        >
+                          Éditer
+                        </button>
+                      )}
                       <button
                         className="btn-secondary btn-sm"
                         onClick={() => handleDelete(session.id)}
@@ -526,7 +534,7 @@ export default function SessionsHistory({ onViewSession, onNewSession }) {
               </>
             )}
 
-            {/* This Week */}
+            {/* This Week */
             {groupedSessions.thisWeek.length > 0 && (
               <>
                 <div className="period-header">
@@ -574,6 +582,14 @@ export default function SessionsHistory({ onViewSession, onNewSession }) {
                       >
                         Voir
                       </button>
+                      {onEditSession && (
+                        <button
+                          className="btn-secondary btn-sm"
+                          onClick={() => onEditSession(session)}
+                        >
+                          Éditer
+                        </button>
+                      )}
                       <button
                         className="btn-secondary btn-sm"
                         onClick={() => handleDelete(session.id)}
@@ -586,7 +602,7 @@ export default function SessionsHistory({ onViewSession, onNewSession }) {
               </>
             )}
 
-            {/* This Month */}
+            {/* This Month */
             {groupedSessions.thisMonth.length > 0 && (
               <>
                 <div className="period-header">
@@ -634,6 +650,14 @@ export default function SessionsHistory({ onViewSession, onNewSession }) {
                       >
                         Voir
                       </button>
+                      {onEditSession && (
+                        <button
+                          className="btn-secondary btn-sm"
+                          onClick={() => onEditSession(session)}
+                        >
+                          Éditer
+                        </button>
+                      )}
                       <button
                         className="btn-secondary btn-sm"
                         onClick={() => handleDelete(session.id)}
@@ -646,7 +670,7 @@ export default function SessionsHistory({ onViewSession, onNewSession }) {
               </>
             )}
 
-            {/* Older */}
+            {/* Older */
             {groupedSessions.older.length > 0 && (
               <>
                 <div className="period-header">
@@ -694,6 +718,14 @@ export default function SessionsHistory({ onViewSession, onNewSession }) {
                       >
                         Voir
                       </button>
+                      {onEditSession && (
+                        <button
+                          className="btn-secondary btn-sm"
+                          onClick={() => onEditSession(session)}
+                        >
+                          Éditer
+                        </button>
+                      )}
                       <button
                         className="btn-secondary btn-sm"
                         onClick={() => handleDelete(session.id)}

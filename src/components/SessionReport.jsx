@@ -90,7 +90,7 @@ ${data.summary}
       if (position && position !== 'Directeur Commercial') signature += `\n${position}`;
       if (company && company !== 'Entreprise SAS') signature += `\n${company}`;
       if (signature !== '\n\nCordialement,') {
-        email = email.replace(/Cordialement,\s*CORTEXIA/gi, signature);
+        email = email.replace(/Cordialement,\s*CORTEXA/gi, signature);
         email = email.replace(/Cordialement,\s*Meetizy/gi, signature);
       }
     }
@@ -131,7 +131,8 @@ ${data.summary}
       const sessionInfo = {
         title: data.title || 'Sans titre',
         language: data.language || 'fr',
-        duration: data.duration || 0
+        duration: data.duration || 0,
+        template: data.template || null
       };
       
       // Appeler le service LLM pour générer le rapport complet
@@ -215,7 +216,7 @@ ${aiReport.summary}
       let customEmail = aiReport.email || '';
       if (customEmail) {
         // Remplacer la signature générique par la signature personnalisée
-        customEmail = customEmail.replace(/Cordialement,\s*CORTEXIA/gi, getEmailSignature());
+        customEmail = customEmail.replace(/Cordialement,\s*CORTEXA/gi, getEmailSignature());
         customEmail = customEmail.replace(/Cordialement,\s*Meetizy/gi, getEmailSignature());
       }
       setFollowUpEmail(customEmail);
@@ -448,7 +449,65 @@ ${extractKeyPoints(fullTranscript)}
   };
 
   const handleExportMd = () => {
-    // ...existing code...
+    const lines = [];
+    lines.push(`# ${data.title || 'Compte-rendu de réunion'}`);
+    lines.push('');
+    lines.push(`**Date :** ${data.date ? new Date(data.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : new Date(data.generatedAt || Date.now()).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}`);
+    lines.push(`**Durée :** ${formatDuration(data.duration)}`);
+    lines.push('');
+    lines.push('---');
+    lines.push('');
+
+    if (summary) {
+      lines.push('## Synthèse');
+      lines.push('');
+      // Extraire juste la partie synthèse du bloc composé
+      const summaryOnly = summary.replace(/^COMPTE-RENDU[\s\S]*?---\n\n## SYNTHÈSE\n\n/, '').replace(/\n\n---[\s\S]*$/, '');
+      lines.push(summaryOnly.trim());
+      lines.push('');
+    }
+
+    if (actions.length > 0) {
+      lines.push('## Actions');
+      lines.push('');
+      lines.push('| Tâche | Responsable | Échéance | Priorité |');
+      lines.push('|-------|-------------|---------|----------|');
+      actions.forEach(a => {
+        lines.push(`| ${a.task || ''} | ${a.responsible || 'À définir'} | ${a.deadline || 'À définir'} | ${a.priority || 'Moyenne'} |`);
+      });
+      lines.push('');
+    }
+
+    if (decisions.length > 0) {
+      lines.push('## Décisions');
+      lines.push('');
+      decisions.forEach(d => {
+        lines.push(`- **${d.text || ''}** _(${d.impact || 'Général'})_`);
+      });
+      lines.push('');
+    }
+
+    if (followUpEmail) {
+      lines.push('## Email de suivi');
+      lines.push('');
+      lines.push('```');
+      lines.push(followUpEmail);
+      lines.push('```');
+      lines.push('');
+    }
+
+    lines.push('---');
+    lines.push('*Généré par CORTEXA*');
+
+    const content = lines.join('\n');
+    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${(data.title || 'compte-rendu').replace(/[^a-z0-9]/gi, '_')}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Fichier Markdown téléchargé !');
   };
 
   const handleCopyEmail = () => {
