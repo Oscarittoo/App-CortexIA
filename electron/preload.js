@@ -8,6 +8,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   closeOverlay: () => ipcRenderer.invoke('tray-close-overlay'),
   openMainWindow: () => ipcRenderer.invoke('tray-open-main'),
 
+  // Notifier le main process de l'état d'authentification
+  authSetState: (authenticated) => ipcRenderer.invoke('auth-set-state', authenticated),
+
   // Recevoir des events du main process
   onSessionStatus: (callback) => ipcRenderer.on('session-status', (_event, data) => callback(data)),
   removeSessionStatus: () => ipcRenderer.removeAllListeners('session-status'),

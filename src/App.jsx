@@ -81,11 +81,22 @@ export default function App() {
     const loadUser = async () => {
       setIsAuthLoading(true);
       try {
+        // Bypass auth en dev (npm run dev)
+        if (import.meta.env.DEV) {
+          const devUser = { id: 'dev-user', email: 'dev@meetizy.local', plan: 'business', role: 'admin', companyName: 'Meetizy Dev' };
+          setIsAuthenticated(true);
+          setCurrentUser(devUser);
+          storageService.setCurrentUser(devUser.id);
+          setCurrentView('dashboard');
+          return;
+        }
+
         const user = await authService.getCurrentUser();
         if (user) {
           setIsAuthenticated(true);
           setCurrentUser(user);
           storageService.setCurrentUser(user.id);
+          window.electronAPI?.authSetState?.(true);
         } else {
           setIsAuthenticated(false);
           setCurrentUser(null);
@@ -108,10 +119,11 @@ export default function App() {
       if (event === 'PASSWORD_RECOVERY') {
         setCurrentView('reset-password');
       }
-      if (event === 'SIGNED_OUT') {
+      if (event === 'SIGNED_OUT' && !import.meta.env.DEV) {
         setIsAuthenticated(false);
         setCurrentUser(null);
         setCurrentView('home');
+        window.electronAPI?.authSetState?.(false);
       }
     });
 
@@ -203,6 +215,8 @@ export default function App() {
     setCurrentUser(user);
     // IMPORTANT: Informer le storageService de l'utilisateur connecté
     storageService.setCurrentUser(user.id);
+    // Informer le process Electron principal (pour la protection de l'overlay)
+    window.electronAPI?.authSetState?.(true);
     // Migration automatique des sessions orphelines (créées avant isolation userId)
     const migratedCount = storageService.assignOrphanSessions(user.id);
     if (migratedCount > 0) {
@@ -257,34 +271,42 @@ export default function App() {
 
           {/* NAV DESKTOP */}
           <nav style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            display: 'grid',
+            gridTemplateColumns: '1fr auto 1fr',
+            alignItems: 'center',
             padding: '14px 28px',
             borderBottom: '1px solid rgba(255,255,255,0.08)',
             background: 'rgba(10,10,25,0.85)',
             backdropFilter: 'blur(12px)',
             position: 'sticky', top: 0, zIndex: 100,
             width: '100%',
+            boxSizing: 'border-box',
           }}>
+            {/* Logo — colonne gauche */}
             <div onClick={handleGoHome} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
               <img src={logo} alt="Meetizy Logo" width="40" height="40" />
               <span style={{ fontFamily: 'Orbitron, sans-serif', fontWeight: '700', fontSize: '20px', letterSpacing: '1px', color: '#ffffff' }}>MEETIZY</span>
             </div>
 
-            {/* Links desktop */}
-            <div className="public-nav-links" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+            {/* Links desktop — colonne centre */}
+            <div className="public-nav-links" style={{ display: 'flex', gap: '4px', alignItems: 'center', justifyContent: 'center' }}>
               {navItems.map(item => (
                 <a key={item.view} className={`nav-item ${currentView === item.view ? 'active' : ''}`} onClick={() => setCurrentView(item.view)}>
                   {item.label}
                 </a>
               ))}
+            </div>
+
+            {/* Boutons droite — colonne droite */}
+            <div className="public-nav-links" style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'flex-end' }}>
               <button
                 onClick={() => setCurrentView('agent-install')}
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.3)', borderRadius: '8px', color: '#38bdf8', fontSize: '13px', fontWeight: '600', cursor: 'pointer', marginLeft: '8px' }}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '11px 20px', background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.3)', borderRadius: '10px', color: '#38bdf8', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}
               >
-                <Download size={14} />
+                <Download size={16} />
                 Installer l'assistant
               </button>
-              <button className="btn btn-primary" onClick={() => setCurrentView('login')} style={{ marginLeft: '4px' }}>
+              <button className="btn btn-primary" onClick={() => setCurrentView('login')} style={{ padding: '11px 24px', fontSize: '15px', borderRadius: '10px' }}>
                 Connexion
               </button>
             </div>

@@ -1,6 +1,12 @@
 const { app, BrowserWindow, ipcMain, desktopCapturer, Tray, Menu, globalShortcut, nativeImage, screen } = require('electron');
 const path = require('path');
 
+// ─── INSTANCE UNIQUE ─────────────────────────────────────────────────────────
+// Empêche l'ouverture de plusieurs instances (cause des 4 icônes dans le tray)
+if (!app.requestSingleInstanceLock()) {
+  process.exit(0);
+}
+
 let mainWindow = null;
 let overlayWindow = null;
 let tray = null;
@@ -10,7 +16,7 @@ let tray = null;
 // ─────────────────────────────────────────────
 function getTrayIcon() {
   // Petit carré bleu/violet 16x16 encodé en base64 — remplacez par votre vrai fichier .png
-  const iconPath = path.join(__dirname, '..', 'src', 'assets', 'icon.png');
+  const iconPath = path.join(__dirname, '..', 'src', 'assets', 'logo_meetizy.png');
   try {
     return nativeImage.createFromPath(iconPath).resize({ width: 16, height: 16 });
   } catch (e) {
@@ -33,9 +39,17 @@ function createMainWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
+      zoomFactor: 1.0,
+      // En packagé (file://), désactiver webSecurity pour éviter les erreurs CORS/AbortError avec Supabase
+      webSecurity: !app.isPackaged,
     },
     show: false,
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+  });
+
+  // Forcer le zoom à 1.0 après le chargement (évite le zoom excessif sur écrans à haute densité)
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow?.webContents.setZoomFactor(1.0);
   });
 
   mainWindow.webContents.session.setPermissionRequestHandler((_wc, permission, callback) => {
@@ -48,7 +62,7 @@ function createMainWindow() {
 
   const isDev = !app.isPackaged;
   if (isDev) {
-    const tryPorts = [5173, 5174, 5175];
+    const tryPorts = [5173, 5174, 5175, 5176, 5177, 5178];
     const tryNext = (i) => {
       if (i >= tryPorts.length) return;
       mainWindow.loadURL(`http://localhost:${tryPorts[i]}`)
@@ -123,7 +137,13 @@ function createTray() {
   const contextMenu = Menu.buildFromTemplate([
     {
       label: '▶  Démarrer une session (Ctrl+Shift+M)',
-      click: () => createOverlayWindow(),
+      click: () => {
+        if (isAuthenticatedInMain) {
+          createOverlayWindow();
+        } else {
+          createMainWindow(); mainWindow?.show(); mainWindow?.focus();
+        }
+      },
     },
     {
       label: '🫟  Ouvrir Meetizy',
@@ -138,9 +158,24 @@ function createTray() {
 
   tray.setContextMenu(contextMenu);
 
-  // Clic gauche = toggle overlay
-  tray.on('click', () => createOverlayWindow());
+  // Clic gauche = toggle overlay (seulement si authentifié, sinon ouvrir l'app)
+  tray.on('click', () => {
+    if (isAuthenticatedInMain) {
+      createOverlayWindow();
+    } else {
+      createMainWindow(); mainWindow?.show(); mainWindow?.focus();
+    }
+  });
 }
+
+// ─────────────────────────────────────────────
+// État d'authentification (partagé entre overlay et app principale)
+// ─────────────────────────────────────────────
+let isAuthenticatedInMain = false;
+
+ipcMain.handle('auth-set-state', (_event, authenticated) => {
+  isAuthenticatedInMain = authenticated;
+});
 
 // ─────────────────────────────────────────────
 // IPC handlers
@@ -156,6 +191,13 @@ ipcMain.handle('tray-close-overlay', () => {
 });
 
 ipcMain.handle('tray-start-session', (_event, config) => {
+  if (!isAuthenticatedInMain) {
+    // Rediriger vers l'app principale pour se connecter
+    createMainWindow();
+    mainWindow?.show();
+    mainWindow?.focus();
+    return { error: 'not_authenticated' };
+  }
   console.log('Session démarrée depuis overlay:', config);
 });
 
@@ -193,9 +235,20 @@ app.whenReady().then(() => {
   createTray();
   createMainWindow();
 
-  // Raccourci global Ctrl+Shift+M pour toggle l'overlay
+  // Si une seconde instance tente de démarrer, focus sur la fenêtre existante
+  app.on('second-instance', () => {
+    if (mainWindow) { mainWindow.show(); mainWindow.focus(); }
+  });
+
+  // Raccourci global Ctrl+Shift+M pour toggle l'overlay (seulement si authentifié)
   globalShortcut.register('CommandOrControl+Shift+M', () => {
-    createOverlayWindow();
+    if (isAuthenticatedInMain) {
+      createOverlayWindow();
+    } else {
+      createMainWindow();
+      mainWindow?.show();
+      mainWindow?.focus();
+    }
   });
 
   app.on('activate', () => {
