@@ -16,6 +16,7 @@
   "build": {
     "appId": "com.meetizy.app",
     "productName": "Meetizy",
+    "asar": false,
     "directories": {
       "output": "dist-electron"
     },
@@ -25,7 +26,8 @@
       "package.json"
     ],
     "win": {
-      "target": "portable"
+      "target": "dir",
+      "signAndEditExecutable": false
     },
     "mac": {
       "target": "dmg",
