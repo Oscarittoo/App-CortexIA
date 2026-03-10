@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MEETIZY — Session en cours</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: rgba(10, 14, 26, 0.97);
+      color: #e2e8f0;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 16px;
+      overflow: hidden;
+      user-select: none;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Barre de titre draggable ── */
+    .titlebar {
+      -webkit-app-region: drag;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px 8px;
+      background: rgba(15, 23, 42, 0.9);
+      border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+      flex-shrink: 0;
+    }
+    .titlebar .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #38bdf8;
+    }
+    .titlebar .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 6px #10b981;
+      animation: pulse 1.5s infinite;
+    }
+    .titlebar .dot.idle { background: #64748b; box-shadow: none; animation: none; }
+    .titlebar-btns {
+      -webkit-app-region: no-drag;
+      display: flex;
+      gap: 6px;
+    }
+    .titlebar-btns button {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      font-size: 11px;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.2s;
+    }
+    .btn-open-app { background: #38bdf8; color: #0a0e1a; font-weight: 700; }
+    .btn-close { background: #475569; color: #e2e8f0; }
+    .titlebar-btns button:hover { opacity: 0.8; }
+
+    /* ── Corps ── */
+    .body { padding: 12px 14px; flex: 1; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+
+    /* Timer */
+    .timer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .timer {
+      font-size: 28px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: #f1f5f9;
+      letter-spacing: 1px;
+    }
+    .status-badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16,185,129,0.3);
+    }
+    .status-badge.paused { background: rgba(245,158,11,0.15); color: #f59e0b; border-color: rgba(245,158,11,0.3); }
+    .status-badge.idle { background: rgba(100,116,139,0.15); color: #94a3b8; border-color: rgba(100,116,139,0.3); }
+
+    /* Transcript mini */
+    .transcript-mini {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      padding: 8px 10px;
+      flex: 1;
+      overflow-y: auto;
+      min-height: 70px;
+      max-height: 120px;
+    }
+    .transcript-mini::-webkit-scrollbar { width: 3px; }
+    .transcript-mini::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+    .transcript-line {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.5;
+      padding: 2px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .transcript-line:last-child { border-bottom: none; color: #e2e8f0; }
+    .transcript-empty {
+      color: #475569;
+      font-size: 12px;
+      text-align: center;
+      padding: 16px 0;
+    }
+
+    /* Boutons d'action */
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+    .btn {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-start { background: linear-gradient(135deg, #0ea5e9, #6366f1); color: white; }
+    .btn-start:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-pause { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+    .btn-pause:hover { background: rgba(245,158,11,0.25); }
+    .btn-stop { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+    .btn-stop:hover { background: rgba(239,68,68,0.25); }
+
+    /* Mic indicator */
+    .mic-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #64748b;
+    }
+    .mic-bars { display: flex; align-items: flex-end; gap: 2px; height: 14px; }
+    .mic-bar {
+      width: 3px;
+      background: #10b981;
+      border-radius: 2px;
+      animation: bar 0.8s ease infinite;
+    }
+    .mic-bar:nth-child(1) { height: 4px; animation-delay: 0s; }
+    .mic-bar:nth-child(2) { height: 10px; animation-delay: 0.15s; }
+    .mic-bar:nth-child(3) { height: 7px; animation-delay: 0.3s; }
+    .mic-bar:nth-child(4) { height: 12px; animation-delay: 0.1s; }
+    .mic-bar:nth-child(5) { height: 5px; animation-delay: 0.25s; }
+    .mic-bars.idle .mic-bar { background: #334155; animation: none; height: 4px; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    @keyframes bar {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(0.4); }
+    }
+  </style>
+</head>
+<body>
+  <div class="titlebar">
+    <div class="brand">
+      <div class="dot idle" id="dot"></div>
+      MEETIZY
+    </div>
+    <div class="titlebar-btns">
+      <button class="btn-open-app" onclick="openApp()" title="Ouvrir Meetizy">↗</button>
+      <button class="btn-close" onclick="closeOverlay()" title="Masquer (Ctrl+Shift+M)">✕</button>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="timer-row">
+      <div class="timer" id="timer">00:00</div>
+      <div class="status-badge idle" id="status-badge">Prêt</div>
+    </div>
+
+    <div class="mic-row">
+      <div class="mic-bars idle" id="mic-bars">
+        <div class="mic-bar"></div>
+        <div class="mic-bar"></div>
+        <div class="mic-bar"></div>
+        <div class="mic-bar"></div>
+        <div class="mic-bar"></div>
+      </div>
+      <span id="mic-label">Microphone inactif</span>
+    </div>
+
+    <div class="transcript-mini" id="transcript">
+      <div class="transcript-empty">Lancez une session pour commencer la transcription…</div>
+    </div>
+
+    <div class="actions" id="actions-idle">
+      <button class="btn btn-start" onclick="startSession()">▶ Démarrer la session</button>
+    </div>
+    <div class="actions" id="actions-recording" style="display:none">
+      <button class="btn btn-pause" onclick="togglePause()" id="btn-pause">⏸ Pause</button>
+      <button class="btn btn-stop" onclick="stopSession()">⏹ Terminer</button>
+    </div>
+  </div>
+
+  <script>
+    let isRecording = false;
+    let isPaused = false;
+    let seconds = 0;
+    let timerInterval = null;
+    let recognition = null;
+    let transcriptLines = [];
+
+    function formatTime(s) {
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = s % 60;
+      if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+      return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+    }
+
+    function setStatus(state) {
+      const badge = document.getElementById('status-badge');
+      const dot = document.getElementById('dot');
+      const micBars = document.getElementById('mic-bars');
+      const micLabel = document.getElementById('mic-label');
+      badge.className = 'status-badge';
+      dot.className = 'dot';
+      micBars.className = 'mic-bars';
+      if (state === 'recording') {
+        badge.textContent = 'En cours'; badge.classList.add('');
+        dot.classList.remove('idle');
+        micLabel.textContent = 'Microphone actif';
+      } else if (state === 'paused') {
+        badge.textContent = 'Pause'; badge.classList.add('paused');
+        dot.classList.add('idle');
+        micBars.classList.add('idle');
+        micLabel.textContent = 'Microphone en pause';
+      } else {
+        badge.textContent = 'Prêt'; badge.classList.add('idle');
+        dot.classList.add('idle');
+        micBars.classList.add('idle');
+        micLabel.textContent = 'Microphone inactif';
+      }
+    }
+
+    function addTranscriptLine(text) {
+      transcriptLines.push(text);
+      if (transcriptLines.length > 20) transcriptLines.shift();
+      const el = document.getElementById('transcript');
+      el.innerHTML = transcriptLines.map(l =>
+        `<div class="transcript-line">${l}</div>`
+      ).join('');
+      el.scrollTop = el.scrollHeight;
+    }
+
+    function startSession() {
+      isRecording = true; isPaused = false; seconds = 0;
+      document.getElementById('actions-idle').style.display = 'none';
+      document.getElementById('actions-recording').style.display = 'flex';
+      document.getElementById('transcript').innerHTML = '';
+      transcriptLines = [];
+      setStatus('recording');
+
+      timerInterval = setInterval(() => {
+        if (!isPaused) { seconds++; document.getElementById('timer').textContent = formatTime(seconds); }
+      }, 1000);
+
+      // Web Speech API
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SR) {
+        recognition = new SR();
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.lang = 'fr-FR';
+        recognition.onresult = (e) => {
+          const text = e.results[e.results.length - 1][0].transcript.trim();
+          if (text) addTranscriptLine(text);
+        };
+        recognition.onend = () => { if (isRecording && !isPaused) { try { recognition.start(); } catch(e){} } };
+        recognition.start();
+      } else {
+        addTranscriptLine('[Web Speech API non disponible dans cet overlay]');
+      }
+    }
+
+    function togglePause() {
+      isPaused = !isPaused;
+      const btn = document.getElementById('btn-pause');
+      if (isPaused) {
+        setStatus('paused');
+        btn.textContent = '▶ Reprendre';
+        if (recognition) recognition.stop();
+      } else {
+        setStatus('recording');
+        btn.textContent = '⏸ Pause';
+        if (recognition) { try { recognition.start(); } catch(e){} }
+      }
+    }
+
+    function stopSession() {
+      if (!confirm('Terminer la session et ouvrir le rapport dans Meetizy ?')) return;
+      isRecording = false;
+      clearInterval(timerInterval);
+      if (recognition) { recognition.stop(); recognition = null; }
+      setStatus('idle');
+      document.getElementById('timer').textContent = '00:00';
+      document.getElementById('actions-idle').style.display = 'flex';
+      document.getElementById('actions-recording').style.display = 'none';
+
+      // Ouvrir l'app principale
+      if (window.electronAPI) window.electronAPI.openMainWindow();
+    }
+
+    function openApp() {
+      if (window.electronAPI) window.electronAPI.openMainWindow();
+    }
+
+    function closeOverlay() {
+      if (window.electronAPI) window.electronAPI.closeOverlay();
+    }
+  </script>
+</body>
+</html>

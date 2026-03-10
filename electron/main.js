@@ -1,144 +1,214 @@
-const { app, BrowserWindow, ipcMain, desktopCapturer } = require('electron');
+const { app, BrowserWindow, ipcMain, desktopCapturer, Tray, Menu, globalShortcut, nativeImage, screen } = require('electron');
 const path = require('path');
 
-let mainWindow;
+let mainWindow = null;
+let overlayWindow = null;
+let tray = null;
 
-function createWindow() {
+// ─────────────────────────────────────────────
+// Icône tray (PNG 16x16 embarquée en base64)
+// ─────────────────────────────────────────────
+function getTrayIcon() {
+  // Petit carré bleu/violet 16x16 encodé en base64 — remplacez par votre vrai fichier .png
+  const iconPath = path.join(__dirname, '..', 'src', 'assets', 'icon.png');
+  try {
+    return nativeImage.createFromPath(iconPath).resize({ width: 16, height: 16 });
+  } catch (e) {
+    return nativeImage.createEmpty();
+  }
+}
+
+// ─────────────────────────────────────────────
+// Fenêtre principale
+// ─────────────────────────────────────────────
+function createMainWindow() {
+  if (mainWindow) { mainWindow.show(); mainWindow.focus(); return; }
+
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: 1280,
+    height: 820,
+    minWidth: 900,
+    minHeight: 600,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      enableRemoteModule: false,
-      // Permissions pour microphone et API
-      webSecurity: false, // Désactivé pour permettre les appels API locaux
-      allowRunningInsecureContent: true,
-      // Forcer les permissions media
-      experimentalFeatures: true
+      preload: path.join(__dirname, 'preload.js'),
+      webSecurity: false,
     },
-    icon: path.join(__dirname, '../assets/icon.png')
-  });
-  
-  // Log pour debug
-  console.log('🪟 Fenêtre Electron créée avec permissions media activées');
-
-  // Autoriser TOUTES les permissions de microphone automatiquement
-  mainWindow.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
-    console.log(`🔐 Demande de permission: ${permission}`);
-    const allowedPermissions = ['media', 'microphone', 'audioCapture', 'audioPlayback', 'mediaKeySystem'];
-    if (allowedPermissions.includes(permission)) {
-      console.log(`✅ Permission ACCORDÉE: ${permission}`);
-      callback(true);
-    } else {
-      console.log(`⚠️ Permission REFUSÉE: ${permission}`);
-      callback(false);
-    }
+    show: false,
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
   });
 
-  // Autoriser les permissions sans demande pour tous les media devices
-  mainWindow.webContents.session.setPermissionCheckHandler((webContents, permission, requestingOrigin) => {
-    console.log(`🔍 Permission check: ${permission} depuis ${requestingOrigin}`);
-    if (permission === 'media' || permission === 'microphone' || permission === 'audioCapture' || permission === 'audioPlayback') {
-      console.log(`✅ Check ACCORDÉ: ${permission}`);
-      return true;
-    }
-    console.log(`⚠️ Check REFUSÉ: ${permission}`);
-    return false;
+  mainWindow.webContents.session.setPermissionRequestHandler((_wc, permission, callback) => {
+    const allowed = ['media', 'microphone', 'audioCapture'];
+    callback(allowed.includes(permission));
   });
-  
-  // Forcer l'activation des devices media
-  mainWindow.webContents.on('did-finish-load', () => {
-    console.log('✅ Page chargée - Permissions media activées');
+  mainWindow.webContents.session.setPermissionCheckHandler((_wc, permission) => {
+    return ['media', 'microphone', 'audioCapture'].includes(permission);
   });
 
-  // Charger l'application
   const isDev = !app.isPackaged;
-  
   if (isDev) {
-    // Essayer différents ports
-    const ports = [5173, 5174, 5175, 5176, 5177];
-    let connected = false;
-    
-    const tryNextPort = (index) => {
-      if (index >= ports.length) {
-        console.error('❌ Aucun serveur Vite trouvé');
-        return;
-      }
-      
-      const port = ports[index];
-      mainWindow.loadURL(`http://localhost:${port}`)
-        .then(() => {
-          console.log(`✅ Connecté sur le port ${port}`);
-          connected = true;
-          // DevTools seulement si besoin (Ctrl+Shift+I pour ouvrir)
-          // mainWindow.webContents.openDevTools();
-        })
-        .catch(() => {
-          console.log(`❌ Port ${port} non disponible`);
-          tryNextPort(index + 1);
-        });
+    const tryPorts = [5173, 5174, 5175];
+    const tryNext = (i) => {
+      if (i >= tryPorts.length) return;
+      mainWindow.loadURL(`http://localhost:${tryPorts[i]}`)
+        .catch(() => tryNext(i + 1));
     };
-    
-    tryNextPort(0);
+    tryNext(0);
   } else {
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
   }
 
-  mainWindow.on('closed', () => {
-    mainWindow = null;
+  mainWindow.once('ready-to-show', () => mainWindow.show());
+  mainWindow.on('close', (e) => {
+    // Masquer dans le tray au lieu de quitter
+    e.preventDefault();
+    mainWindow.hide();
+    if (process.platform === 'darwin') app.dock?.hide();
   });
+  mainWindow.on('closed', () => { mainWindow = null; });
 }
 
-// Gestion de la capture audio
-ipcMain.handle('get-audio-sources', async () => {
-  try {
-    const sources = await desktopCapturer.getSources({
-      types: ['audio', 'screen']
-    });
-    return sources;
-  } catch (error) {
-    console.error('Erreur lors de la récupération des sources audio:', error);
-    return [];
+// ─────────────────────────────────────────────
+// Fenêtre overlay flottante
+// ─────────────────────────────────────────────
+function createOverlayWindow() {
+  if (overlayWindow) {
+    if (overlayWindow.isVisible()) { overlayWindow.hide(); } else { overlayWindow.show(); overlayWindow.focus(); }
+    return;
   }
+
+  // Positionner en bas à droite de l'écran principal
+  const { width: sw, height: sh } = screen.getPrimaryDisplay().workAreaSize;
+  const W = 360, H = 340;
+
+  overlayWindow = new BrowserWindow({
+    width: W,
+    height: H,
+    x: sw - W - 20,
+    y: sh - H - 20,
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    resizable: false,
+    skipTaskbar: true,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js'),
+      webSecurity: false,
+    },
+  });
+
+  overlayWindow.webContents.session.setPermissionRequestHandler((_wc, permission, callback) => {
+    callback(['media', 'microphone', 'audioCapture'].includes(permission));
+  });
+  overlayWindow.webContents.session.setPermissionCheckHandler((_wc, permission) => {
+    return ['media', 'microphone', 'audioCapture'].includes(permission);
+  });
+
+  overlayWindow.loadFile(path.join(__dirname, 'overlay.html'));
+  overlayWindow.on('closed', () => { overlayWindow = null; });
+}
+
+// ─────────────────────────────────────────────
+// Tray
+// ─────────────────────────────────────────────
+function createTray() {
+  tray = new Tray(getTrayIcon());
+  tray.setToolTip('MEETIZY — Cliquez pour ouvrir l\'overlay');
+
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: '▶  Démarrer une session (Ctrl+Shift+M)',
+      click: () => createOverlayWindow(),
+    },
+    {
+      label: '🪟  Ouvrir Meetizy',
+      click: () => { createMainWindow(); mainWindow?.show(); mainWindow?.focus(); },
+    },
+    { type: 'separator' },
+    {
+      label: 'Quitter',
+      click: () => { app.exit(0); },
+    },
+  ]);
+
+  tray.setContextMenu(contextMenu);
+
+  // Clic gauche = toggle overlay
+  tray.on('click', () => createOverlayWindow());
+}
+
+// ─────────────────────────────────────────────
+// IPC handlers
+// ─────────────────────────────────────────────
+ipcMain.handle('tray-open-main', () => {
+  createMainWindow();
+  mainWindow?.show();
+  mainWindow?.focus();
 });
 
-// Gestion du stockage des sessions
-ipcMain.handle('save-session', async (event, sessionData) => {
-  // À implémenter avec SQLite
+ipcMain.handle('tray-close-overlay', () => {
+  overlayWindow?.hide();
+});
+
+ipcMain.handle('tray-start-session', (_event, config) => {
+  console.log('Session démarrée depuis overlay:', config);
+});
+
+ipcMain.handle('tray-stop-session', () => {
+  createMainWindow();
+  mainWindow?.show();
+  mainWindow?.focus();
+});
+
+// Anciens handlers conservés
+ipcMain.handle('get-audio-sources', async () => {
+  try {
+    return await desktopCapturer.getSources({ types: ['audio', 'screen'] });
+  } catch { return []; }
+});
+
+ipcMain.handle('save-session', async (_event, sessionData) => {
   console.log('Session sauvegardée:', sessionData);
   return { success: true };
 });
 
-ipcMain.handle('get-sessions', async () => {
-  // À implémenter avec SQLite
-  return [];
-});
+ipcMain.handle('get-sessions', async () => []);
 
-// Initialisation de l'application
-// Activer les permissions pour le microphone et Web Speech API
+// ─────────────────────────────────────────────
+// App lifecycle
+// ─────────────────────────────────────────────
 app.commandLine.appendSwitch('enable-speech-input');
 app.commandLine.appendSwitch('enable-media-stream');
 app.commandLine.appendSwitch('use-fake-ui-for-media-stream');
-app.commandLine.appendSwitch('enable-web-bluetooth');
 
 app.whenReady().then(() => {
-  createWindow();
+  createTray();
+  createMainWindow();
+
+  // Raccourci global Ctrl+Shift+M pour toggle l'overlay
+  globalShortcut.register('CommandOrControl+Shift+M', () => {
+    createOverlayWindow();
+  });
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
+    if (!mainWindow) createMainWindow();
+    else { mainWindow.show(); mainWindow.focus(); }
   });
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  // Ne pas quitter — rester dans le tray
 });
 
-// Log des erreurs non gérées
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll();
+});
+
 process.on('uncaughtException', (error) => {
   console.error('Erreur non gérée:', error);
 });
+

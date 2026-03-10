@@ -223,7 +223,7 @@ export default function TemplatesLibrary() {
               <Layout size={24} />
             </div>
             
-            <div className="template-body">
+            <div className="template-body" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
               <span className="template-category">{template.category}</span>
               <h3>{template.name}</h3>
               <p>{template.description}</p>
@@ -426,7 +426,10 @@ export default function TemplatesLibrary() {
            color: var(--text-secondary);
            line-height: 1.5;
            margin-bottom: 24px;
-           flex: 1;
+        }
+
+        .template-sections {
+           margin-top: auto;
         }
 
         .template-sections h4 {
