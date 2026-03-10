@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   FileText, 
   CheckSquare, 
@@ -31,6 +31,20 @@ export default function SessionReport({ data, onNewSession, onEdit, isSidebarCol
   const [aiMeta, setAiMeta] = useState(null);
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [userSettings, setUserSettings] = useState(null);
+  const [isExportOpen, setIsExportOpen] = useState(false);
+  const exportRef = useRef(null);
+
+  // Fermer le dropdown export au clic en dehors
+  useEffect(() => {
+    if (!isExportOpen) return;
+    const handler = (e) => {
+      if (exportRef.current && !exportRef.current.contains(e.target)) {
+        setIsExportOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isExportOpen]);
 
   useEffect(() => {
     // Charger les settings utilisateur
@@ -610,23 +624,17 @@ ${extractKeyPoints(fullTranscript)}
             <span>Éditer</span>
           </button>
           
-          <div className="export-dropdown" style={{ position: 'relative', display: 'inline-block' }}>
+          <div className="export-dropdown" ref={exportRef} style={{ position: 'relative', display: 'inline-block' }}>
             <button 
               className="btn-action btn-export" 
-              onClick={() => {
-                const dropdown = document.querySelector('.export-menu');
-                if (dropdown) {
-                  const isShown = dropdown.style.display === 'block';
-                  dropdown.style.display = isShown ? 'none' : 'block';
-                }
-              }}
+              onClick={() => setIsExportOpen(v => !v)}
               title="Options d'export"
             >
               <Download size={18} />
               <span>Exporter</span>
             </button>
+            {isExportOpen && (
             <div className="export-menu" style={{ 
-              display: 'none',
               position: 'absolute',
               top: '100%',
               right: 0,
@@ -644,19 +652,17 @@ ${extractKeyPoints(fullTranscript)}
                   const plan = authService.currentUser?.plan || 'free';
                   if (!(PLAN_LIMITS[plan] || PLAN_LIMITS.free).pdfExport) {
                     toast.error('🔒 Export PDF disponible à partir du plan Pro. Mettez à niveau votre abonnement dans Paramètres → Abonnement.');
-                    const dropdown = document.querySelector('.export-menu');
-                    if (dropdown) dropdown.style.display = 'none';
+                    setIsExportOpen(false);
                     return;
                   }
                   try {
                     pdfExportService.exportSession(data);
                     toast.success('Rapport exporté en PDF avec succès !');
-                    const dropdown = document.querySelector('.export-menu');
-                    if (dropdown) dropdown.style.display = 'none';
                   } catch (error) {
                     toast.error('Erreur lors de l\'export PDF');
                     console.error(error);
                   }
+                  setIsExportOpen(false);
                 }}
                 style={{
                   padding: '12px 16px',
@@ -683,8 +689,7 @@ ${extractKeyPoints(fullTranscript)}
                   a.click();
                   URL.revokeObjectURL(url);
                   toast.success('Rapport exporté en Markdown avec succès !');
-                  const dropdown = document.querySelector('.export-menu');
-                  if (dropdown) dropdown.style.display = 'none';
+                  setIsExportOpen(false);
                 }}
                 style={{
                   padding: '12px 16px',
@@ -708,8 +713,7 @@ ${extractKeyPoints(fullTranscript)}
                   } else {
                     toast.info('Aucun email de suivi généré');
                   }
-                  const dropdown = document.querySelector('.export-menu');
-                  if (dropdown) dropdown.style.display = 'none';
+                  setIsExportOpen(false);
                 }}
                 style={{
                   padding: '12px 16px',
@@ -727,6 +731,7 @@ ${extractKeyPoints(fullTranscript)}
                 <span>Copier l'email de suivi</span>
               </div>
             </div>
+            )}
           </div>
           
           <button className="btn-action btn-new-session" onClick={() => onNewSession()}>

@@ -72,6 +72,10 @@
   --text-secondary: var(--muted);
   --text-tertiary: var(--faint);
   --surface-hover: var(--panel-2);
+
+  /* --- COMPONENT VARS used by SessionReport dropdown --- */
+  --card-bg: rgba(30, 41, 59, 0.95);
+  --hover-bg: rgba(255, 255, 255, 0.07);
 }
 
 * { box-sizing: border-box; }
@@ -496,11 +500,13 @@ button {
     top: 0;
     height: 100vh;
     width: 280px !important;
-    z-index: 200;
+    min-width: 280px !important;
+    z-index: 50;
     transition: left 0.3s ease;
     border-radius: 0 var(--r-lg) var(--r-lg) 0;
   }
   .sidebar.open { left: 0; }
+  .sidebar-mobile-toggle { display: flex !important; }
   .kpi { grid-column: span 12; }
 }
 

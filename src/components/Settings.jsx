@@ -10,6 +10,7 @@ export default function Settings({ initialTab = 'profile' }) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [currentUser, setCurrentUser] = useState(null);
   const [showPlanModal, setShowPlanModal] = useState(false);
+  const [confirmModal, setConfirmModal] = useState(null); // { message, onConfirm }
   const [userSessionsCount, setUserSessionsCount] = useState(0);
   const [legacyData, setLegacyData] = useState(null);
   const [settings, setSettings] = useState({
@@ -198,11 +199,14 @@ export default function Settings({ initialTab = 'profile' }) {
   };
 
   const handleDeleteLegacyData = () => {
-    if (window.confirm('Voulez-vous vraiment supprimer ces anciennes données ? Cette action est irréversible.')) {
-      const count = storageService.deleteLegacyData();
-      toast.success(`${count} anciennes données supprimées`);
-      setLegacyData(storageService.detectLegacyData());
-    }
+    setConfirmModal({
+      message: 'Voulez-vous vraiment supprimer ces anciennes données ? Cette action est irréversible.',
+      onConfirm: () => {
+        const count = storageService.deleteLegacyData();
+        toast.success(`${count} anciennes données supprimées`);
+        setLegacyData(storageService.detectLegacyData());
+      }
+    });
   };
 
   const getPlanName = (planId) => {
@@ -225,6 +229,26 @@ export default function Settings({ initialTab = 'profile' }) {
 
   return (
     <div className="settings-page">
+
+      {/* Modal de confirmation inline */}
+      {confirmModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '32px', maxWidth: '440px', width: '90%' }}>
+            <p style={{ color: '#f1f5f9', fontSize: '15px', lineHeight: '1.6', marginBottom: '24px' }}>{confirmModal.message}</p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setConfirmModal(null)}
+                style={{ padding: '10px 24px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', cursor: 'pointer', fontSize: '14px' }}
+              >Annuler</button>
+              <button
+                onClick={() => { confirmModal.onConfirm(); setConfirmModal(null); }}
+                style={{ padding: '10px 24px', borderRadius: '8px', background: 'linear-gradient(135deg, #ef4444, #dc2626)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
+              >Confirmer</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="settings-container">
         <div className="settings-header">
           <div className="settings-title">

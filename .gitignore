@@ -13,6 +13,7 @@ out/
 *.exe
 *.dmg
 *.msi
+dist-electron/
 
 # Logs
 logs/

@@ -68,6 +68,7 @@ export default function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -324,7 +325,7 @@ export default function App() {
         <Toaster />
         
         {/* SIDEBAR */}
-        <aside className="sidebar" style={{ width: isSidebarCollapsed ? '80px' : '280px', minWidth: isSidebarCollapsed ? '80px' : '280px', transition: 'width 0.3s ease, min-width 0.3s ease', position: 'relative' }}>
+        <aside className={`sidebar${isMobileSidebarOpen ? ' open' : ''}`} style={{ width: isSidebarCollapsed ? '80px' : '280px', minWidth: isSidebarCollapsed ? '80px' : '280px', transition: 'width 0.3s ease, min-width 0.3s ease, left 0.3s ease', position: 'relative' }}>
           <div className="brand" style={{ flexDirection: isSidebarCollapsed ? 'column' : 'row', gap: isSidebarCollapsed ? '8px' : '10px', padding: isSidebarCollapsed ? '20px 10px' : '20px' }}>
             <img src={logo} alt="Meetizy Logo" width={isSidebarCollapsed ? "32" : "64"} height={isSidebarCollapsed ? "32" : "64"} style={{ transition: 'all 0.3s ease' }} />
             {!isSidebarCollapsed && (
@@ -406,6 +407,15 @@ export default function App() {
         <main className="main">
           {/* TOPBAR */}
           <div className="topbar">
+            {/* Hamburger mobile — visible uniquement sous 900px */}
+            <button
+              className="btn-icon-premium sidebar-mobile-toggle"
+              onClick={() => setIsMobileSidebarOpen(v => !v)}
+              title="Menu"
+              style={{ display: 'none' }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
             <div className="topbar-actions">
               <button
                 className="btn-icon-premium"
@@ -467,6 +477,14 @@ export default function App() {
              {/* {currentView === 'admin' && <AdminDashboard />} */}
           </div>
         </main>
+
+        {/* Backdrop mobile sidebar */}
+        {isMobileSidebarOpen && (
+          <div
+            onClick={() => setIsMobileSidebarOpen(false)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 49 }}
+          />
+        )}
 
         {editingSession && (
           <SessionEditor
