@@ -392,7 +392,7 @@ export default function App() {
              {currentView === 'new' && <NewSession onStart={handleStartSession} />}
              
              {currentView === 'active' && (
-                <ActiveSession config={sessionData} onEnd={handleEndSession} />
+                <ActiveSession config={sessionData} onEnd={handleEndSession} userPlan={currentUser?.plan || 'free'} />
              )}
 
              {currentView === 'report' && (

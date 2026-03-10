@@ -13,8 +13,9 @@ import {
   Activity,
   Info
 } from 'lucide-react';
+import { PLAN_MAX_DURATION, PLAN_WARNING_BEFORE_END } from '../config/featureFlags';
 
-export default function ActiveSession({ config, onEnd }) {
+export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
   const [transcript, setTranscript] = useState([]);
   const [duration, setDuration] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
@@ -30,7 +31,7 @@ export default function ActiveSession({ config, onEnd }) {
   const isPausedRef = useRef(false);
   const durationRef = useRef(0);
 
-  const MAX_DURATION = 7200; // 2h max par session
+  const MAX_DURATION = PLAN_MAX_DURATION[userPlan] ?? PLAN_MAX_DURATION.free;
 
   useEffect(() => {
     startRecording();
@@ -57,13 +58,15 @@ export default function ActiveSession({ config, onEnd }) {
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [transcript]);
 
-  // Avertissement 5 min avant la fin + arrêt automatique à 2h
+  // Avertissement avant la fin + arrêt automatique selon le plan
   useEffect(() => {
-    if (duration === MAX_DURATION - 300) {
+    if (MAX_DURATION === Infinity) return; // Plan expert : pas de limite
+    if (duration === MAX_DURATION - PLAN_WARNING_BEFORE_END) {
+      const mins = Math.round(PLAN_WARNING_BEFORE_END / 60);
       setTranscript(prev => [...prev, {
         id: Date.now(),
         timestamp: Date.now(),
-        text: '⚠️ La session se terminera automatiquement dans 5 minutes (limite de 2h)',
+        text: `⚠️ La session se terminera automatiquement dans ${mins} minutes (limite du plan ${userPlan})`,
         speaker: 'Système',
         isSystem: true
       }]);

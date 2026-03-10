@@ -33,6 +33,17 @@ export const FEATURE_FLAGS = {
   SHOW_PERFORMANCE_METRICS: false,       // Display performance info
 };
 
+// Durée maximale d'enregistrement par plan (en secondes)
+export const PLAN_MAX_DURATION = {
+  free:     60 * 60,      // 1h
+  pro:      2 * 60 * 60,  // 2h
+  business: 4 * 60 * 60,  // 4h
+  expert:   Infinity,     // Illimité
+};
+
+// Durée d'avertissement avant la fin (en secondes)
+export const PLAN_WARNING_BEFORE_END = 5 * 60; // 5 min
+
 /**
  * Get feature flag value
  * @param {string} flagName - Name of the feature flag
