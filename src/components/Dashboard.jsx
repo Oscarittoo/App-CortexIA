@@ -171,7 +171,7 @@ export default function Dashboard({ onNewSession }) {
     return names[platform] || 'Local';
   }
 
-  if (!stats) return <div className="loading">Chargement...</div>;
+  if (!stats) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px', color: 'var(--muted)' }}>Chargement...</div>;
 
   // Si aucune session n'existe
   if (sessions.length === 0) {
@@ -228,9 +228,17 @@ export default function Dashboard({ onNewSession }) {
     );
   }
 
-  const totalDurationHours = ((stats.totalDuration || 0) / 3600).toFixed(1);
-  const avgDurationMins = Math.round((stats.averageDuration || 0) / 60);
-  const totalWords = stats.totalWords || 0;
+  // Compute KPI stats from the period-filtered sessions (not all-time global stats)
+  const filteredTotalDuration = sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+  const filteredAvgDuration = sessions.length > 0 ? filteredTotalDuration / sessions.length : 0;
+  const filteredTotalWords = sessions.reduce((sum, s) => {
+    const words = (s.transcript || []).filter(t => t.isFinal).reduce((w, t) => w + (t.text ? t.text.split(/\s+/).length : 0), 0);
+    return sum + words;
+  }, 0);
+
+  const totalDurationHours = (filteredTotalDuration / 3600).toFixed(1);
+  const avgDurationMins = Math.round(filteredAvgDuration / 60);
+  const totalWords = filteredTotalWords;
 
   return (
     <div className="screen dashboard">

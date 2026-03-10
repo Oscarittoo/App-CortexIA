@@ -14,6 +14,7 @@ export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
   const [resetSent, setResetSent] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const plans = [
     { id: 'free', name: 'Free', price: '0€' },
@@ -48,6 +49,7 @@ export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
     }
 
     try {
+      setIsSubmitting(true);
       if (isRegistering) {
         await authService.register(email, password, companyName, plan);
         setRegistrationSuccess(true);
@@ -59,6 +61,8 @@ export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
     } catch (error) {
       const message = error?.message || 'Erreur de connexion. Vérifiez vos identifiants.';
       toast.error(message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -241,8 +245,16 @@ export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
               </div>
             )}
 
-            <button type="submit" className="btn btn-primary btn-lg">
-              {isRegistering ? 'CRÉER MON COMPTE' : 'SE CONNECTER'}
+            <button type="submit" className="btn btn-primary btn-lg" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />
+                  {isRegistering ? 'Création...' : 'Connexion...'}
+                  <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                </span>
+              ) : (
+                isRegistering ? 'CRÉER MON COMPTE' : 'SE CONNECTER'
+              )}
             </button>
           </form>
 
@@ -253,7 +265,13 @@ export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
           <button 
             type="button" 
             className="btn btn-secondary btn-lg"
-            onClick={() => setIsRegistering(!isRegistering)}
+            onClick={() => {
+              setIsRegistering(!isRegistering);
+              setEmail('');
+              setPassword('');
+              setCompanyName('');
+              setPasswordError('');
+            }}
           >
             {isRegistering 
               ? 'J\'ai déjà un compte' 

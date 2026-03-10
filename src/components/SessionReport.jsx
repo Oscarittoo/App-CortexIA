@@ -438,14 +438,14 @@ ${extractKeyPoints(fullTranscript)}
   };
 
   const handleCopyEmail = () => {
-    navigator.clipboard.writeText(followUpEmail);
-    // Simple alert removed, toast could be used if available
-    console.log('Email copied');
+    navigator.clipboard.writeText(followUpEmail)
+      .then(() => toast.success('Email copié dans le presse-papiers !'))
+      .catch(() => toast.error('Impossible de copier'));
   };
 
   if (isGenerating) {
     return (
-      <div className="screen session-report" style={{ position: 'fixed', top: '18px', left: isSidebarCollapsed ? '116px' : '316px', right: '18px', bottom: '18px', background: '#0f172a', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '16px', border: '1px solid var(--border)', overflow: 'hidden', transition: 'left 0.3s ease' }}>
+      <div className="screen session-report" style={{ position: 'fixed', top: '18px', left: isSidebarCollapsed ? '96px' : '296px', right: '18px', bottom: '18px', background: '#0f172a', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '16px', border: '1px solid var(--border)', overflow: 'hidden', transition: 'left 0.3s ease' }}>
         <div style={{ textAlign: 'center', padding: '40px', background: '#1e293b', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
           <div className="spinner" style={{ margin: '0 auto 20px auto', border: '3px solid rgba(255,255,255,0.1)', borderTop: '3px solid #38bdf8', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>
           <h3 style={{ fontSize: '18px', marginBottom: '8px', color: 'white' }}>Génération du rapport IA en cours...</h3>
@@ -459,7 +459,7 @@ ${extractKeyPoints(fullTranscript)}
   }
 
   return (
-    <div className="screen session-report" style={{ position: 'fixed', top: '18px', left: isSidebarCollapsed ? '116px' : '316px', right: '18px', bottom: '18px', background: '#0f172a', zIndex: 100, display: 'flex', flexDirection: 'column', borderRadius: '16px', border: '1px solid var(--border)', overflow: 'hidden', transition: 'left 0.3s ease' }}>
+    <div className="screen session-report" style={{ position: 'fixed', top: '18px', left: isSidebarCollapsed ? '96px' : '296px', right: '18px', bottom: '18px', background: '#0f172a', zIndex: 100, display: 'flex', flexDirection: 'column', borderRadius: '16px', border: '1px solid var(--border)', overflow: 'hidden', transition: 'left 0.3s ease' }}>
       <style>{`
         .report-header {
           display: flex;
@@ -594,7 +594,7 @@ ${extractKeyPoints(fullTranscript)}
           <h2>{data.title || 'Synthèse de réunion'}</h2>
           <div className="header-meta">
             <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Clock size={14} /> {formatDuration(data.duration)}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><FileText size={14} /> {data.transcript.filter(t => t.isFinal).length} segments</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><FileText size={14} /> {(data.transcript || []).filter(t => t.isFinal).length} segments</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Target size={14} /> {data.language === 'fr' ? 'Français' : 'English'}</span>
             {aiMeta && (
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>

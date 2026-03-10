@@ -10,10 +10,10 @@ import {
   AlertTriangle,
   BrainCircuit,
   Bookmark,
-  Activity,
-  Info
+  Activity
 } from 'lucide-react';
 import { PLAN_MAX_DURATION, PLAN_WARNING_BEFORE_END } from '../config/featureFlags';
+import toast from './Toast';
 
 export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
   const [transcript, setTranscript] = useState([]);
@@ -25,10 +25,14 @@ export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
   const [speechDetected, setSpeechDetected] = useState(false);
   const [detectedActions, setDetectedActions] = useState([]);
   const [detectedDecisions, setDetectedDecisions] = useState([]);
+  const [showStopConfirm, setShowStopConfirm] = useState(false);
+  const [showMarkModal, setShowMarkModal] = useState(false);
+  const [markNote, setMarkNote] = useState('');
   const recognitionRef = useRef(null);
   const transcriptEndRef = useRef(null);
   const restartCountRef = useRef(0);
   const isPausedRef = useRef(false);
+  const isRecordingRef = useRef(false);
   const durationRef = useRef(0);
 
   const MAX_DURATION = PLAN_MAX_DURATION[userPlan] ?? PLAN_MAX_DURATION.free;
@@ -109,6 +113,7 @@ export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
       recognition.onstart = () => {
         console.log('[onstart] Recognition started successfully');
         setMicStatus('Écoute active - Parlez maintenant');
+        isRecordingRef.current = true;
         setIsRecording(true);
       };
 
@@ -229,7 +234,7 @@ export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
           case 'not-allowed':
             errorMessage = 'Permission microphone refusée';
             console.error('Autorisez l\'accès au microphone dans les paramètres du navigateur');
-            alert('Accès au microphone refusé. Veuillez autoriser l\'accès dans les paramètres de votre navigateur.');
+            toast.error('Accès au microphone refusé. Autorisez-le dans les paramètres du navigateur.');
             break;
           case 'network':
             errorMessage = 'Erreur réseau';
@@ -248,7 +253,7 @@ export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
       recognition.onend = () => {
         console.log('[onend] Recognition ended');
         
-        if (isRecording && !isPaused && restartCountRef.current < 50) {
+        if (isRecordingRef.current && !isPausedRef.current && restartCountRef.current < 50) {
           console.log(`Auto-restart (tentative ${restartCountRef.current + 1}/50)`);
           restartCountRef.current += 1;
           
@@ -279,7 +284,7 @@ export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
       console.error('ERREUR FATALE:', error);
       console.error('Stack trace:', error.stack);
       setMicStatus('Erreur: ' + error.message);
-      alert('Erreur d\'initialisation: ' + error.message);
+      toast.error('Erreur d\'initialisation: ' + error.message);
     }
   };
 
@@ -289,6 +294,7 @@ export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
       recognitionRef.current.stop();
       recognitionRef.current = null;
     }
+    isRecordingRef.current = false;
     setIsRecording(false);
     setAudioDetected(false);
     setSpeechDetected(false);
@@ -406,29 +412,32 @@ export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
   };
 
   const handleStop = () => {
-    if (confirm('Voulez-vous vraiment terminer cette session ?')) {
-      stopRecording();
-      // Ajouter les actions et décisions détectées à la session
-      const enhancedData = {
-        ...transcript,
-        detectedActions,
-        detectedDecisions
-      };
-      onEnd(transcript, duration, { detectedActions, detectedDecisions });
-    }
+    setShowStopConfirm(true);
+  };
+
+  const handleConfirmStop = () => {
+    setShowStopConfirm(false);
+    stopRecording();
+    onEnd(transcript, duration, { detectedActions, detectedDecisions });
   };
 
   const handleMarkMoment = () => {
-    const note = prompt('Note pour ce moment important :');
-    if (note) {
+    setMarkNote('');
+    setShowMarkModal(true);
+  };
+
+  const handleConfirmMark = () => {
+    if (markNote.trim()) {
       setTranscript(prev => [...prev, {
         id: Date.now(),
         timestamp: Date.now(),
-        text: `${note}`,
+        text: markNote.trim(),
         speaker: 'Système',
         marked: true
       }]);
     }
+    setShowMarkModal(false);
+    setMarkNote('');
   };
 
   const formatDuration = (seconds) => {
@@ -656,10 +665,7 @@ export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
             </div>
           </div>
 
-          <div style={{ fontSize: '11px', marginTop: '6px', color: '#64748b', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Info size={12} />
-            Ouvrez la console (F12) pour voir les logs détaillés
-          </div>
+
         </div>
       </div>
 
@@ -884,5 +890,41 @@ export default function ActiveSession({ config, onEnd, userPlan = 'free' }) {
         </div>
       </div>
     </div>
+
+    {/* Modal de confirmation : Terminer la session */}
+    {showStopConfirm && (
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '32px', maxWidth: '400px', width: '90%', textAlign: 'center' }}>
+          <h3 style={{ fontSize: '18px', marginBottom: '12px', color: 'white' }}>Terminer la session ?</h3>
+          <p style={{ color: '#94a3b8', marginBottom: '24px', fontSize: '14px' }}>La session sera terminée et le rapport IA sera généré.</p>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+            <button onClick={() => setShowStopConfirm(false)} style={{ padding: '10px 24px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', cursor: 'pointer', fontSize: '14px' }}>Annuler</button>
+            <button onClick={handleConfirmStop} style={{ padding: '10px 24px', borderRadius: '8px', background: 'linear-gradient(135deg, #ef4444, #dc2626)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}>Terminer</button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Modal : Marquer un moment */}
+    {showMarkModal && (
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '32px', maxWidth: '420px', width: '90%' }}>
+          <h3 style={{ fontSize: '18px', marginBottom: '12px', color: 'white' }}>Marquer ce moment</h3>
+          <input
+            autoFocus
+            type="text"
+            value={markNote}
+            onChange={e => setMarkNote(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') handleConfirmMark(); if (e.key === 'Escape') setShowMarkModal(false); }}
+            placeholder="Note pour ce moment important..."
+            style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)', color: 'white', fontSize: '14px', outline: 'none', boxSizing: 'border-box', marginBottom: '20px' }}
+          />
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+            <button onClick={() => setShowMarkModal(false)} style={{ padding: '10px 24px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', cursor: 'pointer', fontSize: '14px' }}>Annuler</button>
+            <button onClick={handleConfirmMark} style={{ padding: '10px 24px', borderRadius: '8px', background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', border: 'none', color: '#0f172a', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}>Marquer</button>
+          </div>
+        </div>
+      </div>
+    )}
   );
 }

@@ -14,10 +14,10 @@ export default function Settings({ initialTab = 'profile' }) {
   const [legacyData, setLegacyData] = useState(null);
   const [settings, setSettings] = useState({
     // Profile
-    fullName: 'Jean Dupont',
-    email: 'jean.dupont@entreprise.fr',
-    company: 'Entreprise SAS',
-    position: 'Directeur Commercial',
+    fullName: '',
+    email: '',
+    company: '',
+    position: '',
     
     // Preferences
     language: 'fr',
@@ -32,11 +32,11 @@ export default function Settings({ initialTab = 'profile' }) {
     
     // Subscription
     plan: 'free',
-    nextBillingDate: '2026-03-05',
+    nextBillingDate: null,
     usage: {
-      sessions: 42,
+      sessions: 0,
       maxSessions: 100,
-      storage: 2.4,
+      storage: 0,
       maxStorage: 10
     }
   });
@@ -67,11 +67,18 @@ export default function Settings({ initialTab = 'profile' }) {
         setSettings(prev => ({
           ...prev,
           ...localSettings,
-          // Ne jamais écraser les données utilisateur réelles
           email: user.email,
           company: user.companyName || prev.company,
-          plan: user.plan || 'free' // Toujours prendre le plan de la BDD
+          plan: user.plan || 'free',
+          usage: {
+            ...prev.usage,
+            sessions: sessions.length
+          }
         }));
+        // Apply saved theme on load
+        if (localSettings?.theme) {
+          document.documentElement.setAttribute('data-theme', localSettings.theme);
+        }
       }
     };
     loadUserData();
@@ -212,7 +219,7 @@ export default function Settings({ initialTab = 'profile' }) {
       };
       reader.readAsDataURL(file);
     } else {
-      alert('Le fichier doit faire moins de 2 Mo');
+      toast.error('Le fichier doit faire moins de 2 Mo');
     }
   };
 
@@ -337,7 +344,11 @@ export default function Settings({ initialTab = 'profile' }) {
                 <label><Palette size={16} /> Thème de l'interface</label>
                 <select 
                   value={settings.theme}
-                  onChange={(e) => setSettings({ ...settings, theme: e.target.value })}
+                  onChange={(e) => {
+                    const newTheme = e.target.value;
+                    setSettings({ ...settings, theme: newTheme });
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                  }}
                 >
                   <option value="dark">Sombre (NovaPulse)</option>
                   <option value="light">Clair</option>

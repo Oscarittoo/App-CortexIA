@@ -67,27 +67,30 @@ export default function App() {
   const [isChatBotOpen, setIsChatBotOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   useEffect(() => {
     const loadUser = async () => {
-      const user = await authService.getCurrentUser();
-      if (user) {
-        setIsAuthenticated(true);
-        setCurrentUser(user);
-        // IMPORTANT: Informer le storageService de l'utilisateur connecté
-        storageService.setCurrentUser(user.id);
-      } else {
-        // Session expirée ou non connecté
-        setIsAuthenticated(false);
-        setCurrentUser(null);
-        storageService.setCurrentUser(null);
-        if (currentView !== 'home' && currentView !== 'features' && currentView !== 'integrations' && 
-            currentView !== 'security' && currentView !== 'demo' && currentView !== 'pricing' && 
-            currentView !== 'login' && currentView !== 'agent-install' && currentView !== 'api-docs') {
-          // L'utilisateur était sur une page authentifiée mais la session a expiré
-          setCurrentView('home');
-          toast.error('Votre session a expiré. Veuillez vous reconnecter.');
+      setIsAuthLoading(true);
+      try {
+        const user = await authService.getCurrentUser();
+        if (user) {
+          setIsAuthenticated(true);
+          setCurrentUser(user);
+          storageService.setCurrentUser(user.id);
+        } else {
+          setIsAuthenticated(false);
+          setCurrentUser(null);
+          storageService.setCurrentUser(null);
+          if (currentView !== 'home' && currentView !== 'features' && currentView !== 'integrations' && 
+              currentView !== 'security' && currentView !== 'demo' && currentView !== 'pricing' && 
+              currentView !== 'login' && currentView !== 'agent-install' && currentView !== 'api-docs') {
+            setCurrentView('home');
+            toast.error('Votre session a expiré. Veuillez vous reconnecter.');
+          }
         }
+      } finally {
+        setIsAuthLoading(false);
       }
     };
     loadUser();
@@ -201,6 +204,19 @@ export default function App() {
     console.log("Selected plan", plan); 
     setSelectedPlan(plan);
     setCurrentView('login');
+  }
+
+  // AUTH LOADING SPINNER
+  if (isAuthLoading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#0a0a19' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: '48px', height: '48px', borderRadius: '50%', border: '3px solid rgba(56,189,248,0.2)', borderTopColor: '#38bdf8', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+          <p style={{ color: '#94a3b8', fontSize: '14px' }}>Chargement...</p>
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
+      </div>
+    );
   }
 
   // PUBLIC LAYOUT

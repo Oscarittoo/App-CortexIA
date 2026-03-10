@@ -26,14 +26,15 @@ export default function NewSession({ onStart }) {
     toast.info('Template retiré');
   };
 
-  const handleStart = () => {
+  const handleStart = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     if (!consent) {
-      alert('Vous devez confirmer le consentement des participants avant de commencer');
+      toast.error('Vous devez confirmer le consentement des participants avant de commencer');
       return;
     }
 
     if (!meetingTitle.trim()) {
-      alert('Veuillez fournir un titre de réunion');
+      toast.error('Veuillez fournir un titre de réunion');
       return;
     }
 
@@ -42,7 +43,7 @@ export default function NewSession({ onStart }) {
       platform,
       language, 
       title: meetingTitle,
-      template: selectedTemplate // Passer le template à la session
+      template: selectedTemplate
     });
   };
 
@@ -69,7 +70,7 @@ export default function NewSession({ onStart }) {
         </div>
       )}
 
-      <div className="form-container">
+      <form className="form-container" onSubmit={handleStart}>
         {/* Section: Informations de base */}
         <div className="form-section">
           <div className="form-section-header">
@@ -207,14 +208,14 @@ export default function NewSession({ onStart }) {
         </div>
 
         <button
+          type="submit"
           className="btn-primary btn-large btn-block"
-          onClick={handleStart}
           disabled={!consent || !meetingTitle.trim()}
         >
           <Play size={20} />
           Démarrer la session
         </button>
-      </div>
+      </form>
       
       <style jsx>{`
         .new-session {
