@@ -340,9 +340,6 @@ export default function App() {
             <a className={`nav-item ${currentView === 'calendar' ? 'active' : ''}`} onClick={() => setCurrentView('calendar')} title="Calendrier">
               <CalendarIcon size={18} /> {!isSidebarCollapsed && <span>Calendrier</span>}
             </a>
-            <a className={`nav-item ${currentView === 'agent-install' ? 'active' : ''}`} onClick={() => setCurrentView('agent-install')} title="Installer l'assistant">
-              <Sparkles size={18} /> {!isSidebarCollapsed && <span>Installer l'assistant</span>}
-            </a>
             <a className={`nav-item ${currentView === 'subscription' ? 'active' : ''}`} onClick={() => setCurrentView('subscription')} title="Mon abonnement">
               <CreditCard size={18} /> {!isSidebarCollapsed && <span>Mon abonnement</span>}
             </a>
