@@ -13,21 +13,15 @@
         <div className="demo-showcase">
            <div className="video-container">
               {/* Option 1: Vidéo YouTube - Remplacez VIDEO_ID par votre ID YouTube */}
-              <div className="video-wrapper">
-                <iframe 
-                  width="100%" 
-                  height="100%" 
-                  src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=1&modestbranding=1&rel=0"
-                  title="Meetizy Demo"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  style={{
-                    borderRadius: '12px',
-                    boxShadow: '0 50px 100px -20px rgba(0,0,0,0.7)',
-                    border: '1px solid rgba(56, 189, 248, 0.2)'
-                  }}
-                ></iframe>
+              <div className="video-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '320px', background: 'linear-gradient(135deg, rgba(14,165,233,0.08) 0%, rgba(139,92,246,0.08) 100%)', borderRadius: '12px', border: '1px solid rgba(56,189,248,0.2)', boxShadow: '0 50px 100px -20px rgba(0,0,0,0.7)' }}>
+                <div style={{ textAlign: 'center', padding: '48px 32px' }}>
+                  <div style={{ fontSize: '64px', marginBottom: '20px' }}>🎬</div>
+                  <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '12px', color: 'var(--text)' }}>Vidéo de démonstration</h3>
+                  <p style={{ color: 'var(--muted)', maxWidth: '320px', lineHeight: 1.6, margin: '0 auto' }}>
+                    La vidéo de présentation de MEETIZY sera disponible prochainement.<br/>
+                    En attendant, testez l'application directement !
+                  </p>
+                </div>
               </div>
               
               {/* Alternative: Vidéo Locale (décommentez pour utiliser) */}

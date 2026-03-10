@@ -30,6 +30,8 @@ export default function ActiveSession({ config, onEnd }) {
   const isPausedRef = useRef(false);
   const durationRef = useRef(0);
 
+  const MAX_DURATION = 7200; // 2h max par session
+
   useEffect(() => {
     startRecording();
     const timer = setInterval(() => {
@@ -54,6 +56,23 @@ export default function ActiveSession({ config, onEnd }) {
     // Auto-scroll vers le bas
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [transcript]);
+
+  // Avertissement 5 min avant la fin + arrêt automatique à 2h
+  useEffect(() => {
+    if (duration === MAX_DURATION - 300) {
+      setTranscript(prev => [...prev, {
+        id: Date.now(),
+        timestamp: Date.now(),
+        text: '⚠️ La session se terminera automatiquement dans 5 minutes (limite de 2h)',
+        speaker: 'Système',
+        isSystem: true
+      }]);
+    }
+    if (duration >= MAX_DURATION) {
+      stopRecording();
+      onEnd(transcript, duration, { detectedActions, detectedDecisions });
+    }
+  }, [duration]);
 
   const startRecording = async () => {
     try {

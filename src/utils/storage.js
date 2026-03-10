@@ -77,7 +77,27 @@ class StorageService {
       });
     }
     
-    localStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(allSessions));
+    try {
+      localStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(allSessions));
+    } catch (e) {
+      if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.code === 22)) {
+        // Stockage plein : supprimer les 3 sessions les plus anciennes et réessayer
+        const userId = this.getCurrentUserId();
+        const toDelete = allSessions
+          .filter(s => s.userId === userId)
+          .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0))
+          .slice(0, 3)
+          .map(s => s.id);
+        const trimmed = allSessions.filter(s => !toDelete.includes(s.id));
+        try {
+          localStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(trimmed));
+        } catch {
+          throw new Error('Stockage local plein. Supprimez des anciennes sessions pour libérer de l\'espace.');
+        }
+      } else {
+        throw e;
+      }
+    }
     this.updateStats(session);
     return sessionWithUser;
   }

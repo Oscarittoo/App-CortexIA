@@ -12,6 +12,8 @@ export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
   const [companyName, setCompanyName] = useState('');
   const [plan, setPlan] = useState(selectedPlan);
   const [resetSent, setResetSent] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   const plans = [
     { id: 'free', name: 'Free', price: '0€' },
@@ -33,12 +35,26 @@ export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
       return;
     }
 
-    try {
-      const userData = isRegistering
-        ? await authService.register(email, password, companyName, plan)
-        : await authService.login(email, password);
+    if (isRegistering) {
+      if (password.length < 8) {
+        setPasswordError('Le mot de passe doit contenir au moins 8 caractères');
+        return;
+      }
+      if (!/[0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) {
+        setPasswordError('Ajoutez au moins un chiffre ou caractère spécial (!@#...)');
+        return;
+      }
+      setPasswordError('');
+    }
 
-      toast.success(isRegistering ? 'Compte créé avec succès !' : 'Connexion réussie !');
+    try {
+      if (isRegistering) {
+        await authService.register(email, password, companyName, plan);
+        setRegistrationSuccess(true);
+        return;
+      }
+      const userData = await authService.login(email, password);
+      toast.success('Connexion réussie !');
       onLogin(userData);
     } catch (error) {
       const message = error?.message || 'Erreur de connexion. Vérifiez vos identifiants.';
@@ -65,8 +81,24 @@ export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
       <div className="login-container">
         <div className="login-card">
 
-          {/* VUE RÉINITIALISATION MOT DE PASSE */}
-          {isForgotPassword ? (
+          {/* VUE SUCCÈS INSCRIPTION */}
+          {registrationSuccess ? (
+            <div style={{ textAlign: 'center', padding: '24px 0' }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>✉️</div>
+              <h2 style={{ marginBottom: '8px' }}>Vérifiez votre boîte mail</h2>
+              <p style={{ color: 'var(--muted)', marginBottom: '24px' }}>
+                Un email de confirmation a été envoyé à <strong>{email}</strong>.<br/>
+                Cliquez sur le lien pour activer votre compte, puis connectez-vous.
+              </p>
+              <button
+                className="btn btn-primary btn-lg"
+                onClick={() => { setRegistrationSuccess(false); setIsRegistering(false); }}
+              >
+                Aller à la connexion
+              </button>
+            </div>
+          ) : /* VUE RÉINITIALISATION MOT DE PASSE */
+          isForgotPassword ? (
             <>
               <div className="login-header">
                 <h2>Mot de passe oublié</h2>
@@ -181,7 +213,7 @@ export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
                   className="input"
                   placeholder="••••••••"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => { setPassword(e.target.value); if (passwordError) setPasswordError(''); }}
                   autoComplete="off"
                 />
                 <button
@@ -192,6 +224,9 @@ export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {isRegistering && passwordError && (
+                <p style={{ color: 'var(--error, #f87171)', fontSize: '13px', marginTop: '6px' }}>{passwordError}</p>
+              )}
             </div>
 
             {!isRegistering && (
