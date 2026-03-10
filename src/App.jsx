@@ -66,6 +66,7 @@ export default function App() {
   const [selectedPlan, setSelectedPlan] = useState('free');
   const [isChatBotOpen, setIsChatBotOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -204,62 +205,82 @@ export default function App() {
 
   // PUBLIC LAYOUT
   if (!isAuthenticated) {
+    const navItems = [
+      { view: 'home', label: 'Accueil' },
+      { view: 'features', label: 'Fonctionnalités' },
+      { view: 'integrations', label: 'Intégrations' },
+      { view: 'pricing', label: 'Prix' },
+      { view: 'demo', label: 'Démo' },
+    ];
     return (
       <ErrorBoundary>
         <div className="app-public">
           <Toaster />
-          <nav className="topbar" style={{ margin: '18px', width: 'auto' }}>
-            <div className="brand" onClick={handleGoHome} style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
-               <div className="logo-icon">
-                 <img src={logo} alt="Meetizy Logo" width="72" height="72" />
-               </div>
-               <span style={{ fontFamily: 'Orbitron, sans-serif', fontWeight: '700', fontSize: '24px', letterSpacing: '1px', color: '#ffffff' }}>MEETIZY</span>
+
+          {/* NAV DESKTOP */}
+          <nav style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '14px 28px',
+            borderBottom: '1px solid rgba(255,255,255,0.08)',
+            background: 'rgba(10,10,25,0.85)',
+            backdropFilter: 'blur(12px)',
+            position: 'sticky', top: 0, zIndex: 100,
+            width: '100%',
+          }}>
+            <div onClick={handleGoHome} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+              <img src={logo} alt="Meetizy Logo" width="40" height="40" />
+              <span style={{ fontFamily: 'Orbitron, sans-serif', fontWeight: '700', fontSize: '20px', letterSpacing: '1px', color: '#ffffff' }}>MEETIZY</span>
             </div>
-            
-            <div style={{ display: 'flex', gap: '20px', marginLeft: 'auto', alignItems: 'center' }}>
-               <a className={`nav-item ${currentView === 'home' ? 'active' : ''}`} onClick={() => setCurrentView('home')}>Accueil</a>
-               <a className={`nav-item ${currentView === 'features' ? 'active' : ''}`} onClick={() => setCurrentView('features')}>Fonctionnalités</a>
-               <a className={`nav-item ${currentView === 'integrations' ? 'active' : ''}`} onClick={() => setCurrentView('integrations')}>Intégrations</a>
-               <a className={`nav-item ${currentView === 'pricing' ? 'active' : ''}`} onClick={() => setCurrentView('pricing')}>Prix</a>
-               <a className={`nav-item ${currentView === 'demo' ? 'active' : ''}`} onClick={() => setCurrentView('demo')}>Démo</a>
-               
-               <button 
-                 className="btn-plugin" 
-                 onClick={() => setCurrentView('plugin-install')}
-                 style={{
-                   display: 'flex',
-                   alignItems: 'center',
-                   gap: '8px',
-                   padding: '10px 20px',
-                   background: 'rgba(56, 189, 248, 0.1)',
-                   border: '1px solid rgba(56, 189, 248, 0.3)',
-                   borderRadius: '8px',
-                   color: '#38bdf8',
-                   fontSize: '14px',
-                   fontWeight: '600',
-                   cursor: 'pointer',
-                   transition: 'all 0.2s'
-                 }}
-                 onMouseEnter={(e) => {
-                   e.target.style.background = 'rgba(56, 189, 248, 0.2)';
-                   e.target.style.borderColor = '#38bdf8';
-                 }}
-                 onMouseLeave={(e) => {
-                   e.target.style.background = 'rgba(56, 189, 248, 0.1)';
-                   e.target.style.borderColor = 'rgba(56, 189, 248, 0.3)';
-                 }}
-               >
-                 <Download size={16} />
-                 Installer l'assistant interactif
-               </button>
-               
-               <button className="btn btn-primary" onClick={() => setCurrentView('login')}>
-                 Connexion
-               </button>
+
+            {/* Links desktop */}
+            <div className="public-nav-links" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+              {navItems.map(item => (
+                <a key={item.view} className={`nav-item ${currentView === item.view ? 'active' : ''}`} onClick={() => setCurrentView(item.view)}>
+                  {item.label}
+                </a>
+              ))}
+              <button
+                onClick={() => setCurrentView('plugin-install')}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.3)', borderRadius: '8px', color: '#38bdf8', fontSize: '13px', fontWeight: '600', cursor: 'pointer', marginLeft: '8px' }}
+              >
+                <Download size={14} />
+                Installer l'assistant
+              </button>
+              <button className="btn btn-primary" onClick={() => setCurrentView('login')} style={{ marginLeft: '4px' }}>
+                Connexion
+              </button>
             </div>
+
+            {/* Hamburger mobile */}
+            <button
+              className="public-nav-toggle"
+              onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
+              aria-label="Menu"
+            >
+              {isMobileNavOpen ? '✕' : '☰'}
+            </button>
           </nav>
 
-          <main style={{ minHeight: 'calc(100vh - 200px)' }}> 
+          {/* Mobile nav dropdown */}
+          <div className={`public-nav-mobile ${isMobileNavOpen ? 'open' : ''}`}>
+            {navItems.map(item => (
+              <a key={item.view} className={`nav-item ${currentView === item.view ? 'active' : ''}`}
+                onClick={() => { setCurrentView(item.view); setIsMobileNavOpen(false); }}>
+                {item.label}
+              </a>
+            ))}
+            <button
+              onClick={() => { setCurrentView('plugin-install'); setIsMobileNavOpen(false); }}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.3)', borderRadius: '8px', color: '#38bdf8', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+            >
+              <Download size={14} /> Installer l'assistant
+            </button>
+            <button className="btn btn-primary" onClick={() => { setCurrentView('login'); setIsMobileNavOpen(false); }} style={{ width: '100%' }}>
+              Connexion
+            </button>
+          </div>
+
+          <main style={{ flex: 1 }}>
             {currentView === 'home' && <Home onGetStarted={handleGetStarted} onViewDemo={() => setCurrentView('demo')} />}
             {currentView === 'features' && <Features onGetStarted={handleGetStarted} />}
             {currentView === 'integrations' && <Integrations onGetStarted={handleGetStarted} onViewDocs={() => setCurrentView('api-docs')} />}
@@ -270,7 +291,7 @@ export default function App() {
             {currentView === 'api-docs' && <ApiDocs onBack={() => setCurrentView('integrations')} />}
             {currentView === 'login' && <Login onLogin={handleLogin} onBack={() => setCurrentView('home')} selectedPlan={selectedPlan} />}
           </main>
-          
+
           <footer style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)', borderTop: '1px solid var(--border)' }}>
             <p>© 2026 MEETIZY · Premium AI Assistant</p>
           </footer>
