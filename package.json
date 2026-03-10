@@ -8,7 +8,33 @@
     "build": "vite build",
     "electron": "electron .",
     "start": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && npm run electron\"",
+    "pack:win": "npm run build && electron-builder --win --x64",
+    "pack:mac": "npm run build && electron-builder --mac",
+    "pack:linux": "npm run build && electron-builder --linux",
     "generate-pdfs": "node generate-pdfs.js"
+  },
+  "build": {
+    "appId": "com.meetizy.app",
+    "productName": "Meetizy",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "portable"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Office"
+    }
   },
   "keywords": [
     "transcription",
@@ -35,6 +61,7 @@
     "@vitejs/plugin-react": "^4.2.1",
     "concurrently": "^8.2.2",
     "electron": "^28.1.0",
+    "electron-builder": "^26.8.1",
     "markdown-pdf": "^11.0.0",
     "md-to-pdf": "^5.2.5",
     "vite": "^5.0.8",
