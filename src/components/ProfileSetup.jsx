@@ -47,6 +47,7 @@ function Field({ label, required, children }) {
 
 export default function ProfileSetup({ onComplete, onBack, selectedPlan, currentUser }) {
   const [form, setForm] = useState({
+    civility: '',
     firstName: '',
     lastName: '',
     jobTitle: '',
@@ -73,7 +74,7 @@ export default function ProfileSetup({ onComplete, onBack, selectedPlan, current
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const required = ['firstName', 'lastName', 'phone', 'companyName', 'siret'];
+    const required = ['civility', 'firstName', 'lastName', 'phone', 'companyName', 'siret'];
     const missing = required.filter(k => !form[k].trim());
     if (missing.length > 0) {
       toast.error('Veuillez remplir tous les champs obligatoires (*)');
@@ -137,9 +138,18 @@ export default function ProfileSetup({ onComplete, onBack, selectedPlan, current
         {/* ─── Section : Identité ─── */}
         <div style={{ marginBottom: '32px' }}>
           <h3 style={{ color: '#667eea', fontSize: '13px', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            👤 Identité personnelle
+            Identité personnelle
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 2fr', gap: '14px' }}>
+            <Field label="Civilité" required>
+              <select style={{ ...getFocusStyle('civility'), cursor: 'pointer', appearance: 'auto', background: 'rgba(255,255,255,0.05)' }} value={form.civility}
+                onChange={set('civility')} onFocus={() => setFocusedField('civility')} onBlur={() => setFocusedField(null)}>
+                <option value="">—</option>
+                <option value="M.">M.</option>
+                <option value="Mme.">Mme.</option>
+                <option value="Dr.">Dr.</option>
+              </select>
+            </Field>
             <Field label="Prénom" required>
               <input style={getFocusStyle('firstName')} value={form.firstName} onChange={set('firstName')}
                 onFocus={() => setFocusedField('firstName')} onBlur={() => setFocusedField(null)}
@@ -168,7 +178,7 @@ export default function ProfileSetup({ onComplete, onBack, selectedPlan, current
         {/* ─── Section : Entreprise ─── */}
         <div style={{ marginBottom: '32px' }}>
           <h3 style={{ color: '#667eea', fontSize: '13px', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '16px' }}>
-            🏢 Informations entreprise
+            Informations entreprise
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
             <Field label="Nom de l'entreprise" required>
@@ -215,7 +225,7 @@ export default function ProfileSetup({ onComplete, onBack, selectedPlan, current
         {/* ─── Section : Adresse ─── */}
         <div style={{ marginBottom: '36px' }}>
           <h3 style={{ color: '#667eea', fontSize: '13px', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '16px' }}>
-            📍 Adresse de facturation
+            Adresse de facturation
           </h3>
           <Field label="Adresse">
             <input style={getFocusStyle('address')} value={form.address} onChange={set('address')}
@@ -260,7 +270,7 @@ export default function ProfileSetup({ onComplete, onBack, selectedPlan, current
             marginBottom: '16px',
           }}
         >
-          {isSubmitting ? '⏳ Enregistrement…' : 'Continuer vers l\'installation →'}
+          {isSubmitting ? 'Enregistrement en cours...' : 'Continuer'}
         </button>
 
         <div style={{ textAlign: 'center' }}>
@@ -269,7 +279,7 @@ export default function ProfileSetup({ onComplete, onBack, selectedPlan, current
             onClick={onBack}
             style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', fontSize: '13px', textDecoration: 'underline' }}
           >
-            ← Retour au choix du plan
+            Retour au choix du plan
           </button>
         </div>
       </form>

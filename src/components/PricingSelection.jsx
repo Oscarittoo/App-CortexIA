@@ -1,56 +1,59 @@
-import { useState } from 'react';
+﻿import { Check, Zap, Star, Shield, Layers } from 'lucide-react';
 import logo from '../assets/logo_brain_circuit.svg';
 
 const PLANS = [
   {
     id: 'free',
     name: 'Free',
-    price: '0€',
-    period: 'pour toujours',
-    icon: '⚡',
-    color: '#64748b',
-    gradient: 'linear-gradient(135deg, #374151, #1f2937)',
+    price: '0',
+    priceUnit: 'â‚¬',
+    period: '',
+    description: "Pour dÃ©couvrir l'assistant IA",
+    icon: Star,
+    highlight: false,
     features: [
-      '5 sessions / mois',
-      'Transcription basique',
-      'Résumés courts',
-      'Max 30 min / session',
+      '5 sessions par mois',
+      'Transcription standard',
+      'RÃ©sumÃ©s automatiques',
+      'DurÃ©e max 30 min / session',
     ],
     cta: 'Commencer gratuitement',
   },
   {
     id: 'pro',
     name: 'Pro',
-    price: '29,99€',
-    period: '/mois',
-    icon: '✨',
-    color: '#38bdf8',
-    gradient: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-    popular: true,
+    price: '29,99',
+    priceUnit: 'â‚¬',
+    period: '/ mois',
+    description: 'Pour les freelances et managers',
+    icon: Zap,
+    highlight: true,
+    badge: 'POPULAIRE',
     features: [
-      'Sessions illimitées',
-      'Transcription IA avancée',
-      'Résumés & comptes-rendus',
-      'Export PDF & Word',
-      'Zoom, Teams, Meet',
-      'Overlay intelligent',
+      'Sessions illimitÃ©es',
+      'Transcription IA avancÃ©e',
+      'RÃ©sumÃ©s et comptes-rendus',
+      'Export PDF et Word',
+      'IntÃ©grations Zoom, Teams, Meet',
+      'Overlay assistant intelligent',
     ],
     cta: 'Choisir Pro',
   },
   {
     id: 'business',
     name: 'Business',
-    price: '49,99€',
-    period: '/membre/mois',
-    icon: '🏢',
-    color: '#818cf8',
-    gradient: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    price: '49,99',
+    priceUnit: 'â‚¬',
+    period: '/ membre / mois',
+    description: 'Pour les Ã©quipes',
+    icon: Shield,
+    highlight: false,
     features: [
       'Tout Pro inclus',
-      "Jusqu'à 50 membres",
-      'Tableau de bord équipe',
-      'Accès API complet',
-      'Analytics avancés',
+      "Jusqu'Ã  50 membres",
+      'Tableau de bord Ã©quipe',
+      'AccÃ¨s API complet',
+      'Analytics avancÃ©s',
       'Support prioritaire',
     ],
     cta: 'Choisir Business',
@@ -58,134 +61,306 @@ const PLANS = [
   {
     id: 'expert',
     name: 'Expert',
-    price: '129,99€',
-    period: '/membre/mois',
-    icon: '👑',
-    color: '#f59e0b',
-    gradient: 'linear-gradient(135deg, #f59e0b, #ef4444)',
+    price: '129,99',
+    priceUnit: 'â‚¬',
+    period: '/ membre / mois',
+    description: 'Pour les organisations',
+    icon: Layers,
+    highlight: false,
     features: [
       'Tout Business inclus',
-      'Membres illimités',
-      'Déploiement on-premise',
-      'SLA 99.9% garanti',
-      'Onboarding dédié',
+      'Membres illimitÃ©s',
+      'DÃ©ploiement on-premise',
+      'SLA 99,9 % garanti',
+      'Onboarding dÃ©diÃ©',
       'Support 24/7',
     ],
-    cta: 'Contacter les ventes',
+    cta: 'Choisir Expert',
   },
 ];
 
 export default function PricingSelection({ onSelectPlan, onLogout, currentUser }) {
-  const [hovered, setHovered] = useState(null);
-  const firstName = currentUser?.email?.split('@')[0] || '';
-
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#0a0a19',
-      padding: '48px 24px',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-    }}>
-      {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-        <div style={{ position: 'relative' }}>
-          <div style={{ position: 'absolute', inset: '-16px', background: 'radial-gradient(circle, rgba(102,126,234,0.15) 0%, transparent 70%)', borderRadius: '50%' }} />
-          <img src={logo} alt="Meetizy" width="52" height="52" style={{ position: 'relative' }} />
+    <div className="screen pricing-selection-page">
+      {/* En-tÃªte */}
+      <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '36px' }}>
+          <img src={logo} alt="Meetizy" width="40" height="40" />
+          <span style={{ fontFamily: 'Orbitron, sans-serif', fontWeight: '700', fontSize: '20px', letterSpacing: '1px', color: '#ffffff' }}>MEETIZY</span>
         </div>
-        <span style={{ fontFamily: 'Orbitron, sans-serif', fontWeight: '800', fontSize: '26px', letterSpacing: '2px', color: '#fff' }}>MEETIZY</span>
+        <h1 className="ps-title">Choisissez votre formule</h1>
+        <p className="ps-subtitle">
+          SÃ©lectionnez le plan adaptÃ© Ã  vos besoins pour finaliser la configuration de votre espace.
+        </p>
       </div>
 
-      <div style={{ width: '48px', height: '3px', background: 'linear-gradient(90deg, #667eea, #764ba2)', borderRadius: '2px', marginBottom: '28px' }} />
+      {/* Grille des plans */}
+      <div className="ps-grid">
+        {PLANS.map(plan => {
+          const Icon = plan.icon;
+          return (
+            <div key={plan.id} className={`pricing-card${plan.highlight ? ' highlight' : ''}`}>
+              {plan.highlight && <div className="glow-effect" />}
+              {plan.badge && <div className="popular-badge">{plan.badge}</div>}
 
-      <h1 style={{ color: '#e2e8f0', fontSize: '30px', fontWeight: '700', marginBottom: '10px', textAlign: 'center', lineHeight: 1.3 }}>
-        Bienvenue{firstName ? `, ${firstName}` : ''} ! 🎉
-      </h1>
-      <p style={{ color: '#94a3b8', fontSize: '16px', marginBottom: '52px', textAlign: 'center', maxWidth: '520px' }}>
-        Votre compte est créé. Choisissez le plan qui correspond à vos besoins pour continuer.
-      </p>
-
-      {/* Plans */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
-        gap: '20px',
-        width: '100%',
-        maxWidth: '1080px',
-        marginBottom: '40px',
-      }}>
-        {PLANS.map(plan => (
-          <div
-            key={plan.id}
-            onMouseEnter={() => setHovered(plan.id)}
-            onMouseLeave={() => setHovered(null)}
-            style={{
-              position: 'relative',
-              background: hovered === plan.id ? 'rgba(102,126,234,0.08)' : 'rgba(255,255,255,0.03)',
-              border: `2px solid ${hovered === plan.id ? plan.color : 'rgba(255,255,255,0.07)'}`,
-              borderRadius: '20px',
-              padding: '28px 22px',
-              transition: 'all 0.22s ease',
-              transform: hovered === plan.id ? 'translateY(-5px)' : 'none',
-              boxShadow: hovered === plan.id ? `0 16px 48px rgba(0,0,0,0.35)` : 'none',
-            }}
-          >
-            {plan.popular && (
-              <div style={{
-                position: 'absolute', top: '-13px', left: '50%', transform: 'translateX(-50%)',
-                background: plan.gradient, color: '#fff', padding: '4px 18px', borderRadius: '20px',
-                fontSize: '11px', fontWeight: '800', letterSpacing: '0.5px', whiteSpace: 'nowrap',
-              }}>
-                ⭐ POPULAIRE
+              <div className="plan-header">
+                <div className="plan-icon-box"><Icon size={20} /></div>
+                <h3 className="plan-name">{plan.name}</h3>
+                <div className="plan-price">
+                  <span className="amount">{plan.price}{plan.priceUnit}</span>
+                  {plan.period && <span className="period">{plan.period}</span>}
+                </div>
+                <p className="plan-desc">{plan.description}</p>
               </div>
-            )}
 
-            <div style={{ fontSize: '30px', marginBottom: '14px' }}>{plan.icon}</div>
-            <h3 style={{ color: plan.color, fontSize: '21px', fontWeight: '700', marginBottom: '6px' }}>{plan.name}</h3>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', marginBottom: '4px' }}>
-              <span style={{ fontSize: '34px', fontWeight: '800', color: '#fff', lineHeight: 1 }}>{plan.price}</span>
-              <span style={{ color: '#64748b', fontSize: '13px', paddingBottom: '5px' }}>{plan.period}</span>
+              <div className="plan-features">
+                {plan.features.map((feat, i) => (
+                  <div key={i} className="feature-row">
+                    <div className="check-circle"><Check size={12} strokeWidth={3} /></div>
+                    <span>{feat}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="plan-footer">
+                <button
+                  className={`btn-plan${plan.highlight ? ' btn-primary' : ' btn-outline'}`}
+                  onClick={() => onSelectPlan(plan.id)}
+                >
+                  {plan.cta}
+                </button>
+              </div>
             </div>
-
-            <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '18px 0' }} />
-
-            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: '9px' }}>
-              {plan.features.map(f => (
-                <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', color: '#cbd5e1', fontSize: '13px', lineHeight: 1.4 }}>
-                  <span style={{ color: plan.color, fontWeight: '800', flexShrink: 0, marginTop: '1px' }}>✓</span>
-                  {f}
-                </li>
-              ))}
-            </ul>
-
-            <button
-              onClick={() => onSelectPlan(plan.id)}
-              style={{
-                width: '100%',
-                padding: '13px',
-                background: hovered === plan.id ? plan.gradient : 'rgba(255,255,255,0.05)',
-                border: `1px solid ${hovered === plan.id ? 'transparent' : 'rgba(255,255,255,0.1)'}`,
-                borderRadius: '12px',
-                color: '#fff',
-                fontSize: '14px',
-                fontWeight: '700',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-            >
-              {plan.cta} →
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      <button
-        onClick={onLogout}
-        style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', fontSize: '13px', textDecoration: 'underline' }}
-      >
-        Se déconnecter
-      </button>
+      <div style={{ textAlign: 'center', marginTop: '40px' }}>
+        <button
+          onClick={onLogout}
+          style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '14px', textDecoration: 'underline' }}
+        >
+          Se dÃ©connecter
+        </button>
+      </div>
+
+      <style jsx>{`
+        .pricing-selection-page {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 80px 24px;
+        }
+
+        .ps-title {
+          font-size: 40px;
+          font-weight: 800;
+          color: #ffffff;
+          margin-bottom: 16px;
+          line-height: 1.2;
+        }
+
+        .ps-subtitle {
+          font-size: 17px;
+          color: var(--muted);
+          max-width: 540px;
+          margin: 0 auto;
+          line-height: 1.6;
+        }
+
+        .ps-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 20px;
+          margin-bottom: 60px;
+          align-items: stretch;
+        }
+
+        @media (max-width: 1100px) {
+          .ps-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 600px) {
+          .ps-grid { grid-template-columns: 1fr; }
+          .pricing-selection-page { padding: 48px 16px; }
+          .ps-title { font-size: 28px; }
+        }
+
+        .pricing-card {
+          background: rgba(30, 41, 59, 0.4);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(255,255,255,0.05);
+          border-radius: 20px;
+          padding: 32px;
+          display: flex;
+          flex-direction: column;
+          position: relative;
+          transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .pricing-card:hover {
+          transform: translateY(-8px);
+          border-color: rgba(255,255,255,0.1);
+        }
+
+        .pricing-card.highlight {
+          background: rgba(15, 23, 42, 0.8);
+          border: 1px solid rgba(14, 165, 233, 0.5);
+          box-shadow: 0 0 40px -10px rgba(14, 165, 233, 0.3);
+          z-index: 10;
+          transform: scale(1.03);
+        }
+
+        .pricing-card.highlight:hover {
+          transform: scale(1.03) translateY(-8px);
+        }
+
+        .popular-badge {
+          position: absolute;
+          top: -12px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: linear-gradient(90deg, #0ea5e9, #6366f1);
+          color: #fff;
+          font-size: 11px;
+          font-weight: 800;
+          padding: 6px 16px;
+          border-radius: 20px;
+          letter-spacing: 1px;
+          box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+          white-space: nowrap;
+        }
+
+        .plan-header {
+          text-align: center;
+          margin-bottom: 24px;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+          padding-bottom: 24px;
+        }
+
+        .plan-icon-box {
+          width: 48px;
+          height: 48px;
+          margin: 0 auto 16px;
+          border-radius: 12px;
+          background: rgba(255,255,255,0.05);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--muted);
+        }
+
+        .highlight .plan-icon-box {
+          background: rgba(14, 165, 233, 0.1);
+          color: #0ea5e9;
+        }
+
+        .plan-name {
+          font-size: 18px;
+          color: #fff;
+          margin-bottom: 10px;
+        }
+
+        .plan-price {
+          display: flex;
+          align-items: baseline;
+          justify-content: center;
+          gap: 6px;
+        }
+
+        .plan-price .amount {
+          font-size: 32px;
+          font-weight: 700;
+          color: #fff;
+        }
+
+        .highlight .plan-price .amount {
+          color: #0ea5e9;
+        }
+
+        .plan-price .period {
+          color: var(--muted);
+          font-size: 13px;
+        }
+
+        .plan-desc {
+          color: var(--muted);
+          font-size: 13px;
+          margin-top: 8px;
+          min-height: 36px;
+        }
+
+        .plan-features {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-bottom: 32px;
+        }
+
+        .feature-row {
+          display: flex;
+          gap: 10px;
+          font-size: 13px;
+          color: var(--text);
+          align-items: flex-start;
+        }
+
+        .check-circle {
+          min-width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: rgba(16, 185, 129, 0.1);
+          color: #10b981;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-top: 2px;
+          flex-shrink: 0;
+        }
+
+        .plan-footer .btn-plan {
+          width: 100%;
+          padding: 12px;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 14px;
+          cursor: pointer;
+          transition: all 0.2s;
+          border: none;
+        }
+
+        .btn-primary {
+          background: linear-gradient(90deg, #0ea5e9, #6366f1);
+          color: white;
+          box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-primary:hover {
+          box-shadow: 0 6px 16px rgba(14, 165, 233, 0.5);
+          transform: translateY(-1px);
+        }
+
+        .btn-outline {
+          background: transparent;
+          border: 1px solid rgba(255,255,255,0.2) !important;
+          color: white;
+        }
+
+        .btn-outline:hover {
+          border-color: rgba(255,255,255,0.5) !important;
+          background: rgba(255,255,255,0.05);
+        }
+
+        .glow-effect {
+          position: absolute;
+          inset: -1px;
+          border-radius: 20px;
+          background: linear-gradient(135deg, rgba(14,165,233,0.08), rgba(99,102,241,0.08));
+          pointer-events: none;
+          z-index: -1;
+        }
+      `}</style>
     </div>
   );
 }
+

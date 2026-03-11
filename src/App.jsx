@@ -87,23 +87,14 @@ export default function App() {
     const loadUser = async () => {
       setIsAuthLoading(true);
       try {
-        // Bypass auth en dev (npm run dev)
-        if (import.meta.env.DEV) {
-          const devUser = { id: 'dev-user', email: 'dev@meetizy.local', plan: 'business', role: 'admin', companyName: 'Meetizy Dev' };
-          setIsAuthenticated(true);
-          setCurrentUser(devUser);
-          storageService.setCurrentUser(devUser.id);
-          setCurrentView('dashboard');
-          return;
-        }
-
         const user = await authService.getCurrentUser();
         if (user) {
           setIsAuthenticated(true);
           setCurrentUser(user);
           storageService.setCurrentUser(user.id);
           window.electronAPI?.authSetState?.(true);
-          setCurrentView(isOnboardingDone(user.id) ? 'dashboard' : 'plan-selection');
+          const needsOnboarding = !user.companyName && !isOnboardingDone(user.id);
+          setCurrentView(needsOnboarding ? 'plan-selection' : 'dashboard');
         } else {
           setIsAuthenticated(false);
           setCurrentUser(null);
@@ -230,7 +221,8 @@ export default function App() {
       console.log(`${migratedCount} session(s) orpheline(s) migrée(s) vers l'utilisateur ${user.id}`);
     }
     // Redirect vers onboarding si nouveau compte, sinon dashboard
-    setCurrentView(isOnboardingDone(user.id) ? 'dashboard' : 'plan-selection');
+    const needsOnboarding = !user.companyName && !isOnboardingDone(user.id);
+    setCurrentView(needsOnboarding ? 'plan-selection' : 'dashboard');
   };
 
   const handlePlanForOnboarding = (plan) => {
@@ -394,27 +386,27 @@ export default function App() {
             </div>
 
             {/* Boutons droite — colonne droite */}
-            <div className="public-nav-links" style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'flex-end' }}>
+              <div className="public-nav-links" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <button
+                  onClick={() => setCurrentView('agent-install')}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '11px 20px', background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.3)', borderRadius: '10px', color: '#38bdf8', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}
+                >
+                  <Download size={16} />
+                  Installer l'assistant
+                </button>
+                <button className="btn btn-primary" onClick={() => setCurrentView('login')} style={{ padding: '11px 24px', fontSize: '15px', borderRadius: '10px' }}>
+                  Connexion
+                </button>
+              </div>
               <button
-                onClick={() => setCurrentView('agent-install')}
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '11px 20px', background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.3)', borderRadius: '10px', color: '#38bdf8', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}
+                className="public-nav-toggle"
+                onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
+                aria-label="Menu"
               >
-                <Download size={16} />
-                Installer l'assistant
-              </button>
-              <button className="btn btn-primary" onClick={() => setCurrentView('login')} style={{ padding: '11px 24px', fontSize: '15px', borderRadius: '10px' }}>
-                Connexion
+                {isMobileNavOpen ? '✕' : '☰'}
               </button>
             </div>
-
-            {/* Hamburger mobile */}
-            <button
-              className="public-nav-toggle"
-              onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-              aria-label="Menu"
-            >
-              {isMobileNavOpen ? '✕' : '☰'}
-            </button>
           </nav>
 
           {/* Mobile nav dropdown */}
@@ -577,7 +569,7 @@ export default function App() {
           <div className="content-area">
              {currentView === 'dashboard' && (
                FEATURE_FLAGS.USE_DASHBOARD_PROFESSIONAL
-                 ? <DashboardProfessional onNewSession={() => setCurrentView('new')} sessions={storageService.getSessions()} />
+                 ? <DashboardProfessional onNewSession={() => setCurrentView('new')} sessions={storageService.getAllSessions()} />
                  : <Dashboard onNewSession={() => setCurrentView('new')} />
              )}
              
