@@ -9,30 +9,16 @@ export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
   const [showPassword, setShowPassword] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
-  const [companyName, setCompanyName] = useState('');
-  const [plan, setPlan] = useState(selectedPlan);
   const [resetSent, setResetSent] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const plans = [
-    { id: 'free', name: 'Free', price: '0€' },
-    { id: 'pro', name: 'Pro', price: '29,99€/mois' },
-    { id: 'business', name: 'Business', price: '49,99€/membre' },
-    { id: 'expert', name: 'Expert', price: '129,99€/membre' }
-  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!email || !password) {
       toast.error('Veuillez remplir tous les champs');
-      return;
-    }
-
-    if (isRegistering && !companyName) {
-      toast.error('Veuillez entrer le nom de votre entreprise');
       return;
     }
 
@@ -51,7 +37,7 @@ export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
     try {
       setIsSubmitting(true);
       if (isRegistering) {
-        await authService.register(email, password, companyName, plan);
+        await authService.register(email, password, '', 'free');
         setRegistrationSuccess(true);
         return;
       }
@@ -154,42 +140,7 @@ export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
           </div>
 
           <form onSubmit={handleSubmit} className="login-form" autoComplete={isRegistering ? 'off' : 'on'}>
-            {isRegistering && (
-              <>
-                <div className="form-group">
-                  <label htmlFor="company">Nom de l'entreprise</label>
-                  <input
-                    id="company"
-                    type="text"
-                    className="input"
-                    placeholder="Acme Inc."
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
-                    autoComplete="off"
-                  />
-                </div>
 
-                <div className="form-group">
-                  <label htmlFor="plan">Choisissez votre plan</label>
-                  <select
-                    id="plan"
-                    className="input"
-                    value={plan}
-                    onChange={(e) => setPlan(e.target.value)}
-                    style={{ paddingLeft: '16px' }}
-                  >
-                    {plans.map(p => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} - {p.price}
-                      </option>
-                    ))}
-                  </select>
-                  <p style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '8px' }}>
-                    Vous pourrez modifier votre plan plus tard depuis les paramètres
-                  </p>
-                </div>
-              </>
-            )}
 
             <div className="form-group">
               <label htmlFor="email">Adresse email</label>
@@ -269,7 +220,6 @@ export default function Login({ onLogin, onBack, selectedPlan = 'free' }) {
               setIsRegistering(!isRegistering);
               setEmail('');
               setPassword('');
-              setCompanyName('');
               setPasswordError('');
             }}
           >
