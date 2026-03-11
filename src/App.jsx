@@ -42,6 +42,8 @@ import Calendar from './components/Calendar';
 import AgentInstall from './components/AgentInstall';
 import ChatBot from './components/ChatBot';
 import ResetPassword from './components/ResetPassword';
+import PricingSelection from './components/PricingSelection';
+import ProfileSetup from './components/ProfileSetup';
 import ErrorBoundary from './components/ErrorBoundary';
 import { Toaster } from './components/Toast';
 import toast from './components/Toast';
@@ -73,6 +75,10 @@ export default function App() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [selectedPlanForOnboarding, setSelectedPlanForOnboarding] = useState('pro');
+
+  // Vérifie si l'onboarding (plan + profil + install) est terminé pour cet utilisateur
+  const isOnboardingDone = (userId) => localStorage.getItem(`meetizy_onboarding_${userId}`) === 'true';
 
   useEffect(() => {
     // Charger les feature flags depuis localStorage (overrides)
@@ -97,6 +103,7 @@ export default function App() {
           setCurrentUser(user);
           storageService.setCurrentUser(user.id);
           window.electronAPI?.authSetState?.(true);
+          setCurrentView(isOnboardingDone(user.id) ? 'dashboard' : 'plan-selection');
         } else {
           setIsAuthenticated(false);
           setCurrentUser(null);
@@ -222,8 +229,26 @@ export default function App() {
     if (migratedCount > 0) {
       console.log(`${migratedCount} session(s) orpheline(s) migrée(s) vers l'utilisateur ${user.id}`);
     }
-    // Redirect to dashboard normally, but if they were somewhere else
+    // Redirect vers onboarding si nouveau compte, sinon dashboard
+    setCurrentView(isOnboardingDone(user.id) ? 'dashboard' : 'plan-selection');
+  };
+
+  const handlePlanForOnboarding = (plan) => {
+    setSelectedPlanForOnboarding(plan);
+    setSelectedPlan(plan);
+    setCurrentView('profile-setup');
+  };
+
+  const handleProfileComplete = () => {
+    setCurrentView('install-gate');
+  };
+
+  const handleInstallApp = () => {
+    if (currentUser?.id) {
+      localStorage.setItem(`meetizy_onboarding_${currentUser.id}`, 'true');
+    }
     setCurrentView('dashboard');
+    toast.success('Installation confirmée ! Bienvenue sur Meetizy 🎉');
   };
 
   const handleEditSession = (session) => {
@@ -252,6 +277,77 @@ export default function App() {
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       </div>
+    );
+  }
+
+  // ── ONBOARDING FLOW (authentifié mais pas encore configuré) ──────────────
+  if (isAuthenticated && ['plan-selection', 'profile-setup', 'install-gate'].includes(currentView)) {
+    return (
+      <ErrorBoundary>
+        <div style={{ minHeight: '100vh', background: '#0a0a19' }}>
+          <Toaster />
+          {currentView === 'plan-selection' && (
+            <PricingSelection
+              currentUser={currentUser}
+              onSelectPlan={handlePlanForOnboarding}
+              onLogout={handleLogout}
+            />
+          )}
+          {currentView === 'profile-setup' && (
+            <ProfileSetup
+              currentUser={currentUser}
+              selectedPlan={selectedPlanForOnboarding}
+              onComplete={handleProfileComplete}
+              onBack={() => setCurrentView('plan-selection')}
+            />
+          )}
+          {currentView === 'install-gate' && (
+            <div style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              minHeight: '100vh', padding: '40px 20px', textAlign: 'center',
+            }}>
+              <div style={{ position: 'relative', marginBottom: '28px' }}>
+                <div style={{ position: 'absolute', inset: '-24px', background: 'radial-gradient(circle, rgba(102,126,234,0.18) 0%, transparent 70%)', borderRadius: '50%' }} />
+                <img src={logo} alt="Meetizy" width="80" height="80" style={{ position: 'relative', filter: 'drop-shadow(0 0 20px rgba(102,126,234,0.5))' }} />
+              </div>
+              <span style={{ fontFamily: 'Orbitron, sans-serif', fontWeight: '800', fontSize: '22px', letterSpacing: '2px', color: '#fff', marginBottom: '20px', display: 'block' }}>MEETIZY</span>
+              <h2 style={{ color: '#e2e8f0', fontSize: '26px', fontWeight: '700', marginBottom: '14px' }}>
+                Dernière étape ! 🚀
+              </h2>
+              <p style={{ color: '#94a3b8', fontSize: '15px', lineHeight: 1.8, marginBottom: '40px', maxWidth: '500px' }}>
+                Installez l'application bureau pour accéder à l'assistant IA en réunion,<br />
+                l'overlay discret et la transcription en temps réel.
+              </p>
+              <button
+                onClick={handleInstallApp}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '14px',
+                  padding: '18px 56px',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  border: 'none', borderRadius: '16px', color: '#fff',
+                  fontSize: '18px', fontWeight: '700', cursor: 'pointer',
+                  boxShadow: '0 8px 32px rgba(102,126,234,0.45)',
+                  transition: 'all 0.25s ease',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 14px 40px rgba(102,126,234,0.65)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(102,126,234,0.45)'; }}
+              >
+                <Download size={22} />
+                Installer l'application sur le bureau
+              </button>
+              <p style={{ color: '#475569', fontSize: '13px', marginTop: '24px' }}>
+                Vous serez redirigé vers votre tableau de bord après l'installation.
+              </p>
+              <button
+                onClick={handleLogout}
+                style={{ marginTop: '8px', background: 'none', border: 'none', color: '#475569', cursor: 'pointer', fontSize: '13px', textDecoration: 'underline' }}
+              >
+                Se déconnecter
+              </button>
+            </div>
+          )}
+        </div>
+      </ErrorBoundary>
     );
   }
 

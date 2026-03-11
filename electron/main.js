@@ -98,15 +98,15 @@ function createOverlayWindow() {
     return;
   }
 
-  // Positionner en bas à droite de l'écran principal
-  const { width: sw, height: sh } = screen.getPrimaryDisplay().workAreaSize;
-  const W = 360, H = 340;
+  // Positionner en haut, centré horizontalement (style ParakeetAI)
+  const { width: sw } = screen.getPrimaryDisplay().workAreaSize;
+  const W = 700, H = 52;
 
   overlayWindow = new BrowserWindow({
     width: W,
     height: H,
-    x: sw - W - 20,
-    y: sh - H - 20,
+    x: Math.round((sw - W) / 2),
+    y: 8,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
@@ -223,6 +223,28 @@ ipcMain.handle('save-session', async (_event, sessionData) => {
 });
 
 ipcMain.handle('get-sessions', async () => []);
+
+// Capture d'ecran pour le bouton "Analyser l'ecran" de l'overlay
+ipcMain.handle('capture-screen', async () => {
+  try {
+    const sources = await desktopCapturer.getSources({
+      types: ['screen'],
+      thumbnailSize: { width: 1280, height: 720 },
+    });
+    if (sources.length === 0) return null;
+    return sources[0].thumbnail.toDataURL();
+  } catch (e) {
+    console.error('Screenshot failed:', e);
+    return null;
+  }
+});
+
+// Redimensionner l'overlay (collapsed/expanded pour le chat)
+ipcMain.handle('overlay-set-height', (_event, height) => {
+  if (!overlayWindow || overlayWindow.isDestroyed()) return;
+  const bounds = overlayWindow.getBounds();
+  overlayWindow.setBounds({ x: bounds.x, y: bounds.y, width: bounds.width, height: Math.max(52, height) });
+});
 
 // ─────────────────────────────────────────────
 // App lifecycle

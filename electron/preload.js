@@ -11,7 +11,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Notifier le main process de l'état d'authentification
   authSetState: (authenticated) => ipcRenderer.invoke('auth-set-state', authenticated),
 
+  // Capture d'écran pour le bouton "Analyser l'écran"
+  captureScreen: () => ipcRenderer.invoke('capture-screen'),
+
+  // Redimensionner l'overlay (chat ouvert/fermé)
+  setOverlayHeight: (height) => ipcRenderer.invoke('overlay-set-height', height),
+
   // Recevoir des events du main process
   onSessionStatus: (callback) => ipcRenderer.on('session-status', (_event, data) => callback(data)),
   removeSessionStatus: () => ipcRenderer.removeAllListeners('session-status'),
 });
+
