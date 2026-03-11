@@ -1,4 +1,4 @@
-﻿import { Check, Zap, Star, Shield, Layers } from 'lucide-react';
+import { Check, Zap, Star, Shield, Layers } from 'lucide-react';
 import logo from '../assets/logo_brain_circuit.svg';
 
 const PLANS = [
@@ -6,16 +6,16 @@ const PLANS = [
     id: 'free',
     name: 'Free',
     price: '0',
-    priceUnit: 'â‚¬',
+    priceUnit: '€',
     period: '',
-    description: "Pour dÃ©couvrir l'assistant IA",
+    description: "Pour découvrir l'assistant IA",
     icon: Star,
     highlight: false,
     features: [
       '5 sessions par mois',
       'Transcription standard',
-      'RÃ©sumÃ©s automatiques',
-      'DurÃ©e max 30 min / session',
+      'Résumés automatiques',
+      'Durée max 30 min / session',
     ],
     cta: 'Commencer gratuitement',
   },
@@ -23,18 +23,18 @@ const PLANS = [
     id: 'pro',
     name: 'Pro',
     price: '29,99',
-    priceUnit: 'â‚¬',
+    priceUnit: '€',
     period: '/ mois',
     description: 'Pour les freelances et managers',
     icon: Zap,
     highlight: true,
     badge: 'POPULAIRE',
     features: [
-      'Sessions illimitÃ©es',
-      'Transcription IA avancÃ©e',
-      'RÃ©sumÃ©s et comptes-rendus',
+      'Sessions illimitées',
+      'Transcription IA avancée',
+      'Résumés et comptes-rendus',
       'Export PDF et Word',
-      'IntÃ©grations Zoom, Teams, Meet',
+      'Intégrations Zoom, Teams, Meet',
       'Overlay assistant intelligent',
     ],
     cta: 'Choisir Pro',
@@ -43,17 +43,17 @@ const PLANS = [
     id: 'business',
     name: 'Business',
     price: '49,99',
-    priceUnit: 'â‚¬',
+    priceUnit: '€',
     period: '/ membre / mois',
-    description: 'Pour les Ã©quipes',
+    description: 'Pour les équipes',
     icon: Shield,
     highlight: false,
     features: [
       'Tout Pro inclus',
-      "Jusqu'Ã  50 membres",
-      'Tableau de bord Ã©quipe',
-      'AccÃ¨s API complet',
-      'Analytics avancÃ©s',
+      "Jusqu'à 50 membres",
+      'Tableau de bord équipe',
+      'Accès API complet',
+      'Analytics avancés',
       'Support prioritaire',
     ],
     cta: 'Choisir Business',
@@ -62,17 +62,17 @@ const PLANS = [
     id: 'expert',
     name: 'Expert',
     price: '129,99',
-    priceUnit: 'â‚¬',
+    priceUnit: '€',
     period: '/ membre / mois',
     description: 'Pour les organisations',
     icon: Layers,
     highlight: false,
     features: [
       'Tout Business inclus',
-      'Membres illimitÃ©s',
-      'DÃ©ploiement on-premise',
+      'Membres illimités',
+      'Déploiement on-premise',
       'SLA 99,9 % garanti',
-      'Onboarding dÃ©diÃ©',
+      'Onboarding dédié',
       'Support 24/7',
     ],
     cta: 'Choisir Expert',
@@ -82,7 +82,7 @@ const PLANS = [
 export default function PricingSelection({ onSelectPlan, onLogout, currentUser }) {
   return (
     <div className="screen pricing-selection-page">
-      {/* En-tÃªte */}
+      {/* En-tête */}
       <div style={{ textAlign: 'center', marginBottom: '64px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '36px' }}>
           <img src={logo} alt="Meetizy" width="40" height="40" />
@@ -90,7 +90,7 @@ export default function PricingSelection({ onSelectPlan, onLogout, currentUser }
         </div>
         <h1 className="ps-title">Choisissez votre formule</h1>
         <p className="ps-subtitle">
-          SÃ©lectionnez le plan adaptÃ© Ã  vos besoins pour finaliser la configuration de votre espace.
+          Sélectionnez le plan adapté à vos besoins pour finaliser la configuration de votre espace.
         </p>
       </div>
 
@@ -140,7 +140,7 @@ export default function PricingSelection({ onSelectPlan, onLogout, currentUser }
           onClick={onLogout}
           style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '14px', textDecoration: 'underline' }}
         >
-          Se dÃ©connecter
+          Se déconnecter
         </button>
       </div>
 
