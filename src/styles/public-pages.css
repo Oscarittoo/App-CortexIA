@@ -1,4 +1,4 @@
-/* Pages publiques - Features, Integrations, Security, Demo */
+﻿/* Pages publiques - Features, Integrations, Security, Demo */
 
 .features-page,
 .integrations-page,
@@ -630,4 +630,39 @@
   .plan-column.popular {
     transform: scale(1);
   }
+}
+
+/* ========================= PUBLIC NAV ========================= */
+.app-public {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.public-nav-toggle {
+  display: none;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.public-nav-mobile {
+  display: none;
+  flex-direction: column;
+  background: rgba(10,10,25,0.98);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding: 12px 20px;
+  gap: 4px;
+}
+.public-nav-mobile.open { display: flex; }
+.public-nav-mobile .nav-item { width: 100%; padding: 12px 16px; border-radius: 8px; }
+
+@media (max-width: 1000px) {
+  .public-nav-links { display: none !important; }
+  .public-nav-toggle { display: flex !important; align-items: center; justify-content: center; }
 }
