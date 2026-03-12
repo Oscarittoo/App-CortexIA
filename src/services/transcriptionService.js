@@ -35,30 +35,17 @@ class TranscriptionService {
       });
       this.stream = stream;
 
-      // Utiliser Web Speech API par défaut (gratuit et fiable)
-      console.log('Utilisation de Web Speech API (mode gratuit)');
-      return this.startWebSpeechAPI(stream, language, onTranscript);
-      
-      // Code Whisper désactivé pour privilégier Web Speech API
-      // Pour réactiver Whisper, décommentez le code ci-dessous
-      /*
-      if (this.hasWhisperFailed || !this.apiKey || this.apiKey === '' || this.apiKey === 'your_openai_api_key_here') {
-        const reason = this.hasWhisperFailed ? 'quota dépassé' : 'non configurée';
-        console.warn(`API OpenAI ${reason}, utilisation de Web Speech API en fallback`);
-        console.log('Clé API actuelle:', this.apiKey ? '(présente)' : '(non définie)');
+      // Si Whisper a déjà échoué, fallback direct vers Web Speech API
+      if (this.hasWhisperFailed) {
+        console.warn('Whisper a échoué précédemment, utilisation de Web Speech API en fallback');
         return this.startWebSpeechAPI(stream, language, onTranscript);
       }
-      
-      console.log('API OpenAI configurée, utilisation de Whisper');
-      console.log('Clé API (début):', this.apiKey ? this.apiKey.substring(0, 20) + '...' : 'non trouvée');
-      */
 
-      // MediaRecorder non utilisé en mode Web Speech API
-      // (Garder pour compatibilité future si Whisper est réactivé)
-      
-      /*
-      this.mediaRecorder = new MediaRecorder(stream);
+      // Utiliser Whisper via le backend
+      console.log('Utilisation de Whisper via backend');
       this.audioChunks = [];
+
+      this.mediaRecorder = new MediaRecorder(stream);
 
       this.mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -66,8 +53,27 @@ class TranscriptionService {
         }
       };
 
-      // Code Whisper commenté (non utilisé)
-      */
+      // Envoyer à Whisper toutes les 5 secondes
+      this.mediaRecorder.onstop = async () => {
+        await this.sendToWhisper();
+        // Redémarrer si toujours en cours
+        if (this.isRecording) {
+          this.audioChunks = [];
+          this.mediaRecorder.start();
+          setTimeout(() => {
+            if (this.isRecording && this.mediaRecorder.state === 'recording') {
+              this.mediaRecorder.stop();
+            }
+          }, 5000);
+        }
+      };
+
+      this.mediaRecorder.start();
+      setTimeout(() => {
+        if (this.isRecording && this.mediaRecorder.state === 'recording') {
+          this.mediaRecorder.stop();
+        }
+      }, 5000);
 
       return stream;
 
