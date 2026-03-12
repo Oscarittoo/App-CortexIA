@@ -13,6 +13,7 @@ import { rateLimit } from 'express-rate-limit';
 // Import routes (after dotenv is loaded)
 import authRoutes from './routes/auth.js';
 import aiRoutes from './routes/ai.js';
+import transcribeRoutes from './routes/transcribe.js';
 import sessionsRoutes from './routes/sessions.js';
 import quotasRoutes from './routes/quotas.js';
 import adminRoutes from './routes/admin.js';
@@ -78,6 +79,7 @@ app.get('/api/health', (req, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/transcribe', transcribeRoutes);
 app.use('/api/sessions', sessionsRoutes);
 app.use('/api/quotas', quotasRoutes);
 app.use('/api/admin', adminRoutes);
