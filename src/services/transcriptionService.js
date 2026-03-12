@@ -3,10 +3,11 @@
  * Gère la transcription en temps réel avec streaming
  */
 
+import { supabase } from './supabaseClient';
+
 class TranscriptionService {
   constructor() {
-    this.apiKey = import.meta.env?.VITE_OPENAI_API_KEY;
-    this.apiUrl = 'https://api.openai.com/v1/audio/transcriptions';
+    this.backendUrl = import.meta.env?.VITE_BACKEND_URL || 'https://meetizy-backend.onrender.com';
     this.isRecording = false;
     this.mediaRecorder = null;
     this.audioChunks = [];
@@ -77,11 +78,12 @@ class TranscriptionService {
   }
 
   /**
-   * Envoie l'audio à l'API Whisper
+   * Envoie l'audio au backend qui appelle Whisper
    */
   async sendToWhisper() {
     try {
-      const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+      const mimeType = 'audio/webm';
+      const audioBlob = new Blob(this.audioChunks, { type: mimeType });
       
       // Vérifier que l'audio a une taille suffisante (au moins 1KB)
       if (audioBlob.size < 1000) {
@@ -89,34 +91,38 @@ class TranscriptionService {
         return;
       }
       
-      console.log('Envoi à Whisper:', audioBlob.size, 'bytes');
+      console.log('Envoi à Whisper via backend:', audioBlob.size, 'bytes');
       
-      // Créer FormData pour l'API
-      const formData = new FormData();
-      formData.append('file', audioBlob, 'audio.webm');
-      formData.append('model', 'whisper-1');
-      formData.append('language', this.language === 'fr' ? 'fr' : 'en');
-      formData.append('response_format', 'json');
+      // Convertir le blob en base64
+      const arrayBuffer = await audioBlob.arrayBuffer();
+      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
 
-      // Appeler l'API Whisper
-      const response = await fetch(this.apiUrl, {
+      // Récupérer le token JWT Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error('Utilisateur non authentifié');
+
+      // Appeler le backend
+      const response = await fetch(`${this.backendUrl}/api/transcribe`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        body: formData
+        body: JSON.stringify({
+          audio: base64,
+          mimeType,
+          language: this.language
+        })
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Erreur API Whisper:', response.status, errorText);
-        
+        console.error('Erreur transcription backend:', response.status, errorText);
         if (response.status === 429) {
-          console.warn('Rate limit atteint, attente avant prochain envoi...');
-          // Attendre 2 secondes avant de permettre le prochain envoi
           await new Promise(resolve => setTimeout(resolve, 2000));
         }
-        throw new Error(`Erreur API Whisper: ${response.status}`);
+        throw new Error(`Erreur transcription: ${response.status}`);
       }
 
       const result = await response.json();
@@ -132,11 +138,9 @@ class TranscriptionService {
       }
 
     } catch (error) {
-      console.error('Erreur Whisper API:', error);
-      
-      // Si erreur de quota, marquer pour basculer
+      console.error('Erreur transcription:', error);
       if (error.message && (error.message.includes('429') || error.message.includes('quota'))) {
-        console.warn('Quota Whisper dépassé, marquage pour basculement...');
+        console.warn('Quota dépassé, marquage pour basculement...');
         this.hasWhisperFailed = true;
       }
     }
